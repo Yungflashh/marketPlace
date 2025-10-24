@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
             </div>
             <div>
               <h2 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Marketplace
+                ShopLogs
               </h2>
               <p className="text-xs text-gray-500 -mt-1">Shop with confidence</p>
             </div>

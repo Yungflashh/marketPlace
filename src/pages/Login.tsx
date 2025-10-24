@@ -58,7 +58,7 @@ const Login: React.FC = () => {
               <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-3 border border-white/30">
                 <ShoppingBag className="w-10 h-10" />
               </div>
-              <h1 className="text-4xl font-extrabold">Marketplace</h1>
+              <h1 className="text-4xl font-extrabold">ShopLogs</h1>
             </div>
             
             <h2 className="text-3xl font-bold mb-6">Welcome Back!</h2>
@@ -110,7 +110,7 @@ const Login: React.FC = () => {
                 <ShoppingBag className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Marketplace
+                ShopLogs
               </h1>
             </div>
 
@@ -201,7 +201,7 @@ const Login: React.FC = () => {
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">New to Marketplace?</span>
+                <span className="px-4 bg-white text-gray-500">New to ShopLogs?</span>
               </div>
             </div>
 

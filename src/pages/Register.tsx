@@ -65,7 +65,7 @@ const Register: React.FC = () => {
               <div className="bg-white/20 backdrop-blur-lg rounded-2xl p-3 border border-white/30">
                 <ShoppingBag className="w-10 h-10" />
               </div>
-              <h1 className="text-4xl font-extrabold">Marketplace</h1>
+              <h1 className="text-4xl font-extrabold">ShopLogs</h1>
             </div>
             
             <h2 className="text-3xl font-bold mb-6">Join Our Community!</h2>
@@ -127,7 +127,7 @@ const Register: React.FC = () => {
                 <ShoppingBag className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Marketplace
+                ShopLogs
               </h1>
             </div>
 

@@ -106,7 +106,7 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="w-8 h-8 mr-3 animate-pulse" />
-            <h1 className="text-5xl font-extrabold tracking-tight">Welcome to Marketplace</h1>
+            <h1 className="text-5xl font-extrabold tracking-tight">Welcome to ShopLogs</h1>
             <Sparkles className="w-8 h-8 ml-3 animate-pulse" />
           </div>
           <p className="text-xl text-center text-indigo-100 max-w-2xl mx-auto">
