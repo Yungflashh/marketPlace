@@ -1,15 +1,13 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import axios from 'axios';
+import api, { setAuthToken } from '../utils/api';
 import type { User, AuthContextType, LoginCredentials, RegisterData } from '../types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
@@ -24,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setAuthToken(token);
       loadUser();
     } else {
       setLoading(false);
@@ -33,7 +31,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loadUser = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:9000/api/auth/me');
+      const response = await api.get('/auth/me');
       setUser(response.data.data.user);
     } catch (error) {
       console.error('Error loading user:', error);
@@ -44,30 +42,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (userData: RegisterData): Promise<void> => {
-    const response = await axios.post('http://localhost:9000/api/auth/register', userData);
+    const response = await api.post('/auth/register', userData);
     const { token: newToken, user: newUser } = response.data.data;
-    
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(newUser);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    setAuthToken(newToken);
   };
 
   const login = async (credentials: LoginCredentials): Promise<void> => {
-    const response = await axios.post('http://localhost:9000/api/auth/login', credentials);
+    const response = await api.post('/auth/login', credentials);
     const { token: newToken, user: newUser } = response.data.data;
-    
     localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(newUser);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    setAuthToken(newToken);
   };
 
   const logout = (): void => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-    delete axios.defaults.headers.common['Authorization'];
+    setAuthToken(null);
   };
 
   const updateUser = (userData: Partial<User>): void => {
@@ -85,9 +81,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAdmin: user?.role === 'admin'
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

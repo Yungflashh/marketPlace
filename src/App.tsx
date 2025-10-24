@@ -23,6 +23,8 @@ import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminWallet from './pages/admin/AdminWallet';
 import AdminTransactions from './pages/admin/AdminTransactions';
+import VerifyOTP from './pages/VerifyOTP';
+import AdminNotifications from './pages/admin/AdminNotifications';
 
 const App: React.FC = () => {
   return (
@@ -37,7 +39,8 @@ const App: React.FC = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
-                
+                <Route path="/verify-otp" element={<VerifyOTP />} />
+
                 <Route path="/cart" element={
                   <PrivateRoute>
                     <Cart />
@@ -72,6 +75,11 @@ const App: React.FC = () => {
                 <Route path="/admin/products" element={
                   <AdminRoute>
                     <AdminProducts />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/notifications" element={
+                  <AdminRoute>
+                    <AdminNotifications />
                   </AdminRoute>
                 } />
                 

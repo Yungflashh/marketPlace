@@ -22,7 +22,7 @@ const AdminWallet: React.FC = () => {
   const fetchUsers = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:9000/api/users');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/users');
       setUsers(response.data.data.users || []);
     } catch (error: any) {
       toast.error('Error fetching users');
@@ -64,7 +64,7 @@ const AdminWallet: React.FC = () => {
     }
 
     try {
-      await axios.post('http://localhost:9000/api/wallet/admin/update', {
+      await axios.post('https://marketplc-be.onrender.com/api/wallet/admin/update', {
         userId: selectedUser._id,
         amount,
         action: formData.action,

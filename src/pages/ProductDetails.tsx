@@ -20,7 +20,7 @@ const ProductDetails: React.FC = () => {
 
   const fetchProduct = async (): Promise<void> => {
     try {
-      const response = await axios.get(`http://localhost:9000/api/products/${id}`);
+      const response = await axios.get(`https://marketplc-be.onrender.com/api/products/${id}`);
       setProduct(response.data.data.product);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching product');

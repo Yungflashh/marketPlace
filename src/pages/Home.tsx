@@ -15,14 +15,14 @@ const Home: React.FC = () => {
 
   // Fake purchase notifications
   const notifications = [
-    { name: "Micheal M.", location: "New York", amount: 245, product: "USA LOGS" },
-    { name: "James K.", location: "Los Angeles", amount: 189, product: "Fb Logs" },
-    { name: "Emily R.", location: "Chicago", amount: 520, product: "WellsFargo" },
-    { name: "Michael B.", location: "Houston", amount: 350, product: "WellsFargo" },
-    { name: "Jessica L.", location: "Miami", amount: 120, product: "BOA Logs" },
-    { name: "David W.", location: "Seattle", amount: 890, product: "I.D Logs" },
-    { name: "Ashley P.", location: "Boston", amount: 275, product: "Cashapp" },
-    { name: "Chris T.", location: "Denver", amount: 445, product: "Verizon" },
+    { name: "Sarah M.", location: "New York", amount: 245, product: "Wireless Headphones" },
+    { name: "James K.", location: "Los Angeles", amount: 189, product: "Smart Watch" },
+    { name: "Emily R.", location: "Chicago", amount: 520, product: "Laptop Stand" },
+    { name: "Michael B.", location: "Houston", amount: 350, product: "Gaming Mouse" },
+    { name: "Jessica L.", location: "Miami", amount: 120, product: "Phone Case" },
+    { name: "David W.", location: "Seattle", amount: 890, product: "Mechanical Keyboard" },
+    { name: "Ashley P.", location: "Boston", amount: 275, product: "Fitness Tracker" },
+    { name: "Chris T.", location: "Denver", amount: 445, product: "Bluetooth Speaker" },
   ];
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentNotification((prev) => (prev + 1) % notifications.length);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -45,7 +45,7 @@ const Home: React.FC = () => {
       if (selectedCategory) params.category = selectedCategory;
       if (searchTerm) params.search = searchTerm;
 
-      const response = await axios.get('http://localhost:9000/api/products', { params });
+      const response = await axios.get('https://marketplc-be.onrender.com/api/products', { params });
       setProducts(response.data.data.products);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching Logs');
@@ -56,7 +56,7 @@ const Home: React.FC = () => {
 
   const fetchCategories = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:9000/api/products/categories');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/products/categories');
       setCategories(response.data.data.categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -69,35 +69,37 @@ const Home: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Live Purchase Notification */}
-      <div className="fixed top-20 right-4 z-50 animate-slide-in">
-        <div className="bg-white rounded-2xl shadow-2xl p-4 border-l-4 border-green-500 max-w-sm backdrop-blur-lg">
-          <div className="flex items-start gap-3">
-            <div className="bg-green-100 rounded-full p-2">
-              <Bell className="w-5 h-5 text-green-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <p className="font-semibold text-gray-900">{notifications[currentNotification].name}</p>
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                  Just purchased
-                </span>
+      {/* Live Purchase Notification - Positioned at bottom left */}
+      {notifications.length > 0 && (
+        <div className="fixed bottom-6 left-6 z-50 animate-slide-in max-w-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-4 border-l-4 border-green-500 backdrop-blur-lg">
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 rounded-full p-2">
+                <Bell className="w-5 h-5 text-green-600" />
               </div>
-              <p className="text-sm text-gray-600 mb-2">{notifications[currentNotification].product}</p>
-              <div className="flex items-center gap-3 text-xs text-gray-500">
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  <span>{notifications[currentNotification].location}</span>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="font-semibold text-gray-900">{notifications[currentNotification].name}</p>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                    Just purchased
+                  </span>
                 </div>
-                <div className="flex items-center gap-1 font-semibold text-green-600">
-                  <DollarSign className="w-3 h-3" />
-                  <span>{notifications[currentNotification].amount}</span>
+                <p className="text-sm text-gray-600 mb-2">{notifications[currentNotification].product}</p>
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    <span>{notifications[currentNotification].location}</span>
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold text-green-600">
+                    <DollarSign className="w-3 h-3" />
+                    <span>{notifications[currentNotification].amount}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">

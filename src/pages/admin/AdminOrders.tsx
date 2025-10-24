@@ -16,7 +16,7 @@ const AdminOrders: React.FC = () => {
   const fetchOrders = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:9000/api/orders?limit=1000');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/orders?limit=1000');
       setOrders(response.data.data.orders);
     } catch (error: any) {
       toast.error('Error fetching orders');

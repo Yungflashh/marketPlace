@@ -53,7 +53,7 @@ const Cart: React.FC = () => {
         }))
       };
 
-      const response = await axios.post('http://localhost:9000/api/orders', orderData);
+      const response = await axios.post('https://marketplc-be.onrender.com/api/orders', orderData);
       
       toast.success('Order placed successfully!');
       

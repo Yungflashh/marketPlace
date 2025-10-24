@@ -62,7 +62,7 @@ const Wallet: React.FC = () => {
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:9000/api/wallet/transactions');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/wallet/transactions');
       setTransactions(response.data.data.transactions);
     } catch (error) {
       toast.error('Error fetching transactions');
@@ -104,7 +104,7 @@ const Wallet: React.FC = () => {
     setLoading(true);
     try {
       const fundAmount = parseFloat(amount);
-      await axios.post('http://localhost:9000/api/wallet/fund', { 
+      await axios.post('https://marketplc-be.onrender.com/api/wallet/fund', { 
         amount: fundAmount,
         paymentMethod: selectedCrypto,
         walletAddress: walletAddresses[selectedCrypto as keyof typeof walletAddresses],

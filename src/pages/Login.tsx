@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { Mail, Lock, LogIn, ShoppingBag, Sparkles, ArrowRight, Eye, EyeOff, Shield, Zap } from 'lucide-react';
+import Cookies from "js-cookie"
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,17 @@ const Login: React.FC = () => {
       toast.success('Login successful!');
       navigate('/');
     } catch (error: any) {
+              // console.log(error.response.status);
+
+              Cookies.set("email", formData.email)
+              if(error.response.status===403){
+                      navigate('/verify-otp');
+
+              }
+
       toast.error(error.response?.data?.message || 'Login failed');
+      console.log(error);
+      
     } finally {
       setLoading(false);
     }

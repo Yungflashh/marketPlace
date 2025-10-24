@@ -56,7 +56,7 @@ const AdminTransactions: React.FC = () => {
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await axios.get('http://localhost:9000/api/admin/transactions');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/admin/transactions');
       setTransactions(response.data.data.transactions);
     } catch (error) {
       toast.error('Error fetching transactions');
@@ -93,7 +93,7 @@ const AdminTransactions: React.FC = () => {
   const handleStatusChange = async (transactionId: string, newStatus: 'completed' | 'failed'): Promise<void> => {
     setProcessingId(transactionId);
     try {
-      await axios.patch(`http://localhost:9000/api/admin/transactions/${transactionId}`, {
+      await axios.patch(`https://marketplc-be.onrender.com/api/admin/transactions/${transactionId}`, {
         status: newStatus
       });
       

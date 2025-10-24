@@ -8,12 +8,21 @@ const AdminProducts: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    price: string;
+    quantity: string;
+    category: string;
+    image?: File | null;
+    imageUrl?: string;
+  }>({
     name: '',
     description: '',
     price: '',
     quantity: '',
     category: '',
+    image: null,
     imageUrl: ''
   });
 
@@ -24,7 +33,7 @@ const AdminProducts: React.FC = () => {
   const fetchProducts = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:9000/api/products?limit=1000');
+      const response = await axios.get('https://marketplc-be.onrender.com/api/products?limit=1000');
       setProducts(response.data.data.products);
     } catch (error: any) {
       toast.error('Error fetching products');
@@ -42,6 +51,7 @@ const AdminProducts: React.FC = () => {
         price: product.price.toString(),
         quantity: product.quantity.toString(),
         category: product.category,
+        image: null,
         imageUrl: product.imageUrl
       });
     } else {
@@ -52,6 +62,7 @@ const AdminProducts: React.FC = () => {
         price: '',
         quantity: '',
         category: '',
+        image: null,
         imageUrl: ''
       });
     }
@@ -67,6 +78,7 @@ const AdminProducts: React.FC = () => {
       price: '',
       quantity: '',
       category: '',
+      image: null,
       imageUrl: ''
     });
   };
@@ -78,21 +90,40 @@ const AdminProducts: React.FC = () => {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData({ ...formData, image: e.target.files[0] });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
     try {
-      const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity)
-      };
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('description', formData.description);
+      data.append('price', formData.price);
+      data.append('quantity', formData.quantity);
+      data.append('category', formData.category);
+
+      if (formData.image) {
+        data.append('image', formData.image);
+      }
 
       if (editingProduct) {
-        await axios.put(`http://localhost:9000/api/products/${editingProduct._id}`, productData);
+        await axios.put(
+          `https://marketplc-be.onrender.com/api/products/${editingProduct._id}`,
+          data,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
         toast.success('Product updated successfully!');
       } else {
-        await axios.post('http://localhost:9000/api/products', productData);
+        await axios.post(
+          'https://marketplc-be.onrender.com/api/products',
+          data,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
         toast.success('Product created successfully!');
       }
 
@@ -104,12 +135,10 @@ const AdminProducts: React.FC = () => {
   };
 
   const handleDelete = async (productId: string): Promise<void> => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
-      return;
-    }
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      await axios.delete(`http://localhost:9000/api/products/${productId}`);
+      await axios.delete(`https://marketplc-be.onrender.com/api/products/${productId}`);
       toast.success('Product deleted successfully!');
       fetchProducts();
     } catch (error: any) {
@@ -119,7 +148,7 @@ const AdminProducts: React.FC = () => {
 
   const handleToggleActive = async (product: Product): Promise<void> => {
     try {
-      await axios.put(`http://localhost:9000/api/products/${product._id}`, {
+      await axios.put(`https://marketplc-be.onrender.com/api/products/${product._id}`, {
         isActive: !product.isActive
       });
       toast.success(`Product ${product.isActive ? 'deactivated' : 'activated'} successfully!`);
@@ -141,10 +170,7 @@ const AdminProducts: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Manage Products</h1>
-        <button
-          onClick={() => handleOpenModal()}
-          className="btn btn-primary"
-        >
+        <button onClick={() => handleOpenModal()} className="btn btn-primary">
           Add New Product
         </button>
       </div>
@@ -190,16 +216,12 @@ const AdminProducts: React.FC = () => {
                           className="h-10 w-10 rounded object-cover"
                         />
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {product.name}
-                          </div>
+                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 capitalize">
-                        {product.category}
-                      </span>
+                      <span className="text-sm text-gray-900 capitalize">{product.category}</span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-semibold text-gray-900">
@@ -207,38 +229,31 @@ const AdminProducts: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`text-sm font-semibold ${
-                        product.quantity > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <span
+                        className={`text-sm font-semibold ${
+                          product.quantity > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
                         {product.quantity}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        product.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}
+                      >
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button
-                        onClick={() => handleOpenModal(product)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
+                      <button onClick={() => handleOpenModal(product)} className="text-blue-600 hover:text-blue-900">
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleToggleActive(product)}
-                        className="text-yellow-600 hover:text-yellow-900"
-                      >
+                      <button onClick={() => handleToggleActive(product)} className="text-yellow-600 hover:text-yellow-900">
                         {product.isActive ? 'Deactivate' : 'Activate'}
                       </button>
-                      <button
-                        onClick={() => handleDelete(product._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
+                      <button onClick={() => handleDelete(product._id)} className="text-red-600 hover:text-red-900">
                         Delete
                       </button>
                     </td>
@@ -261,9 +276,7 @@ const AdminProducts: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Name
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
                   <input
                     type="text"
                     name="name"
@@ -276,9 +289,7 @@ const AdminProducts: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                   <textarea
                     name="description"
                     value={formData.description}
@@ -292,9 +303,7 @@ const AdminProducts: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
                     <input
                       type="number"
                       step="0.01"
@@ -309,9 +318,7 @@ const AdminProducts: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Quantity
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
                     <input
                       type="number"
                       min="0"
@@ -326,9 +333,7 @@ const AdminProducts: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                   <input
                     type="text"
                     name="category"
@@ -336,25 +341,34 @@ const AdminProducts: React.FC = () => {
                     onChange={handleChange}
                     required
                     className="input"
-                    placeholder="e.g., electronics, clothing"
+                    placeholder="Category"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Image URL
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
                   <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleChange}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
                     className="input"
-                    placeholder="https://example.com/image.jpg"
                   />
+                  {formData.image ? (
+                    <img
+                      src={URL.createObjectURL(formData.image)}
+                      alt="Preview"
+                      className="h-24 w-24 mt-2 object-cover rounded"
+                    />
+                  ) : formData.imageUrl ? (
+                    <img
+                      src={formData.imageUrl}
+                      alt="Current"
+                      className="h-24 w-24 mt-2 object-cover rounded"
+                    />
+                  ) : null}
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-4">
+                <div className="flex justify-end space-x-4 mt-6">
                   <button
                     type="button"
                     onClick={handleCloseModal}
@@ -363,7 +377,7 @@ const AdminProducts: React.FC = () => {
                     Cancel
                   </button>
                   <button type="submit" className="btn btn-primary">
-                    {editingProduct ? 'Update Product' : 'Create Product'}
+                    {editingProduct ? 'Update Product' : 'Add Product'}
                   </button>
                 </div>
               </form>

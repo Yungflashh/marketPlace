@@ -44,7 +44,7 @@ const Register: React.FC = () => {
       const { name, email, password } = formData;
       await register({ name, email, password });
       toast.success('Registration successful!');
-      navigate('/');
+        navigate('/verify-otp', { state: { email } });
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
