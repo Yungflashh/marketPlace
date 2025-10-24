@@ -75,7 +75,7 @@ export interface ApiResponse<T> {
 export interface PaginatedResponse<T> {
   success: boolean;
   data: {
-    [key: string]: T[];
+    results: T[]; // generic list
     pagination: {
       page: number;
       limit: number;
@@ -84,6 +84,7 @@ export interface PaginatedResponse<T> {
     };
   };
 }
+
 
 export interface AuthContextType {
   user: User | null;

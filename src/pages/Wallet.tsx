@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 const Wallet: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -48,8 +48,7 @@ const Wallet: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (timerActive && timer > 0) {
+      let interval: ReturnType<typeof setInterval>;     if (timerActive && timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
@@ -65,8 +64,10 @@ const Wallet: React.FC = () => {
     try {
       const response = await axios.get('http://localhost:9000/api/wallet/transactions');
       setTransactions(response.data.data.transactions);
-    } catch (error: any) {
+    } catch (error) {
       toast.error('Error fetching transactions');
+      console.log(error);
+      
     } finally {
       setTransactionsLoading(false);
     }
@@ -103,7 +104,7 @@ const Wallet: React.FC = () => {
     setLoading(true);
     try {
       const fundAmount = parseFloat(amount);
-      const response = await axios.post('http://localhost:9000/api/wallet/fund', { 
+      await axios.post('http://localhost:9000/api/wallet/fund', { 
         amount: fundAmount,
         paymentMethod: selectedCrypto,
         walletAddress: walletAddresses[selectedCrypto as keyof typeof walletAddresses],
@@ -116,6 +117,7 @@ const Wallet: React.FC = () => {
       fetchTransactions();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error confirming payment');
+      
     } finally {
       setLoading(false);
     }

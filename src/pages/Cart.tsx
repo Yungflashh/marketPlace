@@ -265,8 +265,8 @@ const Cart: React.FC = () => {
               {/* Checkout Button */}
               <button
                 onClick={handleCheckout}
-                disabled={loading || (user && !hasEnoughBalance)}
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mb-3"
+                  disabled={loading || !!(user && !hasEnoughBalance)}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group mb-3"
               >
                 {loading ? (
                   <>

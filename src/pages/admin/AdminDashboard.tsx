@@ -11,7 +11,6 @@ import {
   Users,
   Wallet,
   Eye,
-  Settings,
   BarChart3,
   ArrowRight,
   Sparkles,

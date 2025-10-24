@@ -9,10 +9,8 @@ import {
   AlertCircle,
   Calendar,
   User,
-  DollarSign,
   Hash,
   Filter,
-  Search,
   Shield,
   TrendingUp,
   ArrowUpCircle,
@@ -45,7 +43,7 @@ const AdminTransactions: React.FC = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,8 +58,11 @@ const AdminTransactions: React.FC = () => {
     try {
       const response = await axios.get('http://localhost:9000/api/admin/transactions');
       setTransactions(response.data.data.transactions);
-    } catch (error: any) {
+    } catch (error) {
       toast.error('Error fetching transactions');
+      console.log(console.log(error)
+      );
+      
     } finally {
       setLoading(false);
     }
