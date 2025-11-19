@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api'; // <-- IMPORTANT
 import type { Product } from '../../types';
 import { toast } from 'react-toastify';
 
@@ -33,7 +33,7 @@ const AdminProducts: React.FC = () => {
   const fetchProducts = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('https://marketplc-be.onrender.com/api/products?limit=1000');
+      const response = await api.get('/products?limit=1000');
       setProducts(response.data.data.products);
     } catch (error: any) {
       toast.error('Error fetching products');
@@ -112,18 +112,14 @@ const AdminProducts: React.FC = () => {
       }
 
       if (editingProduct) {
-        await axios.put(
-          `https://marketplc-be.onrender.com/api/products/${editingProduct._id}`,
-          data,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
+        await api.put(`/products/${editingProduct._id}`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         toast.success('Product updated successfully!');
       } else {
-        await axios.post(
-          'https://marketplc-be.onrender.com/api/products',
-          data,
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        );
+        await api.post('/products', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         toast.success('Product created successfully!');
       }
 
@@ -138,7 +134,7 @@ const AdminProducts: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      await axios.delete(`https://marketplc-be.onrender.com/api/products/${productId}`);
+      await api.delete(`/products/${productId}`);
       toast.success('Product deleted successfully!');
       fetchProducts();
     } catch (error: any) {
@@ -148,7 +144,7 @@ const AdminProducts: React.FC = () => {
 
   const handleToggleActive = async (product: Product): Promise<void> => {
     try {
-      await axios.put(`https://marketplc-be.onrender.com/api/products/${product._id}`, {
+      await api.put(`/products/${product._id}`, {
         isActive: !product.isActive
       });
       toast.success(`Product ${product.isActive ? 'deactivated' : 'activated'} successfully!`);

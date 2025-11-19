@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import api from '../../utils/api'; // <— USE YOUR API INSTANCE!
 import {
   Wallet,
   Clock,
@@ -12,7 +12,6 @@ import {
   Hash,
   Filter,
   Shield,
-  TrendingUp,
   ArrowUpCircle,
   ArrowDownCircle
 } from 'lucide-react';
@@ -25,7 +24,7 @@ interface UserInfo {
 
 interface Transaction {
   _id: string;
-  user: UserInfo;
+  user: UserInfo | null;
   type: 'credit' | 'debit';
   amount: number;
   description: string;
@@ -43,7 +42,6 @@ const AdminTransactions: React.FC = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  // const [searchTerm, setSearchTerm] = useState('');
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,13 +54,13 @@ const AdminTransactions: React.FC = () => {
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be.onrender.com/api/admin/transactions');
+      const response = await api.get('/admin/transactions');
       setTransactions(response.data.data.transactions);
-    } catch (error) {
-      toast.error('Error fetching transactions');
-      console.log(console.log(error)
-      );
+      console.log(response.data.data);
       
+    } catch (error: any) {
+      console.log(error);
+      toast.error('Error fetching transactions');
     } finally {
       setLoading(false);
     }
@@ -73,19 +71,7 @@ const AdminTransactions: React.FC = () => {
 
     if (filterStatus !== 'all') {
       filtered = filtered.filter(t => t.status === filterStatus);
-
     }
-
-    // if (searchTerm) {
-    //     console.log(filtered);
-        
-    //   filtered = filtered.filter(t => 
-        
-    //     t.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //     t.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    //     t.reference.toLowerCase().includes(searchTerm.toLowerCase())
-    //   );
-    // }
 
     setFilteredTransactions(filtered);
   };
@@ -93,7 +79,7 @@ const AdminTransactions: React.FC = () => {
   const handleStatusChange = async (transactionId: string, newStatus: 'completed' | 'failed'): Promise<void> => {
     setProcessingId(transactionId);
     try {
-      await axios.patch(`https://marketplc-be.onrender.com/api/admin/transactions/${transactionId}`, {
+      await api.patch(`/admin/transactions/${transactionId}`, {
         status: newStatus
       });
       
@@ -169,6 +155,7 @@ const AdminTransactions: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -182,79 +169,45 @@ const AdminTransactions: React.FC = () => {
           </div>
         </div>
 
-        {/* Statistics Cards */}
+        {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-indigo-100 rounded-xl p-2">
-                <Wallet className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
             <p className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</p>
             <p className="text-sm text-gray-600 font-semibold">Total</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-yellow-100 rounded-xl p-2">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
             <p className="text-3xl font-bold text-yellow-600 mb-1">{stats.pending}</p>
             <p className="text-sm text-gray-600 font-semibold">Pending</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-green-100 rounded-xl p-2">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
             <p className="text-3xl font-bold text-green-600 mb-1">{stats.completed}</p>
             <p className="text-sm text-gray-600 font-semibold">Approved</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-red-100 rounded-xl p-2">
-                <XCircle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
             <p className="text-3xl font-bold text-red-600 mb-1">{stats.failed}</p>
             <p className="text-sm text-gray-600 font-semibold">Rejected</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="bg-purple-100 rounded-xl p-2">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
             <p className="text-3xl font-bold text-purple-600 mb-1">${stats.totalAmount.toFixed(0)}</p>
-            <p className="text-sm text-gray-600 font-semibold">Approved</p>
+            <p className="text-sm text-gray-600 font-semibold">Total Approved Amount</p>
           </div>
         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* <div className="relative group">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search by user, email, or reference..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all"
-              />
-            </div> */}
-
             <div className="relative group">
               <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all appearance-none bg-white cursor-pointer"
+                className="w-full pl-12 pr-4 py-3 border-2 
+                border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 
+                focus:ring-indigo-100 outline-none transition-all appearance-none bg-white cursor-pointer"
               >
                 <option value="all">All Statuses</option>
                 <option value="pending">Pending</option>
@@ -265,13 +218,11 @@ const AdminTransactions: React.FC = () => {
           </div>
         </div>
 
-        {/* Transactions List */}
+        {/* Transactions */}
         <div className="space-y-4">
           {filteredTransactions.length === 0 ? (
             <div className="bg-white rounded-3xl shadow-lg p-16 text-center">
-              <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                <Wallet className="w-12 h-12 text-indigo-600" />
-              </div>
+              <Wallet className="w-12 h-12 text-indigo-600 mx-auto mb-6" />
               <p className="text-2xl font-bold text-gray-900 mb-2">No transactions found</p>
               <p className="text-gray-500">Try adjusting your filters</p>
             </div>
@@ -283,7 +234,8 @@ const AdminTransactions: React.FC = () => {
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    {/* Left: User & Transaction Info */}
+
+                    {/* Left */}
                     <div className="flex items-start gap-4 flex-1">
                       <div className={`rounded-xl p-3 ${
                         transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
@@ -299,8 +251,12 @@ const AdminTransactions: React.FC = () => {
                         <div className="flex items-center gap-3 mb-2">
                           <User className="w-4 h-4 text-gray-400" />
                           <div>
-                            <p className="font-bold text-gray-900">{transaction.user.name}</p>
-                            <p className="text-sm text-gray-500">{transaction.user.email}</p>
+                            <p className="font-bold text-gray-900">
+                              {transaction.user?.name || 'Unknown User'}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {transaction.user?.email || 'N/A'}
+                            </p>
                           </div>
                         </div>
                         
@@ -309,11 +265,9 @@ const AdminTransactions: React.FC = () => {
                         </p>
 
                         {transaction.paymentMethod && (
-                          <div className="bg-indigo-50 rounded-lg px-3 py-2 inline-block mb-2">
-                            <p className="text-sm font-semibold text-indigo-700">
-                              Payment Method: {transaction.paymentMethod}
-                            </p>
-                          </div>
+                          <p className="text-sm bg-indigo-50 px-3 py-1 inline-block rounded-lg text-indigo-700 mb-2">
+                            Payment Method: {transaction.paymentMethod}
+                          </p>
                         )}
 
                         {transaction.walletAddress && (
@@ -338,7 +292,7 @@ const AdminTransactions: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Right: Amount & Status */}
+                    {/* Right */}
                     <div className="text-right ml-4">
                       <p className={`text-3xl font-bold mb-2 ${
                         transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
@@ -357,36 +311,36 @@ const AdminTransactions: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Action Buttons (only for pending transactions) */}
+                  {/* Approve / Reject Buttons */}
                   {transaction.status === 'pending' && (
                     <div className="flex gap-3 pt-4 border-t border-gray-100">
                       <button
                         onClick={() => handleStatusChange(transaction._id, 'failed')}
                         disabled={processingId === transaction._id}
-                        className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50"
                       >
                         {processingId === transaction._id ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
                         ) : (
-                          <>
+                          <span className="flex items-center justify-center gap-2">
                             <XCircle className="w-5 h-5" />
-                            <span>Reject</span>
-                          </>
+                            Reject
+                          </span>
                         )}
                       </button>
                       
                       <button
                         onClick={() => handleStatusChange(transaction._id, 'completed')}
                         disabled={processingId === transaction._id}
-                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50"
                       >
                         {processingId === transaction._id ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
                         ) : (
-                          <>
+                          <span className="flex items-center justify-center gap-2">
                             <CheckCircle2 className="w-5 h-5" />
-                            <span>Approve</span>
-                          </>
+                            Approve
+                          </span>
                         )}
                       </button>
                     </div>
@@ -396,6 +350,7 @@ const AdminTransactions: React.FC = () => {
             ))
           )}
         </div>
+
       </div>
     </div>
   );

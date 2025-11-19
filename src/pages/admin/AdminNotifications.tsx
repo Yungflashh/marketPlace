@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api'; // <-- IMPORTANT: Using centralized API utility
 import { toast } from 'react-toastify';
 import {
   Bell,
@@ -42,7 +42,7 @@ const AdminNotifications: React.FC = () => {
 
   const fetchNotifications = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be.onrender.com/api/notifications');
+      const response = await api.get('/notifications');
       setNotifications(response.data.data);
     } catch (error: any) {
       toast.error('Error fetching notifications');
@@ -56,7 +56,7 @@ const AdminNotifications: React.FC = () => {
     setSubmitting(true);
 
     try {
-      await axios.post('https://marketplc-be.onrender.com/api/notifications', {
+      await api.post('/notifications', {
         name: formData.name,
         location: formData.location,
         amount: parseFloat(formData.amount),
@@ -79,7 +79,7 @@ const AdminNotifications: React.FC = () => {
 
     setDeletingId(id);
     try {
-      await axios.delete(`https://marketplc-be.onrender.com/api/notifications/${id}`);
+      await api.delete(`/notifications/${id}`);
       toast.success('Notification deleted successfully!');
       fetchNotifications();
     } catch (error: any) {

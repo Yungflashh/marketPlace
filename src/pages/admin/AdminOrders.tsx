@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api'; // <-- IMPORTANT: Using centralized API utility
 import type { Order, User } from '../../types';
 import { toast } from 'react-toastify';
 
@@ -16,7 +16,7 @@ const AdminOrders: React.FC = () => {
   const fetchOrders = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('https://marketplc-be.onrender.com/api/orders?limit=1000');
+      const response = await api.get('/orders?limit=1000');
       setOrders(response.data.data.orders);
     } catch (error: any) {
       toast.error('Error fetching orders');

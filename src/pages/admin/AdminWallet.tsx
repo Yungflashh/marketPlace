@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../utils/api'; // <-- IMPORTANT: Using centralized API utility
 import type { User } from '../../types';
 import { toast } from 'react-toastify';
 
@@ -22,7 +22,7 @@ const AdminWallet: React.FC = () => {
   const fetchUsers = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await axios.get('https://marketplc-be.onrender.com/api/users');
+      const response = await api.get('/users');
       setUsers(response.data.data.users || []);
     } catch (error: any) {
       toast.error('Error fetching users');
@@ -64,7 +64,7 @@ const AdminWallet: React.FC = () => {
     }
 
     try {
-      await axios.post('https://marketplc-be.onrender.com/api/wallet/admin/update', {
+      await api.post('/wallet/admin/update', {
         userId: selectedUser._id,
         amount,
         action: formData.action,
