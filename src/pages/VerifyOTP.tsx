@@ -25,7 +25,7 @@ const VerifyOTP: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.post('https://marketplc-be.onrender.com/api/auth/verify-otp', { email, otp });
+      await axios.post('https://marketplc-be-c2a5.onrender.com/api/auth/verify-otp', { email, otp });
       toast.success('Email verified successfully!');
       navigate('/login');
     } catch (error: any) {
@@ -44,7 +44,7 @@ const VerifyOTP: React.FC = () => {
 
     setResending(true);
     try {
-      await axios.post('https://marketplc-be.onrender.com/api/auth/resend-otp', { email });
+      await axios.post('https://marketplc-be-c2a5.onrender.com/api/auth/resend-otp', { email });
       toast.success('A new OTP has been sent to your email.');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to resend OTP');
