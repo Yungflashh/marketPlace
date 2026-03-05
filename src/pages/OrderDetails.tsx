@@ -31,7 +31,7 @@ const OrderDetails: React.FC = () => {
 
   const fetchOrder = async (): Promise<void> => {
     try {
-      const response = await axios.get(`https://marketplc-be.onrender.com/api/orders/${id}`);
+      const response = await axios.get(`https://marketplc-be-c2a5.onrender.com/api/orders/${id}`);
       setOrder(response.data.data.order);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching order');
