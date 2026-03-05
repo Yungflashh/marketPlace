@@ -62,7 +62,7 @@ const Wallet: React.FC = () => {
 
   const fetchTransactions = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be.onrender.com/api/wallet/transactions');
+      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/wallet/transactions');
       setTransactions(response.data.data.transactions);
     } catch (error) {
       toast.error('Error fetching transactions');
