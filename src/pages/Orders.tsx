@@ -28,7 +28,7 @@ const Orders: React.FC = () => {
 
   const fetchOrders = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be.onrender.com/api/orders/my-orders');
+      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/orders/my-orders');
       setOrders(response.data.data.orders);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching orders');
