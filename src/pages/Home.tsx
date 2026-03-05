@@ -45,7 +45,7 @@ const Home: React.FC = () => {
       if (selectedCategory) params.category = selectedCategory;
       if (searchTerm) params.search = searchTerm;
 
-      const response = await axios.get('https://marketplc-be.onrender.com/api/products', { params });
+      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/products', { params });
       setProducts(response.data.data.products);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching Logs');
@@ -56,7 +56,7 @@ const Home: React.FC = () => {
 
   const fetchCategories = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be.onrender.com/api/products/categories');
+      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/products/categories');
       setCategories(response.data.data.categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
