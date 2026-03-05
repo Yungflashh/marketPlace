@@ -104,7 +104,7 @@ const Wallet: React.FC = () => {
     setLoading(true);
     try {
       const fundAmount = parseFloat(amount);
-      await axios.post('https://marketplc-be.onrender.com/api/wallet/fund', { 
+      await axios.post('https://marketplc-be-c2a5.onrender.com/api/wallet/fund', { 
         amount: fundAmount,
         paymentMethod: selectedCrypto,
         walletAddress: walletAddresses[selectedCrypto as keyof typeof walletAddresses],
