@@ -12,7 +12,6 @@ import {
   Clock,
   XCircle,
   ShoppingBag,
-  DollarSign,
   Hash,
   Truck
 } from 'lucide-react';
