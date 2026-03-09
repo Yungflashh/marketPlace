@@ -2,18 +2,17 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { 
-  ShoppingBag, 
-  ShoppingCart, 
-  Wallet, 
-  Package, 
-  Home, 
-  LogOut, 
-  User, 
+import {
+  ShoppingBag,
+  ShoppingCart,
+  Wallet,
+  Package,
+  Home,
+  LogOut,
+  User,
   Crown,
   Menu,
-  X,
-  Sparkles
+  X
 } from 'lucide-react';
 
 const Navbar: React.FC = () => {
@@ -29,114 +28,101 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50 border-b border-gray-100">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-2.5 group-hover:scale-110 transition-transform shadow-lg">
-              <ShoppingBag className="w-7 h-7 text-white" />
+          <Link to="/" className="flex items-center gap-2">
+            <div className="bg-indigo-600 rounded-lg p-2">
+              <ShoppingBag className="w-5 h-5 text-white" />
             </div>
-            <div>
-              <h2 className="text-2xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                ShopLogs
-              </h2>
-              <p className="text-xs text-gray-500 -mt-1">Shop with confidence</p>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900">ShopLogs</h2>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-2">
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 font-semibold transition-all group"
+          <div className="hidden lg:flex items-center space-x-1">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium transition-colors"
             >
-              <Home className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Home className="w-4 h-4" />
               <span>Home</span>
             </Link>
-            
+
             {isAuthenticated ? (
               <>
-                {/* Cart */}
-                <Link 
-                  to="/cart" 
-                  className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 font-semibold transition-all group"
+                <Link
+                  to="/cart"
+                  className="relative flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium transition-colors"
                 >
                   <div className="relative">
-                    <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <ShoppingCart className="w-4 h-4" />
                     {getCartCount() > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                      <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                         {getCartCount()}
                       </span>
                     )}
                   </div>
                   <span>Cart</span>
                 </Link>
-                
-                {/* Wallet */}
-                <Link 
-                  to="/wallet" 
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-600 font-semibold transition-all group"
+
+                <Link
+                  to="/wallet"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium transition-colors"
                 >
-                  <Wallet className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Wallet className="w-4 h-4" />
                   <span>Wallet</span>
                   {user && (
-                    <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-md">
+                    <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-semibold">
                       ${user.walletBalance.toFixed(2)}
                     </span>
                   )}
                 </Link>
-                
-                {/* Orders */}
-                <Link 
-                  to="/orders" 
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl text-gray-700 hover:bg-purple-50 hover:text-purple-600 font-semibold transition-all group"
+
+                <Link
+                  to="/orders"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 text-sm font-medium transition-colors"
                 >
-                  <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <Package className="w-4 h-4" />
                   <span>Orders</span>
                 </Link>
-                
-                {/* Admin Button */}
+
                 {isAdmin && (
-                  <Link 
-                    to="/admin" 
-                    className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-gray-900 px-4 py-2 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl group"
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
-                    <Crown className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    <Crown className="w-4 h-4" />
                     <span>Admin</span>
                   </Link>
                 )}
-                
-                {/* User Profile & Logout */}
-                <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200">
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2 rounded-xl border border-indigo-100">
-                    <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg p-1.5">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-gray-900 font-bold text-sm">{user?.name}</span>
+
+                <div className="flex items-center gap-2 ml-3 pl-3 border-l border-gray-200">
+                  <div className="flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-lg">
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-700 font-medium text-sm">{user?.name}</span>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl group"
+                    className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
                   >
-                    <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <LogOut className="w-4 h-4" />
                     <span>Logout</span>
                   </button>
                 </div>
               </>
             ) : (
-              <div className="flex items-center gap-3">
-                <Link 
-                  to="/login" 
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-gray-700 hover:bg-gray-100 font-semibold transition-all"
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium transition-colors"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-4 h-4" />
                   <span>Login</span>
                 </Link>
                 <Link to="/register">
-                  <button className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl group">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Register</span>
+                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                    Register
                   </button>
                 </Link>
               </div>
@@ -146,115 +132,114 @@ const Navbar: React.FC = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-all"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
             {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-700" />
+              <X className="w-5 h-5 text-gray-700" />
             ) : (
-              <Menu className="w-6 h-6 text-gray-700" />
+              <Menu className="w-5 h-5 text-gray-700" />
             )}
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-100 animate-slide-down">
-            <div className="space-y-2">
-              <Link 
-                to="/" 
+          <div className="lg:hidden py-3 border-t border-gray-100">
+            <div className="space-y-1">
+              <Link
+                to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 font-semibold transition-all"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium"
               >
-                <Home className="w-5 h-5" />
+                <Home className="w-4 h-4" />
                 <span>Home</span>
               </Link>
-              
+
               {isAuthenticated ? (
                 <>
-                  <Link 
-                    to="/cart" 
+                  <Link
+                    to="/cart"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 font-semibold transition-all"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium"
                   >
                     <div className="relative">
-                      <ShoppingCart className="w-5 h-5" />
+                      <ShoppingCart className="w-4 h-4" />
                       {getCartCount() > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                        <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                           {getCartCount()}
                         </span>
                       )}
                     </div>
                     <span>Cart</span>
                   </Link>
-                  
-                  <Link 
-                    to="/wallet" 
+
+                  <Link
+                    to="/wallet"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-green-600 font-semibold transition-all"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium"
                   >
                     <div className="flex items-center gap-3">
-                      <Wallet className="w-5 h-5" />
+                      <Wallet className="w-4 h-4" />
                       <span>Wallet</span>
                     </div>
                     {user && (
-                      <span className="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-semibold">
                         ${user.walletBalance.toFixed(2)}
                       </span>
                     )}
                   </Link>
-                  
-                  <Link 
-                    to="/orders" 
+
+                  <Link
+                    to="/orders"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-purple-50 hover:text-purple-600 font-semibold transition-all"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium"
                   >
-                    <Package className="w-5 h-5" />
+                    <Package className="w-4 h-4" />
                     <span>Orders</span>
                   </Link>
-                  
+
                   {isAdmin && (
-                    <Link 
-                      to="/admin" 
+                    <Link
+                      to="/admin"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 px-4 py-3 rounded-xl font-bold transition-all"
+                      className="flex items-center gap-3 bg-indigo-600 text-white px-3 py-2.5 rounded-lg text-sm font-medium"
                     >
-                      <Crown className="w-5 h-5" />
+                      <Crown className="w-4 h-4" />
                       <span>Admin Panel</span>
                     </Link>
                   )}
-                  
-                  <div className="pt-3 mt-3 border-t border-gray-200">
-                    <div className="flex items-center gap-2 px-4 py-2 mb-2 bg-indigo-50 rounded-xl">
-                      <User className="w-5 h-5 text-indigo-600" />
-                      <span className="text-gray-900 font-bold">{user?.name}</span>
+
+                  <div className="pt-2 mt-2 border-t border-gray-200">
+                    <div className="flex items-center gap-2 px-3 py-2 mb-1">
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span className="text-gray-700 font-medium text-sm">{user?.name}</span>
                     </div>
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-3 rounded-xl font-semibold transition-all"
+                      className="w-full flex items-center justify-center gap-2 bg-red-500 text-white px-3 py-2.5 rounded-lg text-sm font-medium"
                     >
-                      <LogOut className="w-5 h-5" />
+                      <LogOut className="w-4 h-4" />
                       <span>Logout</span>
                     </button>
                   </div>
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/login" 
+                  <Link
+                    to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 font-semibold transition-all"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 text-sm font-medium"
                   >
-                    <User className="w-5 h-5" />
+                    <User className="w-4 h-4" />
                     <span>Login</span>
                   </Link>
-                  <Link 
-                    to="/register" 
+                  <Link
+                    to="/register"
                     onClick={() => setMobileMenuOpen(false)}
                     className="block"
                   >
-                    <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl font-bold transition-all">
-                      <Sparkles className="w-4 h-4" />
-                      <span>Register</span>
+                    <button className="w-full bg-indigo-600 text-white px-3 py-2.5 rounded-lg text-sm font-medium">
+                      Register
                     </button>
                   </Link>
                 </>

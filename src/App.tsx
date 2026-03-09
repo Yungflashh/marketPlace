@@ -25,6 +25,7 @@ import AdminWallet from './pages/admin/AdminWallet';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import VerifyOTP from './pages/VerifyOTP';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminUsers from './pages/admin/AdminUsers';
 
 const App: React.FC = () => {
   return (
@@ -99,7 +100,12 @@ const App: React.FC = () => {
                     <AdminTransactions />
                   </AdminRoute>
                 } />
-                
+                <Route path="/admin/users" element={
+                  <AdminRoute>
+                    <AdminUsers />
+                  </AdminRoute>
+                } />
+
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>

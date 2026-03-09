@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import api from '../../utils/api'; // <— USE YOUR API INSTANCE!
+import api from '../../utils/api';
 import {
   Wallet,
   Clock,
@@ -57,7 +57,6 @@ const AdminTransactions: React.FC = () => {
       const response = await api.get('/admin/transactions');
       setTransactions(response.data.data.transactions);
       console.log(response.data.data);
-      
     } catch (error: any) {
       console.log(error);
       toast.error('Error fetching transactions');
@@ -68,21 +67,16 @@ const AdminTransactions: React.FC = () => {
 
   const filterTransactions = (): void => {
     let filtered = [...transactions];
-
     if (filterStatus !== 'all') {
       filtered = filtered.filter(t => t.status === filterStatus);
     }
-
     setFilteredTransactions(filtered);
   };
 
   const handleStatusChange = async (transactionId: string, newStatus: 'completed' | 'failed'): Promise<void> => {
     setProcessingId(transactionId);
     try {
-      await api.patch(`/admin/transactions/${transactionId}`, {
-        status: newStatus
-      });
-      
+      await api.patch(`/admin/transactions/${transactionId}`, { status: newStatus });
       toast.success(`Transaction ${newStatus === 'completed' ? 'approved' : 'rejected'} successfully!`);
       fetchTransactions();
     } catch (error: any) {
@@ -94,38 +88,31 @@ const AdminTransactions: React.FC = () => {
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
-        return <CheckCircle2 className="w-5 h-5 text-green-600" />;
-      case 'failed':
-        return <XCircle className="w-5 h-5 text-red-600" />;
-      case 'pending':
-        return <Clock className="w-5 h-5 text-yellow-600" />;
-      default:
-        return <AlertCircle className="w-5 h-5 text-gray-600" />;
+      case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
+      case 'failed': return <XCircle className="w-4 h-4 text-red-600" />;
+      case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
+      default: return <AlertCircle className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'completed':
-        return 'from-green-500 to-emerald-500';
-      case 'pending':
-        return 'from-yellow-500 to-orange-500';
-      case 'failed':
-        return 'from-red-500 to-pink-500';
-      default:
-        return 'from-gray-500 to-gray-600';
-    }
+  const getStatusBadge = (status: string) => {
+    const styles: Record<string, string> = {
+      completed: 'bg-green-100 text-green-700',
+      pending: 'bg-yellow-100 text-yellow-700',
+      failed: 'bg-red-100 text-red-700',
+    };
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
+        {getStatusIcon(status)}
+        {status.toUpperCase()}
+      </span>
+    );
   };
 
   const stats = {
@@ -140,217 +127,158 @@ const AdminTransactions: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex justify-center items-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-            <Shield className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-          </div>
-          <p className="mt-6 text-gray-600 font-medium">Loading transactions...</p>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
+        <p className="text-gray-600">Loading transactions...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-3">
-              <Shield className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900">Transaction Management</h1>
-              <p className="text-gray-600">Review and approve wallet transactions</p>
-            </div>
+          <div className="flex items-center gap-3 mb-1">
+            <Shield className="w-7 h-7 text-indigo-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
+          </div>
+          <p className="text-gray-500 text-sm ml-10">Review and approve wallet transactions</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            <p className="text-xs text-gray-500">Total</p>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+            <p className="text-xs text-gray-500">Pending</p>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
+            <p className="text-xs text-gray-500">Approved</p>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-2xl font-bold text-red-600">{stats.failed}</p>
+            <p className="text-xs text-gray-500">Rejected</p>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <p className="text-2xl font-bold text-indigo-600">${stats.totalAmount.toFixed(0)}</p>
+            <p className="text-xs text-gray-500">Approved Amount</p>
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <p className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</p>
-            <p className="text-sm text-gray-600 font-semibold">Total</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <p className="text-3xl font-bold text-yellow-600 mb-1">{stats.pending}</p>
-            <p className="text-sm text-gray-600 font-semibold">Pending</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <p className="text-3xl font-bold text-green-600 mb-1">{stats.completed}</p>
-            <p className="text-sm text-gray-600 font-semibold">Approved</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <p className="text-3xl font-bold text-red-600 mb-1">{stats.failed}</p>
-            <p className="text-sm text-gray-600 font-semibold">Rejected</p>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <p className="text-3xl font-bold text-purple-600 mb-1">${stats.totalAmount.toFixed(0)}</p>
-            <p className="text-sm text-gray-600 font-semibold">Total Approved Amount</p>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative group">
-              <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 
-                border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 
-                focus:ring-indigo-100 outline-none transition-all appearance-none bg-white cursor-pointer"
-              >
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="failed">Failed</option>
-              </select>
-            </div>
+        {/* Filter */}
+        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
+          <div className="relative max-w-xs">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm appearance-none bg-white cursor-pointer"
+            >
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </select>
           </div>
         </div>
 
         {/* Transactions */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredTransactions.length === 0 ? (
-            <div className="bg-white rounded-3xl shadow-lg p-16 text-center">
-              <Wallet className="w-12 h-12 text-indigo-600 mx-auto mb-6" />
-              <p className="text-2xl font-bold text-gray-900 mb-2">No transactions found</p>
-              <p className="text-gray-500">Try adjusting your filters</p>
+            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+              <Wallet className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <p className="font-medium text-gray-900">No transactions found</p>
+              <p className="text-sm text-gray-500">Try adjusting your filters</p>
             </div>
           ) : (
             filteredTransactions.map((transaction) => (
-              <div
-                key={transaction._id}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-
-                    {/* Left */}
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className={`rounded-xl p-3 ${
-                        transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'
-                      }`}>
-                        {transaction.type === 'credit' ? (
-                          <ArrowDownCircle className="w-6 h-6 text-green-600" />
-                        ) : (
-                          <ArrowUpCircle className="w-6 h-6 text-red-600" />
-                        )}
-                      </div>
-
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          <div>
-                            <p className="font-bold text-gray-900">
-                              {transaction.user?.name || 'Unknown User'}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {transaction.user?.email || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <p className="font-bold text-lg text-gray-900 mb-2">
-                          {transaction.description}
-                        </p>
-
-                        {transaction.paymentMethod && (
-                          <p className="text-sm bg-indigo-50 px-3 py-1 inline-block rounded-lg text-indigo-700 mb-2">
-                            Payment Method: {transaction.paymentMethod}
-                          </p>
-                        )}
-
-                        {transaction.walletAddress && (
-                          <div className="bg-gray-50 rounded-lg p-3 mb-2">
-                            <p className="text-xs text-gray-600 mb-1">Wallet Address:</p>
-                            <p className="text-sm font-mono text-gray-900 break-all">
-                              {transaction.walletAddress}
-                            </p>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-4 text-sm text-gray-500 mt-3">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{formatDate(transaction.createdAt)}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Hash className="w-4 h-4" />
-                            <span className="font-mono">{transaction.reference}</span>
-                          </div>
-                        </div>
-                      </div>
+              <div key={transaction._id} className="bg-white rounded-lg border border-gray-200 p-5">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className={`rounded-lg p-2 ${transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'}`}>
+                      {transaction.type === 'credit' ? (
+                        <ArrowDownCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <ArrowUpCircle className="w-5 h-5 text-red-600" />
+                      )}
                     </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <User className="w-3.5 h-3.5 text-gray-400" />
+                        <p className="font-medium text-gray-900 text-sm">{transaction.user?.name || 'Unknown User'}</p>
+                        <span className="text-xs text-gray-400">{transaction.user?.email || ''}</span>
+                      </div>
+                      <p className="text-sm text-gray-700 mb-1">{transaction.description}</p>
 
-                    {/* Right */}
-                    <div className="text-right ml-4">
-                      <p className={`text-3xl font-bold mb-2 ${
-                        transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                      </p>
-                      
-                      <span className={`inline-flex items-center gap-2 bg-gradient-to-r ${getStatusColor(transaction.status)} text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md mb-3`}>
-                        {getStatusIcon(transaction.status)}
-                        {transaction.status.toUpperCase()}
-                      </span>
+                      {transaction.paymentMethod && (
+                        <p className="text-xs bg-indigo-50 px-2 py-0.5 inline-block rounded text-indigo-700 mb-1">
+                          {transaction.paymentMethod}
+                        </p>
+                      )}
 
-                      <p className="text-sm text-gray-500">
-                        Balance: ${transaction.balanceAfter.toFixed(2)}
-                      </p>
+                      {transaction.walletAddress && (
+                        <div className="bg-gray-50 rounded p-2 mb-1">
+                          <p className="text-[10px] text-gray-500 mb-0.5">Wallet Address:</p>
+                          <p className="text-xs font-mono text-gray-700 break-all">{transaction.walletAddress}</p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-3 text-xs text-gray-400 mt-2">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>{formatDate(transaction.createdAt)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Hash className="w-3 h-3" />
+                          <span className="font-mono">{transaction.reference}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Approve / Reject Buttons */}
-                  {transaction.status === 'pending' && (
-                    <div className="flex gap-3 pt-4 border-t border-gray-100">
-                      <button
-                        onClick={() => handleStatusChange(transaction._id, 'failed')}
-                        disabled={processingId === transaction._id}
-                        className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50"
-                      >
-                        {processingId === transaction._id ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
-                        ) : (
-                          <span className="flex items-center justify-center gap-2">
-                            <XCircle className="w-5 h-5" />
-                            Reject
-                          </span>
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={() => handleStatusChange(transaction._id, 'completed')}
-                        disabled={processingId === transaction._id}
-                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50"
-                      >
-                        {processingId === transaction._id ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
-                        ) : (
-                          <span className="flex items-center justify-center gap-2">
-                            <CheckCircle2 className="w-5 h-5" />
-                            Approve
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  )}
+                  <div className="text-right ml-4">
+                    <p className={`text-xl font-bold mb-1 ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                    </p>
+                    {getStatusBadge(transaction.status)}
+                    <p className="text-xs text-gray-400 mt-1">Balance: ${transaction.balanceAfter.toFixed(2)}</p>
+                  </div>
                 </div>
+
+                {transaction.status === 'pending' && (
+                  <div className="flex gap-2 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => handleStatusChange(transaction._id, 'failed')}
+                      disabled={processingId === transaction._id}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    >
+                      {processingId === transaction._id ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      ) : (
+                        <><XCircle className="w-4 h-4" /> Reject</>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(transaction._id, 'completed')}
+                      disabled={processingId === transaction._id}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    >
+                      {processingId === transaction._id ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      ) : (
+                        <><CheckCircle2 className="w-4 h-4" /> Approve</>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}
         </div>
-
       </div>
     </div>
   );
