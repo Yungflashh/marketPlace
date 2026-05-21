@@ -2,7 +2,7 @@
 import axios from 'axios';
 // src/utils/api.ts
 
-const API_BASE_URL = "https://marketplc-be-k3en.onrender.com";
+const API_BASE_URL = "https://marketplc-be-rxc7.onrender.com";
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
