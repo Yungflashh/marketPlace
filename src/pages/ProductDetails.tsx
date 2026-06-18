@@ -4,6 +4,7 @@ import api from '../utils/api';
 import { useCart } from '../context/CartContext';
 import type { Product } from '../types';
 import { toast } from 'react-toastify';
+import { ArrowLeft, Plus, Minus, ShoppingCart } from 'lucide-react';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +24,7 @@ const ProductDetails: React.FC = () => {
       const response = await api.get(`/products/${id}`);
       setProduct(response.data.data.product);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Error fetching product');
+      toast.error(error.response?.data?.message || 'Error fetching log');
       navigate('/');
     } finally {
       setLoading(false);
@@ -33,7 +34,7 @@ const ProductDetails: React.FC = () => {
   const handleAddToCart = (): void => {
     if (product && product.quantity >= quantity) {
       addToCart(product, quantity);
-      toast.success(`${quantity} ${product.name}(s) added to cart!`);
+      toast.success(`${quantity} × ${product.name} added to cart!`);
     } else {
       toast.error('Insufficient stock');
     }
@@ -41,8 +42,8 @@ const ProductDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-gray-500">Loading product...</p>
+      <div className="min-h-screen bg-white flex justify-center items-center">
+        <p className="text-gray-500 text-sm">Loading log...</p>
       </div>
     );
   }
@@ -50,88 +51,98 @@ const ProductDetails: React.FC = () => {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Product not found</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">Log not found</h2>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
-      >
-        &larr; Back
-      </button>
+    <div className="min-h-screen bg-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full h-96 object-cover rounded-lg"
-          />
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
-
-          <p className="text-sm text-gray-500 mb-4 capitalize">Category: {product.category}</p>
-
-          <div className="mb-6">
-            <span className="text-3xl font-bold text-indigo-600">${product.price.toFixed(2)}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          {/* Image */}
+          <div className="rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              className="w-full h-96 object-cover"
+            />
           </div>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Description</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
-          </div>
+          {/* Info */}
+          <div className="flex flex-col">
+            <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-2 capitalize">
+              {product.category}
+            </p>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Availability</h3>
-            {product.quantity > 0 ? (
-              <span className="text-green-600 font-medium text-sm">In Stock: {product.quantity} available</span>
-            ) : (
-              <span className="text-red-600 font-medium text-sm">Out of Stock</span>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-4 leading-snug">
+              {product.name}
+            </h1>
+
+            <div className="mb-6">
+              <span className="text-3xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+            </div>
+
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+            </div>
+
+            <div className="mb-6">
+              {product.quantity > 0 ? (
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                  In stock — {product.quantity} available
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-red-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+                  Out of stock
+                </span>
+              )}
+            </div>
+
+            {product.quantity > 0 && (
+              <div className="space-y-4 mt-auto">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                  <div className="flex items-center gap-0 border border-gray-200 rounded-full w-fit">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-9 h-9 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-l-full transition-colors"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-semibold text-gray-900">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
+                      className="w-9 h-9 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-r-full transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-gray-900 text-white py-3 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Add to cart
+                </button>
+              </div>
             )}
           </div>
-
-          {product.quantity > 0 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="btn btn-secondary w-10"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    min="1"
-                    max={product.quantity}
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, Math.min(product.quantity, parseInt(e.target.value) || 1)))}
-                    className="input text-center w-20"
-                  />
-                  <button
-                    onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
-                    className="btn btn-secondary w-10"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={handleAddToCart}
-                className="w-full btn btn-primary text-lg py-3"
-              >
-                Add to Cart
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>

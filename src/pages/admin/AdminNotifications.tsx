@@ -108,14 +108,14 @@ const AdminNotifications: React.FC = () => {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <Bell className="w-7 h-7 text-indigo-600" />
+              <Bell className="w-7 h-7 text-gray-700" />
               <h1 className="text-2xl font-bold text-gray-900">Notification Management</h1>
             </div>
             <p className="text-gray-500 text-sm ml-10">Create and manage purchase notifications</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-1.5"
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium flex items-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>Create</span>
@@ -125,8 +125,8 @@ const AdminNotifications: React.FC = () => {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3">
-            <div className="bg-indigo-50 rounded-lg p-2">
-              <Bell className="w-5 h-5 text-indigo-600" />
+            <div className="bg-gray-100 rounded-lg p-2">
+              <Bell className="w-5 h-5 text-gray-700" />
             </div>
             <div>
               <p className="text-xl font-bold text-gray-900">{notifications.length}</p>
@@ -161,7 +161,7 @@ const AdminNotifications: React.FC = () => {
             <p className="text-sm text-gray-500 mb-4">Create your first purchase notification</p>
             <button
               onClick={() => setShowModal(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium inline-flex items-center gap-1.5"
+              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium inline-flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>Create Notification</span>
@@ -195,7 +195,7 @@ const AdminNotifications: React.FC = () => {
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-3 mb-3 text-sm">
-                    <p className="text-xs text-gray-500 mb-0.5">Product</p>
+                    <p className="text-xs text-gray-500 mb-0.5">Log</p>
                     <p className="font-medium text-gray-900">{notification.product}</p>
                   </div>
 
@@ -233,9 +233,9 @@ const AdminNotifications: React.FC = () => {
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-white/30 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-gray-200">
-            <div className="bg-indigo-600 text-white p-6 rounded-t-xl">
+            <div className="bg-gray-900 text-white p-6 rounded-t-xl">
               <h2 className="text-xl font-bold">Create Notification</h2>
-              <p className="text-indigo-100 text-sm">Add a new purchase notification</p>
+              <p className="text-gray-300 text-sm">Add a new purchase notification</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6">
@@ -250,7 +250,7 @@ const AdminNotifications: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="John D."
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                     />
                   </div>
                 </div>
@@ -265,13 +265,13 @@ const AdminNotifications: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       placeholder="New York"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Product Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Log Name</label>
                   <div className="relative">
                     <ShoppingBag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <input
@@ -280,7 +280,7 @@ const AdminNotifications: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                       placeholder="Wireless Headphones"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                     />
                   </div>
                 </div>
@@ -297,7 +297,7 @@ const AdminNotifications: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                       placeholder="199.99"
                       required
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                     />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ const AdminNotifications: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   {submitting ? (
                     <>

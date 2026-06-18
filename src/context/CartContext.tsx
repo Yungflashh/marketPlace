@@ -20,7 +20,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const savedCart = sessionStorage.getItem('cart');
+    const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
         setCartItems(JSON.parse(savedCart));
@@ -31,7 +31,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    sessionStorage.setItem('cart', JSON.stringify(cartItems));
+    localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = (product: Product, quantity: number = 1): void => {
@@ -69,6 +69,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const clearCart = (): void => {
     setCartItems([]);
+    localStorage.removeItem('cart');
   };
 
   const getCartTotal = (): number => {

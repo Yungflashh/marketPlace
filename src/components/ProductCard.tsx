@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import type { Product } from '../types';
+import { Layers } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -17,62 +18,67 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       addToCart(product, 1);
       toast.success(`${product.name} added to cart!`);
     } else {
-      toast.error('Product is out of stock');
+      toast.error('Log is out of stock');
     }
   };
 
   return (
-    <Link to={`/product/${product._id}`} className="block">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
-        <div className="relative h-48 overflow-hidden bg-gray-200">
-          <img 
-            src={product.imageUrl} 
+    <Link to={`/product/${product._id}`} className="block group">
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
+        <div className="relative h-52 overflow-hidden bg-gray-50">
+          <img
+            src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          {product.quantity === 0 && (
-            <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+          {product.quantity === 0 ? (
+            <div className="absolute top-2 right-2 bg-gray-900 text-white px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wide">
               Out of Stock
+            </div>
+          ) : product.quantity <= 10 ? (
+            <div className="absolute top-2 right-2 bg-orange-500 text-white px-2.5 py-1 rounded-full text-[10px] font-semibold">
+              Only {product.quantity} left
+            </div>
+          ) : (
+            <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-[10px] font-semibold">
+              {product.quantity} in stock
             </div>
           )}
         </div>
-        
+
         <div className="p-4 flex flex-col flex-grow">
-          <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-2">
-            {product.name}
-          </h3>
-          
-          <p className="text-sm text-gray-500 mb-2 capitalize">
+          <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-1 capitalize">
             {product.category}
           </p>
-          
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2 flex-grow">
+          <h3 className="text-sm font-semibold text-gray-900 mb-1.5 line-clamp-2 leading-snug">
+            {product.name}
+          </h3>
+          <p className="text-xs text-gray-500 mb-3 line-clamp-2 flex-grow leading-relaxed">
             {product.description}
           </p>
-          
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-2xl font-bold text-blue-600">
+
+          <div className={`inline-flex items-center gap-1 mb-3 px-2 py-1 rounded-md text-[11px] font-medium w-fit ${
+            product.quantity === 0
+              ? 'bg-red-50 text-red-600'
+              : product.quantity <= 10
+              ? 'bg-orange-50 text-orange-600'
+              : 'bg-green-50 text-green-700'
+          }`}>
+            <Layers className="w-3 h-3" />
+            {product.quantity === 0 ? 'Out of stock' : `${product.quantity} logs available`}
+          </div>
+
+          <div className="flex items-center justify-between mt-auto">
+            <span className="text-lg font-bold text-gray-900">
               ${product.price.toFixed(2)}
             </span>
             <button
               onClick={handleAddToCart}
               disabled={product.quantity === 0}
-              className="btn btn-primary text-sm"
+              className="bg-gray-900 text-white text-xs font-medium px-3.5 py-1.5 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Add to Cart
+              Add to cart
             </button>
-          </div>
-          
-          <div className="text-xs text-right">
-            {product.quantity > 0 ? (
-              <span className="text-green-600 font-semibold">
-                In Stock: {product.quantity}
-              </span>
-            ) : (
-              <span className="text-red-600 font-semibold">
-                Out of Stock
-              </span>
-            )}
           </div>
         </div>
       </div>

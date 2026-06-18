@@ -2,19 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import api from '../../utils/api';
 import {
-  Wallet,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Calendar,
-  User,
-  Hash,
-  Filter,
-  Shield,
-  ArrowUpCircle,
-  ArrowDownCircle
+  Wallet, Clock, CheckCircle2, XCircle, ChevronLeft, ChevronRight,
+  ArrowUpCircle, ArrowDownCircle, Hash, X, User, Calendar
 } from 'lucide-react';
+
+const PAGE_SIZE = 15;
 
 interface UserInfo {
   _id: string;
@@ -37,48 +29,43 @@ interface Transaction {
   createdAt: string;
 }
 
+type FilterType = 'all' | 'pending' | 'completed' | 'failed';
+
 const AdminTransactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<FilterType>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [detailTxn, setDetailTxn] = useState<Transaction | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
   }, []);
 
   useEffect(() => {
-    filterTransactions();
-  }, [transactions, filterStatus]);
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   const fetchTransactions = async (): Promise<void> => {
     try {
       const response = await api.get('/admin/transactions');
-      setTransactions(response.data.data.transactions);
-      console.log(response.data.data);
-    } catch (error: any) {
-      console.log(error);
+      setTransactions(response.data.data.transactions || []);
+    } catch {
       toast.error('Error fetching transactions');
     } finally {
       setLoading(false);
     }
   };
 
-  const filterTransactions = (): void => {
-    let filtered = [...transactions];
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(t => t.status === filterStatus);
-    }
-    setFilteredTransactions(filtered);
-  };
-
-  const handleStatusChange = async (transactionId: string, newStatus: 'completed' | 'failed'): Promise<void> => {
-    setProcessingId(transactionId);
+  const handleStatusChange = async (id: string, newStatus: 'completed' | 'failed'): Promise<void> => {
+    setProcessingId(id);
     try {
-      await api.patch(`/admin/transactions/${transactionId}`, { status: newStatus });
-      toast.success(`Transaction ${newStatus === 'completed' ? 'approved' : 'rejected'} successfully!`);
-      fetchTransactions();
+      await api.patch(`/admin/transactions/${id}`, { status: newStatus });
+      toast.success(`Transaction ${newStatus === 'completed' ? 'approved' : 'rejected'}`);
+      await fetchTransactions();
+      if (detailTxn?._id === id) closeDetail();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error updating transaction');
     } finally {
@@ -86,49 +73,42 @@ const AdminTransactions: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+  const openDetail = (txn: Transaction) => {
+    setDetailTxn(txn);
+    requestAnimationFrame(() => setDetailVisible(true));
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'failed': return <XCircle className="w-4 h-4 text-red-600" />;
-      case 'pending': return <Clock className="w-4 h-4 text-yellow-600" />;
-      default: return <AlertCircle className="w-4 h-4 text-gray-600" />;
-    }
+  const closeDetail = () => {
+    setDetailVisible(false);
+    setTimeout(() => setDetailTxn(null), 200);
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      completed: 'bg-green-100 text-green-700',
-      pending: 'bg-yellow-100 text-yellow-700',
-      failed: 'bg-red-100 text-red-700',
-    };
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
-        {getStatusIcon(status)}
-        {status.toUpperCase()}
-      </span>
-    );
-  };
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const filtered = filterStatus === 'all' ? transactions : transactions.filter(t => t.status === filterStatus);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const stats = {
     total: transactions.length,
     pending: transactions.filter(t => t.status === 'pending').length,
     completed: transactions.filter(t => t.status === 'completed').length,
     failed: transactions.filter(t => t.status === 'failed').length,
-    totalAmount: transactions
-      .filter(t => t.status === 'completed' && t.type === 'credit')
-      .reduce((sum, t) => sum + t.amount, 0)
+    volume: transactions.filter(t => t.status === 'completed' && t.type === 'credit').reduce((s, t) => s + t.amount, 0),
   };
+
+  const filters: { label: string; value: FilterType; count: number }[] = [
+    { label: 'All', value: 'all', count: stats.total },
+    { label: 'Pending', value: 'pending', count: stats.pending },
+    { label: 'Completed', value: 'completed', count: stats.completed },
+    { label: 'Failed', value: 'failed', count: stats.failed },
+  ];
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <p className="text-gray-600">Loading transactions...</p>
+        <p className="text-gray-600 font-medium">Loading transactions...</p>
       </div>
     );
   }
@@ -136,13 +116,14 @@ const AdminTransactions: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
-            <Shield className="w-7 h-7 text-indigo-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Transaction Management</h1>
+            <Wallet className="w-7 h-7 text-gray-700" />
+            <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
           </div>
-          <p className="text-gray-500 text-sm ml-10">Review and approve wallet transactions</p>
+          <p className="text-gray-500 text-sm ml-10">Review and approve wallet funding requests</p>
         </div>
 
         {/* Stats */}
@@ -164,122 +145,279 @@ const AdminTransactions: React.FC = () => {
             <p className="text-xs text-gray-500">Rejected</p>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-2xl font-bold text-indigo-600">${stats.totalAmount.toFixed(0)}</p>
-            <p className="text-xs text-gray-500">Approved Amount</p>
+            <p className="text-2xl font-bold text-gray-700">${stats.volume.toLocaleString('en-US', { minimumFractionDigits: 0 })}</p>
+            <p className="text-xs text-gray-500">Volume</p>
           </div>
         </div>
 
-        {/* Filter */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
-          <div className="relative max-w-xs">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none text-sm appearance-none bg-white cursor-pointer"
+        {/* Filter Tabs */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {filters.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setFilterStatus(f.value)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                filterStatus === f.value
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-900 hover:text-gray-900'
+              }`}
             >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="failed">Failed</option>
-            </select>
+              {f.label}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                filterStatus === f.value ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+              }`}>
+                {f.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Table */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <Wallet className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+            <p className="text-gray-500">No transactions found</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {paginated.map((txn) => (
+                    <tr key={txn._id} className="hover:bg-gray-50">
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{txn.user?.name ?? 'Unknown'}</p>
+                          <p className="text-xs text-gray-400">{txn.user?.email ?? ''}</p>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-semibold ${
+                          txn.type === 'credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        }`}>
+                          {txn.type === 'credit'
+                            ? <ArrowDownCircle className="w-3 h-3" />
+                            : <ArrowUpCircle className="w-3 h-3" />
+                          }
+                          {txn.type.toUpperCase()}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className={`text-sm font-bold ${txn.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                          {txn.type === 'credit' ? '+' : '-'}${txn.amount.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className="text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
+                          {txn.paymentMethod ?? '—'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className="text-xs text-gray-500">{formatDate(txn.createdAt)}</span>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+                          txn.status === 'completed' ? 'bg-green-100 text-green-700'
+                          : txn.status === 'pending' ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}>
+                          {txn.status === 'completed' ? <CheckCircle2 className="w-3 h-3" />
+                            : txn.status === 'pending' ? <Clock className="w-3 h-3" />
+                            : <XCircle className="w-3 h-3" />
+                          }
+                          {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3.5 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openDetail(txn)}
+                            className="text-xs text-gray-500 hover:text-gray-900 hover:bg-gray-100 px-2.5 py-1.5 rounded-lg transition-colors"
+                          >
+                            Details
+                          </button>
+                          {txn.status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(txn._id, 'failed')}
+                                disabled={processingId === txn._id}
+                                className="text-xs text-red-600 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition-colors font-medium disabled:opacity-50"
+                              >
+                                Reject
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(txn._id, 'completed')}
+                                disabled={processingId === txn._id}
+                                className="text-xs text-white bg-green-500 hover:bg-green-600 px-2.5 py-1.5 rounded-lg transition-colors font-medium disabled:opacity-50"
+                              >
+                                {processingId === txn._id
+                                  ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  : 'Approve'
+                                }
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p className="text-xs text-gray-400">
+                  Page {currentPage} of {totalPages} — {filtered.length} transactions
+                </p>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                    .reduce<(number | '...')[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, i) =>
+                      p === '...' ? (
+                        <span key={`e-${i}`} className="px-1 text-gray-300 text-sm">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => setCurrentPage(p as number)}
+                          className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${currentPage === p ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Transaction Detail Modal */}
+      {detailTxn && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) closeDetail(); }}
+          className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${detailVisible ? 'opacity-100' : 'opacity-0'}`}
+          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
+        >
+          <div className={`bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transition-all duration-200 ${detailVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <div className="bg-gray-900 px-6 py-5 flex items-center justify-between">
+              <h2 className="text-white font-semibold">Transaction Details</h2>
+              <button onClick={closeDetail} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><User className="w-3 h-3" /> User</p>
+                  <p className="text-sm font-medium text-gray-900">{detailTxn.user?.name ?? 'Unknown'}</p>
+                  <p className="text-xs text-gray-500 truncate">{detailTxn.user?.email ?? ''}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><Calendar className="w-3 h-3" /> Date</p>
+                  <p className="text-sm font-medium text-gray-900">{formatDate(detailTxn.createdAt)}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1">Amount</p>
+                  <p className={`text-xl font-bold ${detailTxn.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                    {detailTxn.type === 'credit' ? '+' : '-'}${detailTxn.amount.toFixed(2)}
+                  </p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1">Balance After</p>
+                  <p className="text-lg font-bold text-gray-900">${detailTxn.balanceAfter.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-3 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Method</span>
+                  <span className="font-medium text-gray-900">{detailTxn.paymentMethod ?? '—'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Status</span>
+                  <span className={`font-semibold capitalize ${
+                    detailTxn.status === 'completed' ? 'text-green-600'
+                    : detailTxn.status === 'pending' ? 'text-yellow-600'
+                    : 'text-red-600'
+                  }`}>{detailTxn.status}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500 flex items-center gap-1"><Hash className="w-3 h-3" /> Reference</span>
+                  <span className="font-mono text-xs text-gray-700">{detailTxn.reference}</span>
+                </div>
+              </div>
+
+              {detailTxn.walletAddress && (
+                <div className="border border-gray-200 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1">Wallet Address</p>
+                  <p className="text-xs font-mono text-gray-700 break-all">{detailTxn.walletAddress}</p>
+                </div>
+              )}
+
+              {detailTxn.description && (
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-400 mb-1">Description</p>
+                  <p className="text-sm text-gray-700">{detailTxn.description}</p>
+                </div>
+              )}
+
+              {detailTxn.status === 'pending' && (
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={() => handleStatusChange(detailTxn._id, 'failed')}
+                    disabled={processingId === detailTxn._id}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    <XCircle className="w-4 h-4" /> Reject
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(detailTxn._id, 'completed')}
+                    disabled={processingId === detailTxn._id}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-green-500 text-white hover:bg-green-600 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    {processingId === detailTxn._id
+                      ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      : <><CheckCircle2 className="w-4 h-4" /> Approve</>
+                    }
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-        {/* Transactions */}
-        <div className="space-y-3">
-          {filteredTransactions.length === 0 ? (
-            <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-              <Wallet className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <p className="font-medium text-gray-900">No transactions found</p>
-              <p className="text-sm text-gray-500">Try adjusting your filters</p>
-            </div>
-          ) : (
-            filteredTransactions.map((transaction) => (
-              <div key={transaction._id} className="bg-white rounded-lg border border-gray-200 p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className={`rounded-lg p-2 ${transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100'}`}>
-                      {transaction.type === 'credit' ? (
-                        <ArrowDownCircle className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <ArrowUpCircle className="w-5 h-5 text-red-600" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <User className="w-3.5 h-3.5 text-gray-400" />
-                        <p className="font-medium text-gray-900 text-sm">{transaction.user?.name || 'Unknown User'}</p>
-                        <span className="text-xs text-gray-400">{transaction.user?.email || ''}</span>
-                      </div>
-                      <p className="text-sm text-gray-700 mb-1">{transaction.description}</p>
-
-                      {transaction.paymentMethod && (
-                        <p className="text-xs bg-indigo-50 px-2 py-0.5 inline-block rounded text-indigo-700 mb-1">
-                          {transaction.paymentMethod}
-                        </p>
-                      )}
-
-                      {transaction.walletAddress && (
-                        <div className="bg-gray-50 rounded p-2 mb-1">
-                          <p className="text-[10px] text-gray-500 mb-0.5">Wallet Address:</p>
-                          <p className="text-xs font-mono text-gray-700 break-all">{transaction.walletAddress}</p>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-3 text-xs text-gray-400 mt-2">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDate(transaction.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Hash className="w-3 h-3" />
-                          <span className="font-mono">{transaction.reference}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right ml-4">
-                    <p className={`text-xl font-bold mb-1 ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
-                    </p>
-                    {getStatusBadge(transaction.status)}
-                    <p className="text-xs text-gray-400 mt-1">Balance: ${transaction.balanceAfter.toFixed(2)}</p>
-                  </div>
-                </div>
-
-                {transaction.status === 'pending' && (
-                  <div className="flex gap-2 pt-3 border-t border-gray-100">
-                    <button
-                      onClick={() => handleStatusChange(transaction._id, 'failed')}
-                      disabled={processingId === transaction._id}
-                      className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
-                    >
-                      {processingId === transaction._id ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      ) : (
-                        <><XCircle className="w-4 h-4" /> Reject</>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleStatusChange(transaction._id, 'completed')}
-                      disabled={processingId === transaction._id}
-                      className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
-                    >
-                      {processingId === transaction._id ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      ) : (
-                        <><CheckCircle2 className="w-4 h-4" /> Approve</>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 };

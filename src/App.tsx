@@ -7,10 +7,12 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
 import Home from './pages/Home';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProductDetails from './pages/ProductDetails';
@@ -24,23 +26,29 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminWallet from './pages/admin/AdminWallet';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import VerifyOTP from './pages/VerifyOTP';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminUsers from './pages/admin/AdminUsers';
+import Profile from './pages/Profile';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen bg-white flex flex-col">
             <Navbar />
-            <main className="pb-12">
+            <main className="flex-1 pb-12">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/store" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/verify-otp" element={<VerifyOTP />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
                 <Route path="/cart" element={
                   <PrivateRoute>
@@ -63,6 +71,12 @@ const App: React.FC = () => {
                 <Route path="/order/:id" element={
                   <PrivateRoute>
                     <OrderDetails />
+                  </PrivateRoute>
+                } />
+
+                <Route path="/profile" element={
+                  <PrivateRoute>
+                    <Profile />
                   </PrivateRoute>
                 } />
                 
@@ -109,7 +123,8 @@ const App: React.FC = () => {
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>
-            <ToastContainer 
+            <Footer />
+            <ToastContainer
               position="top-right"
               autoClose={3000}
               hideProgressBar={false}

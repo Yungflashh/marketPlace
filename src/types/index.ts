@@ -19,6 +19,7 @@ export interface Product {
   category: string;
   imageUrl: string;
   isActive: boolean;
+  featured: boolean;
   createdBy: string | User;
   createdAt: string;
   updatedAt: string;

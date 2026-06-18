@@ -1,101 +1,82 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Lock, Eye, EyeOff, Shield, ArrowRight, Mail } from 'lucide-react';
 import Logo from '../components/Logo';
 
-const Register: React.FC = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const { register } = useAuth();
+const ResetPassword: React.FC = () => {
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+  const [formData, setFormData] = useState({
+    email: (location.state as any)?.email ?? '',
+    otp: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const passwordStrength =
+    formData.newPassword.length >= 10 ? 'strong'
+    : formData.newPassword.length >= 6 ? 'medium'
+    : 'weak';
+
+  const strengthColor =
+    passwordStrength === 'strong' ? 'bg-green-500'
+    : passwordStrength === 'medium' ? 'bg-yellow-400'
+    : 'bg-red-400';
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.newPassword !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
-
-    if (formData.password.length < 6) {
+    if (formData.newPassword.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
 
     setLoading(true);
     try {
-      const { name, email, password } = formData;
-      await register({ name, email, password });
-      toast.success('Account created!');
-      navigate('/verify-otp', { state: { email } });
+      await api.post('/auth/reset-password', {
+        email: formData.email,
+        otp: formData.otp,
+        newPassword: formData.newPassword,
+      });
+      toast.success('Password reset successfully — please sign in');
+      navigate('/login');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(error.response?.data?.message || 'Reset failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const passwordStrength =
-    formData.password.length >= 10
-      ? 'strong'
-      : formData.password.length >= 6
-      ? 'medium'
-      : 'weak';
-
-  const strengthColor =
-    passwordStrength === 'strong'
-      ? 'bg-green-500'
-      : passwordStrength === 'medium'
-      ? 'bg-yellow-400'
-      : 'bg-red-400';
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        {/* Card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-          {/* Logo */}
           <Link to="/" className="flex items-center justify-center gap-2.5 text-gray-900 mb-8">
             <Logo size={20} />
             <span className="text-[17px] font-semibold tracking-tight">ShopLogs</span>
           </Link>
 
           <div className="text-center mb-7">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Create your account</h1>
-            <p className="text-sm text-gray-500">Start shopping in seconds</p>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Set a new password</h1>
+            <p className="text-sm text-gray-500">Enter the code we emailed you and choose a new password</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Full name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="John Doe"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
-                />
-              </div>
-            </div>
-
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
               <div className="relative">
@@ -112,71 +93,77 @@ const Register: React.FC = () => {
               </div>
             </div>
 
+            {/* OTP */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Reset code</label>
+              <input
+                type="text"
+                name="otp"
+                value={formData.otp}
+                onChange={handleChange}
+                required
+                placeholder="6-digit code from your email"
+                maxLength={6}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors tracking-[0.3em] text-center font-semibold"
+              />
+            </div>
+
+            {/* New password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">New password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={formData.password}
+                  name="newPassword"
+                  value={formData.newPassword}
                   onChange={handleChange}
                   required
                   placeholder="Minimum 6 characters"
                   minLength={6}
                   className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {formData.password && (
+              {formData.newPassword && (
                 <div className="mt-2">
                   <div className="flex gap-1">
                     <div className={`h-0.5 flex-1 rounded-full ${strengthColor}`} />
                     <div className={`h-0.5 flex-1 rounded-full ${passwordStrength !== 'weak' ? strengthColor : 'bg-gray-200'}`} />
                     <div className={`h-0.5 flex-1 rounded-full ${passwordStrength === 'strong' ? strengthColor : 'bg-gray-200'}`} />
                   </div>
-                  <p className={`text-xs mt-1 capitalize ${
-                    passwordStrength === 'strong' ? 'text-green-600' :
-                    passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-500'
-                  }`}>
+                  <p className={`text-xs mt-1 capitalize ${passwordStrength === 'strong' ? 'text-green-600' : passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-500'}`}>
                     {passwordStrength} password
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm new password</label>
               <div className="relative">
-                <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirm ? 'text' : 'password'}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  placeholder="Re-enter your password"
+                  placeholder="Re-enter your new password"
                   className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
               {formData.confirmPassword && (
-                <p className={`text-xs mt-1 ${
-                  formData.password === formData.confirmPassword ? 'text-green-600' : 'text-red-500'
-                }`}>
-                  {formData.password === formData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
+                <p className={`text-xs mt-1 ${formData.newPassword === formData.confirmPassword ? 'text-green-600' : 'text-red-500'}`}>
+                  {formData.newPassword === formData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
                 </p>
               )}
             </div>
@@ -189,10 +176,10 @@ const Register: React.FC = () => {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Creating account...</span>
+                  <span>Resetting password...</span>
                 </>
               ) : (
-                <span>Create account</span>
+                <span>Reset password</span>
               )}
             </button>
           </form>
@@ -202,16 +189,13 @@ const Register: React.FC = () => {
               <div className="w-full border-t border-gray-100" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-white text-gray-400">Already a member?</span>
+              <span className="px-3 bg-white text-gray-400">Didn't receive a code?</span>
             </div>
           </div>
 
           <div className="text-center">
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 hover:underline"
-            >
-              Sign in to your account
+            <Link to="/forgot-password" className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 hover:underline">
+              Request a new code
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -220,7 +204,7 @@ const Register: React.FC = () => {
         <div className="mt-4 text-center">
           <div className="inline-flex items-center gap-1.5 text-xs text-gray-400">
             <Shield className="w-3.5 h-3.5" />
-            <span>Your data is protected and encrypted</span>
+            <span>Secured with 256-bit encryption</span>
           </div>
         </div>
       </div>
@@ -228,4 +212,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default ResetPassword;

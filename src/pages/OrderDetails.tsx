@@ -84,7 +84,7 @@ const OrderDetails: React.FC = () => {
           <p className="text-sm text-gray-500 mb-6">We couldn't find the order you're looking for.</p>
           <button
             onClick={() => navigate('/orders')}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+            className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
           >
             View All Orders
           </button>
@@ -98,7 +98,7 @@ const OrderDetails: React.FC = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate('/orders')}
-          className="mb-6 flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+          className="mb-6 flex items-center gap-1.5 text-gray-700 hover:text-gray-700 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Orders</span>

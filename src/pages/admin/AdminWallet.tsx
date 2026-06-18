@@ -176,7 +176,7 @@ const AdminWallet: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleOpenModal(user)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-gray-900 hover:text-blue-900"
                       >
                         Manage Wallet
                       </button>
@@ -213,7 +213,7 @@ const AdminWallet: React.FC = () => {
 
               <div className="mb-6 p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">Current Balance</p>
-                <p className="text-3xl font-bold text-blue-600">
+                <p className="text-3xl font-bold text-gray-900">
                   ${selectedUser.walletBalance.toFixed(2)}
                 </p>
               </div>
@@ -266,7 +266,7 @@ const AdminWallet: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="btn btn-secondary"
+                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors text-sm"
                   >
                     Cancel
                   </button>
