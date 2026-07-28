@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,7 +6,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 
-import Navbar from './components/Navbar';
+import AppShell from './components/nav/AppShell';
+import AppSplash from './components/AppSplash';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
@@ -27,95 +28,102 @@ import VerifyOTP from './pages/VerifyOTP';
 import AdminNotifications from './pages/admin/AdminNotifications';
 
 const App: React.FC = () => {
+  const [appReady, setAppReady] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 900));
+    const fontsReady = (document as any).fonts?.ready ?? Promise.resolve();
+    Promise.all([minDelay, fontsReady]).then(() => setAppReady(true));
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main className="pb-12">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/product/:id" element={<ProductDetails />} />
-                <Route path="/verify-otp" element={<VerifyOTP />} />
+          {showSplash && <AppSplash exiting={appReady} onExited={() => setShowSplash(false)} />}
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/product/:id" element={<ProductDetails />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
 
-                <Route path="/cart" element={
-                  <PrivateRoute>
-                    <Cart />
-                  </PrivateRoute>
-                } />
-                
-                <Route path="/wallet" element={
-                  <PrivateRoute>
-                    <Wallet />
-                  </PrivateRoute>
-                } />
-                
-                <Route path="/orders" element={
-                  <PrivateRoute>
-                    <Orders />
-                  </PrivateRoute>
-                } />
-                
-                <Route path="/order/:id" element={
-                  <PrivateRoute>
-                    <OrderDetails />
-                  </PrivateRoute>
-                } />
-                
-                {/* Admin Routes */}
-                <Route path="/admin" element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                } />
-                
-                <Route path="/admin/products" element={
-                  <AdminRoute>
-                    <AdminProducts />
-                  </AdminRoute>
-                } />
-                <Route path="/admin/notifications" element={
-                  <AdminRoute>
-                    <AdminNotifications />
-                  </AdminRoute>
-                } />
-                
-                <Route path="/admin/orders" element={
-                  <AdminRoute>
-                    <AdminOrders />
-                  </AdminRoute>
-                } />
-                
-                <Route path="/admin/wallet" element={
-                  <AdminRoute>
-                    <AdminWallet />
-                  </AdminRoute>
-                } />
-                <Route path="/admin/transactions" element={
-                  <AdminRoute>
-                    <AdminTransactions />
-                  </AdminRoute>
-                } />
-                
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
-            </main>
-            <ToastContainer 
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-          </div>
+              <Route path="/cart" element={
+                <PrivateRoute>
+                  <Cart />
+                </PrivateRoute>
+              } />
+
+              <Route path="/wallet" element={
+                <PrivateRoute>
+                  <Wallet />
+                </PrivateRoute>
+              } />
+
+              <Route path="/orders" element={
+                <PrivateRoute>
+                  <Orders />
+                </PrivateRoute>
+              } />
+
+              <Route path="/order/:id" element={
+                <PrivateRoute>
+                  <OrderDetails />
+                </PrivateRoute>
+              } />
+
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
+
+              <Route path="/admin/products" element={
+                <AdminRoute>
+                  <AdminProducts />
+                </AdminRoute>
+              } />
+              <Route path="/admin/notifications" element={
+                <AdminRoute>
+                  <AdminNotifications />
+                </AdminRoute>
+              } />
+
+              <Route path="/admin/orders" element={
+                <AdminRoute>
+                  <AdminOrders />
+                </AdminRoute>
+              } />
+
+              <Route path="/admin/wallet" element={
+                <AdminRoute>
+                  <AdminWallet />
+                </AdminRoute>
+              } />
+              <Route path="/admin/transactions" element={
+                <AdminRoute>
+                  <AdminTransactions />
+                </AdminRoute>
+              } />
+
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          </AppShell>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
         </Router>
       </CartProvider>
     </AuthProvider>
