@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
+import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { Mail, Lock, RotateCcw, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Mail, RotateCcw, ArrowRight } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { Button } from '../components/ui';
 
 const VerifyOTP: React.FC = () => {
   const [otp, setOtp] = useState('');
@@ -25,7 +26,7 @@ const VerifyOTP: React.FC = () => {
 
     setLoading(true);
     try {
-      await axios.post('https://marketplc-be-c2a5.onrender.com/api/auth/verify-otp', { email, otp });
+      await api.post('/auth/verify-otp', { email, otp });
       toast.success('Email verified successfully!');
       navigate('/login');
     } catch (error: any) {
@@ -44,7 +45,7 @@ const VerifyOTP: React.FC = () => {
 
     setResending(true);
     try {
-      await axios.post('https://marketplc-be-c2a5.onrender.com/api/auth/resend-otp', { email });
+      await api.post('/auth/resend-otp', { email });
       toast.success('A new OTP has been sent to your email.');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to resend OTP');
@@ -54,83 +55,58 @@ const VerifyOTP: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-        <div className="text-center mb-8">
-          <div className="mx-auto w-14 h-14 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl flex items-center justify-center mb-4">
-            <Mail className="w-7 h-7" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900">Verify Your Email</h2>
-          <p className="text-gray-600 mt-2">
-            We’ve sent a 6-digit code to <span className="font-semibold text-indigo-600">{email}</span>
-          </p>
+    <div className="min-h-screen bg-spotlight flex items-center justify-center px-4 py-16">
+      <div className="w-full max-w-[380px] text-center">
+        <div className="mx-auto w-12 h-12 bg-gold rounded-xl flex items-center justify-center mb-6">
+          <Mail className="w-5 h-5 text-canvas" />
         </div>
+        <h1 className="font-display text-[28px] font-medium text-ink tracking-tight">Verify your email</h1>
+        <p className="text-[15px] text-ink-faint mt-2 mb-9">
+          We've sent a 6-digit code to <span className="text-ink font-medium">{email}</span>
+        </p>
 
         <form onSubmit={handleVerify} className="space-y-6">
-          {/* OTP Input */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Enter OTP Code
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                placeholder="Enter 6-digit code"
-                className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none text-gray-700 text-center tracking-widest text-lg"
-              />
-            </div>
-          </div>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={6}
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+            placeholder="000000"
+            className="w-full h-16 rounded-lg border border-hairline-strong bg-surface focus:border-gold focus:ring-2 focus:ring-gold/25 outline-none text-ink text-center tracking-[0.6em] text-2xl font-display transition-colors"
+          />
 
-          {/* Verify Button */}
+          <Button type="submit" fullWidth size="lg" loading={loading}>
+            {loading ? 'Verifying…' : 'Verify email'}
+            {!loading && <ArrowRight className="w-4 h-4" />}
+          </Button>
+        </form>
+
+        <p className="text-sm text-ink-faint mt-7">
+          Didn't receive the code?{' '}
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+            onClick={handleResend}
+            disabled={resending}
+            className="font-semibold text-gold hover:text-gold-strong transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
           >
-            {loading ? (
+            {resending ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Verifying...</span>
+                <div className="w-3.5 h-3.5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                <span>Sending…</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-5 h-5" />
-                <span>Verify Email</span>
-                <ArrowRight className="w-5 h-5" />
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Resend OTP</span>
               </>
             )}
           </button>
-        </form>
+        </p>
 
-        {/* Resend OTP */}
-        <div className="text-center mt-6">
-          <p className="text-gray-600">
-            Didn’t receive the code?{' '}
-            <button
-              onClick={handleResend}
-              disabled={resending}
-              className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors inline-flex items-center gap-1"
-            >
-              {resending ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin"></div>
-                  <span>Sending...</span>
-                </>
-              ) : (
-                <>
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Resend OTP</span>
-                </>
-              )}
-            </button>
-          </p>
-        </div>
+        <Link to="/login" className="block mt-6 text-sm text-ink-faint hover:text-ink transition-colors">
+          Back to sign in
+        </Link>
       </div>
     </div>
   );

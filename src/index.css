@@ -1,1 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Surfaces (warm-neutral, kept close to the gold accent's undertone) */
+  --color-canvas: #0d0c0b;
+  --color-canvas-raised: #121110;
+  --color-surface: #181614;
+  --color-surface-hover: #201e1b;
+  --color-elevated: #1d1b18;
+  --color-hairline: #2a2724;
+  --color-hairline-strong: #38342f;
+
+  /* Ink */
+  --color-ink: #f5f2ec;
+  --color-ink-muted: #a6a29a;
+  --color-ink-faint: #726d64;
+
+  /* Brand */
+  --color-gold: #d9b65b;
+  --color-gold-strong: #c6a247;
+  --color-gold-soft: #3a331f;
+
+  /* Semantic */
+  --color-success: #4fd1a5;
+  --color-success-soft: #16241d;
+  --color-warning: #f0975a;
+  --color-warning-soft: #2a2018;
+  --color-danger: #f2685f;
+  --color-danger-soft: #2a1a1a;
+  --color-info: #5aa9e6;
+  --color-info-soft: #182430;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background-color: var(--color-gold-soft);
+    color: var(--color-gold);
+  }
+
+  /* thin dark scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--color-hairline-strong); border-radius: 999px; border: 2px solid var(--color-canvas); }
+  * { scrollbar-width: thin; scrollbar-color: var(--color-hairline-strong) transparent; }
+}
+
+/* Soft radial glow used sparingly behind headers/heroes for depth */
+.bg-spotlight {
+  background-image: radial-gradient(560px circle at 15% 0%, rgba(217, 182, 91, 0.10), transparent 60%);
+}
+
+/* Faint technical grid, masked so it fades toward the edges */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(245, 242, 236, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 242, 236, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 25% 0%, black 35%, transparent 85%);
+  mask-image: radial-gradient(ellipse 65% 55% at 25% 0%, black 35%, transparent 85%);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 24px rgba(217, 182, 91, 0.35);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.97) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes shimmer-sweep {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+.animate-fade-in { animation: fade-in 0.15s ease-out; }
+.animate-rise-in { animation: rise-in 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-sheet-up { animation: sheet-up 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-pop-in { animation: pop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+
+@keyframes logo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes splash-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.04); }
+}
+
+@keyframes progress-loop {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(210%); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-18px, 16px); }
+}
+
+.animate-logo-pulse { animation: logo-pulse 2s ease-in-out infinite; }
+.animate-splash-out { animation: splash-out 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.animate-progress-loop { animation: progress-loop 1.3s ease-in-out infinite; }
+.animate-drift { animation: drift 8s ease-in-out infinite; }
+.animate-drift-slow { animation: drift 12s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* react-toastify — dark theming to match the product */
+.Toastify__toast {
+  background-color: var(--color-elevated) !important;
+  border: 1px solid var(--color-hairline-strong) !important;
+  border-radius: 12px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.875rem !important;
+  color: var(--color-ink) !important;
+  box-shadow: 0 12px 24px -8px rgb(0 0 0 / 0.5) !important;
+}
+.Toastify__progress-bar { background: var(--color-gold) !important; }
+.Toastify__close-button { color: var(--color-ink-muted) !important; opacity: 0.7 !important; }
