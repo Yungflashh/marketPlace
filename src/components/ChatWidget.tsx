@@ -123,18 +123,18 @@ const ChatWidget: React.FC = () => {
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] bg-gray-50 flex flex-col"
-          style={{ height: '100dvh' }}
+          className="fixed inset-0 z-[100] bg-gray-50 flex flex-col overflow-hidden"
+          style={{ height: '100dvh', width: '100vw' }}
         >
-          {/* Header — full width */}
-          <header className="bg-gray-900 text-white shrink-0">
-            <div className="max-w-3xl mx-auto w-full flex items-center justify-between px-4 sm:px-6 py-3">
-              <div className="flex items-center gap-2.5 min-w-0">
+          {/* Header */}
+          <header className="bg-gray-900 text-white shrink-0 w-full">
+            <div className="max-w-3xl mx-auto w-full flex items-center justify-between gap-2 px-3 sm:px-6 py-3">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <div className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                   <Logo size={18} className="text-white" />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm sm:text-base font-semibold leading-tight">ShopBot</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm sm:text-base font-semibold leading-tight truncate">ShopBot</p>
                   <p className="text-[11px] text-gray-300 leading-tight truncate">
                     {messages.length > 0
                       ? `${messages.length} message${messages.length !== 1 ? 's' : ''} · continues where you left off`
@@ -164,14 +164,16 @@ const ChatWidget: React.FC = () => {
             </div>
           </header>
 
-          {/* Messages — full width scroll, centered content column */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden">
-            <div className="max-w-3xl mx-auto w-full px-4 sm:px-6 py-4 space-y-3">
+          {/* Messages scroll area */}
+          <div ref={scrollRef} className="flex-1 min-h-0 w-full overflow-y-auto overflow-x-hidden">
+            <div className="max-w-3xl mx-auto w-full px-3 sm:px-6 py-4 space-y-3">
               {messages.length === 0 && (
-                <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Hi! I'm ShopBot. Ask me about products, prices, payment methods, or how to check out. I remember our conversation between visits.
-                  </p>
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Hi! I'm ShopBot. Ask me about products, prices, payment methods, or how to check out. I remember our conversation between visits.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -206,23 +208,25 @@ const ChatWidget: React.FC = () => {
             </div>
           </div>
 
-          {/* Composer — full width bar, centered inner */}
+          {/* Composer */}
           <div
-            className="border-t border-gray-100 bg-white shrink-0"
+            className="border-t border-gray-100 bg-white shrink-0 w-full"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             <div className="max-w-3xl mx-auto w-full">
-              <div className="px-4 sm:px-6 pt-3 pb-2">
+              {/* Suggested prompts strip */}
+              <div className="px-3 sm:px-6 pt-3 pb-2 w-full overflow-hidden">
                 <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles className="w-3 h-3 text-gray-400" />
+                  <Sparkles className="w-3 h-3 text-gray-400 shrink-0" />
                   <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
                     {messages.length === 0 ? 'Try asking' : 'Suggested'}
                   </p>
                 </div>
-                <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x scroll-smooth">
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar snap-x scroll-smooth">
                   {SUGGESTED_PROMPTS.map((prompt) => (
                     <button
                       key={prompt}
+                      type="button"
                       onClick={() => sendMessage(prompt)}
                       disabled={loading}
                       className="shrink-0 snap-start text-xs px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:border-gray-300 hover:bg-white transition-colors disabled:opacity-50 whitespace-nowrap"
@@ -233,7 +237,7 @@ const ChatWidget: React.FC = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="px-4 sm:px-6 pb-3 pt-1 flex items-center gap-2">
+              <form onSubmit={handleSubmit} className="px-3 sm:px-6 pb-3 pt-1 flex items-center gap-2 w-full">
                 <input
                   ref={inputRef}
                   type="text"

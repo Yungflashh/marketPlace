@@ -7,7 +7,6 @@
 html,
 body {
   overflow-x: hidden;
-  max-width: 100vw;
 }
 
 html {
@@ -16,10 +15,13 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-*,
-*::before,
-*::after {
-  min-width: 0;
+/* Hide scrollbar visually while keeping scroll functional */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes fade-up {
