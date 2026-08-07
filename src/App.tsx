@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -8,13 +8,13 @@ import { CartProvider } from './context/CartContext';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ChatWidget from './components/ChatWidget';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
 import Home from './pages/Home';
 import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import AuthPage from './pages/AuthPage';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Wallet from './pages/Wallet';
@@ -30,21 +30,25 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminEmails from './pages/admin/AdminEmails';
+import AdminEmailComposer from './pages/admin/AdminEmailComposer';
+import AdminPaymentMethods from './pages/admin/AdminPaymentMethods';
 import Profile from './pages/Profile';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const location = useLocation();
+  const authRoutes = ['/login', '/register', '/verify-otp', '/forgot-password', '/reset-password'];
+  const isAuthRoute = authRoutes.includes(location.pathname);
+
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Router>
-          <div className="min-h-screen bg-white flex flex-col">
-            <Navbar />
-            <main className="flex-1 pb-12">
+    <div className="min-h-screen bg-white flex flex-col">
+      {!isAuthRoute && <Navbar />}
+      <main className="flex-1 pb-12">
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/store" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                <Route path="/login" element={<AuthPage />} />
+                <Route path="/register" element={<AuthPage />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/verify-otp" element={<VerifyOTP />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -119,24 +123,49 @@ const App: React.FC = () => {
                     <AdminUsers />
                   </AdminRoute>
                 } />
+                <Route path="/admin/emails" element={
+                  <AdminRoute>
+                    <AdminEmails />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/emails/:id" element={
+                  <AdminRoute>
+                    <AdminEmailComposer />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/payment-methods" element={
+                  <AdminRoute>
+                    <AdminPaymentMethods />
+                  </AdminRoute>
+                } />
 
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>
-            <Footer />
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-            />
-          </div>
+      {!isAuthRoute && <Footer />}
+      {!isAuthRoute && <ChatWidget />}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <AppContent />
         </Router>
       </CartProvider>
     </AuthProvider>

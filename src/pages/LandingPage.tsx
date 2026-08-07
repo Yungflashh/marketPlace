@@ -79,8 +79,8 @@ const LandingPage: React.FC = () => {
 
           {/* Headline */}
           <h1 className="text-white font-normal leading-[1.05] tracking-tight text-[44px] min-[480px]:text-5xl sm:text-6xl lg:text-7xl xl:text-[80px] max-w-4xl">
-            <span className="animate-fade-up block">Shop Smart.</span>
-            <span className="animate-fade-up [animation-delay:100ms] block">Pay Instantly.</span>
+            <span className="animate-fade-up block">Biggest Logs MarketPlace</span>
+            <span className="animate-fade-up [animation-delay:100ms] block">Quick Delivery </span>
           </h1>
 
           {/* Subheadline */}

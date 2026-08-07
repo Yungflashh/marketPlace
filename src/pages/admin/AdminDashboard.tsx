@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Bell,
   CreditCard,
+  Mail,
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -73,6 +74,8 @@ const AdminDashboard: React.FC = () => {
     { to: '/admin/wallet', icon: Wallet, label: 'Wallets', desc: 'Credit or debit user wallets', color: 'text-purple-700 bg-purple-50' },
     { to: '/admin/transactions', icon: CreditCard, label: 'Transactions', desc: 'Approve or reject payments', color: 'text-orange-700 bg-orange-50' },
     { to: '/admin/notifications', icon: Bell, label: 'Notifications', desc: 'Manage purchase notifications', color: 'text-teal-700 bg-teal-50' },
+    { to: '/admin/emails', icon: Mail, label: 'Emails', desc: 'AI-assisted email automation', color: 'text-rose-700 bg-rose-50' },
+    { to: '/admin/payment-methods', icon: CreditCard, label: 'Payment Methods', desc: 'Manage crypto payout addresses', color: 'text-amber-700 bg-amber-50' },
     { to: '/', icon: Eye, label: 'View Store', desc: 'See the customer view', color: 'text-gray-600 bg-gray-50' },
   ];
 

@@ -27,6 +27,26 @@ import {
 
 const TXN_PAGE_SIZE = 10;
 
+interface PaymentMethod {
+  _id: string;
+  label: string;
+  type: 'crypto' | 'paypal' | 'cashapp' | 'zelle' | 'bank' | 'other';
+  address: string;
+  network?: string;
+  instructions?: string;
+}
+
+const destinationLabel = (type?: string): string => {
+  switch (type) {
+    case 'paypal':  return 'PayPal email';
+    case 'cashapp': return 'Cashtag';
+    case 'zelle':   return 'Zelle email/phone';
+    case 'bank':    return 'Bank details';
+    case 'other':   return 'Destination';
+    default:        return 'Wallet address';
+  }
+};
+
 const Wallet: React.FC = () => {
   const { user } = useAuth();
   const [amount, setAmount] = useState('');
@@ -39,16 +59,20 @@ const Wallet: React.FC = () => {
   const [timer, setTimer] = useState(600);
   const [timerActive, setTimerActive] = useState(false);
   const [txnPage, setTxnPage] = useState(1);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
-  const walletAddresses = {
-    'USDT (TRC20)': 'TS4YcYuGH2kJpePVKAZGnpfVD4bN22sooE',
-    'USDT (ERC20)': '0x9A2c294d35F3123a4E48c82477801bFA3cb2f375',
-    Ethereum: '0x9A2c294d35F3123a4E48c82477801bFA3cb2f375',
-    'BTC (Main)': 'bc1q7ecv238v9f2e6mr7srkwe4jswe0c28p6tw77zc',
-    'BTC (Secondary)': 'bc1qh2g93tgmk6h40p978r7s5wnmhn06fv726zyu3c',
+  const selectedMethod = paymentMethods.find(m => m.label === selectedCrypto);
+
+  useEffect(() => { fetchTransactions(); fetchPaymentMethods(); }, []);
+
+  const fetchPaymentMethods = async (): Promise<void> => {
+    try {
+      const res = await api.get('/payment-methods');
+      setPaymentMethods(res.data.data ?? []);
+    } catch {
+      // silent — dropdown just stays empty if BE is down
+    }
   };
-
-  useEffect(() => { fetchTransactions(); }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -101,7 +125,7 @@ const Wallet: React.FC = () => {
       await api.post('/wallet/fund', {
         amount: parseFloat(amount),
         paymentMethod: selectedCrypto,
-        walletAddress: walletAddresses[selectedCrypto as keyof typeof walletAddresses],
+        walletAddress: selectedMethod?.address,
         status: 'pending',
       });
       toast.success('Payment submitted! Awaiting admin approval.');
@@ -208,11 +232,14 @@ const Wallet: React.FC = () => {
                     value={selectedCrypto}
                     onChange={(e) => setSelectedCrypto(e.target.value)}
                     required
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none bg-white"
+                    disabled={paymentMethods.length === 0}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
                   >
-                    <option value="">Choose crypto...</option>
-                    {Object.keys(walletAddresses).map(c => (
-                      <option key={c} value={c}>{c}</option>
+                    <option value="">
+                      {paymentMethods.length === 0 ? 'No payment methods available' : 'Choose payment method...'}
+                    </option>
+                    {paymentMethods.map(m => (
+                      <option key={m._id} value={m.label}>{m.label}</option>
                     ))}
                   </select>
                 </div>
@@ -358,7 +385,7 @@ const Wallet: React.FC = () => {
             <div className="bg-gray-900 text-white p-6 rounded-t-2xl flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Complete Payment</h2>
-                <p className="text-gray-400 text-sm mt-0.5">Send exactly ${amount} USD to the address below</p>
+                <p className="text-gray-400 text-sm mt-0.5">Send exactly ${amount} USD to the destination below</p>
               </div>
               <button onClick={closePaymentModal} className="text-gray-500 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
@@ -387,19 +414,24 @@ const Wallet: React.FC = () => {
                 </div>
               </div>
 
-              {/* Wallet Address */}
+              {/* Destination */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Send to:</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  {destinationLabel(selectedMethod?.type)}:
+                </label>
                 <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
-                  <p className="text-xs font-mono text-gray-900 break-all mb-2">
-                    {walletAddresses[selectedCrypto as keyof typeof walletAddresses]}
+                  <p className="text-xs font-mono text-gray-900 break-all mb-2 whitespace-pre-wrap">
+                    {selectedMethod?.address}
                   </p>
+                  {selectedMethod?.instructions && (
+                    <p className="text-xs text-gray-500 mb-2">{selectedMethod.instructions}</p>
+                  )}
                   <button
-                    onClick={() => copyToClipboard(walletAddresses[selectedCrypto as keyof typeof walletAddresses])}
+                    onClick={() => selectedMethod && copyToClipboard(selectedMethod.address)}
                     className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-sm font-medium flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Copy className="w-4 h-4" />
-                    Copy address
+                    Copy
                   </button>
                 </div>
               </div>
@@ -411,7 +443,7 @@ const Wallet: React.FC = () => {
                   Instructions
                 </h3>
                 <ol className="space-y-1 text-xs text-gray-600 list-decimal list-inside">
-                  <li>Send exactly ${amount} USD in {selectedCrypto}</li>
+                  <li>Send exactly ${amount} USD via {selectedCrypto}</li>
                   <li>Complete within {formatTime(timer)}</li>
                   <li>Click "I've sent the payment" below</li>
                   <li>Wallet credited within 10–30 minutes</li>
