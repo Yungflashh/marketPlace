@@ -114,7 +114,8 @@ const ChatWidget: React.FC = () => {
       )}
 
       {open && (
-        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 sm:w-96 sm:h-[600px] sm:max-h-[calc(100vh-3rem)] bg-white sm:rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 bg-gray-900 text-white shrink-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
@@ -228,6 +229,7 @@ const ChatWidget: React.FC = () => {
                 <Send className="w-4 h-4" />
               </button>
             </form>
+          </div>
           </div>
         </div>
       )}
