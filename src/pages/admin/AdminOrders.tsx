@@ -68,18 +68,16 @@ const AdminOrders: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <ShoppingCart className="w-6 h-6 text-gray-700" />
-              <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
-            </div>
-            <p className="text-sm text-gray-400 ml-9">View and manage all customer orders</p>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 mb-1">
+            <ShoppingCart className="w-6 h-6 text-gray-700" />
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Orders</h1>
           </div>
+          <p className="text-sm text-gray-400 ml-9">View and manage all customer orders</p>
         </div>
 
         {/* Stats */}
@@ -90,30 +88,32 @@ const AdminOrders: React.FC = () => {
             { label: 'Pending', value: stats.pending, color: 'text-yellow-600' },
             { label: 'Revenue', value: `$${stats.revenue.toFixed(0)}`, color: 'text-gray-900' },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-4">
-              <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+            <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4">
+              <p className={`text-lg sm:text-2xl font-bold ${s.color}`}>{s.value}</p>
+              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Filter */}
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4 flex items-center gap-3">
-          {['all', 'completed', 'pending', 'cancelled'].map((s) => (
-            <button
-              key={s}
-              onClick={() => setFilterStatus(s)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filterStatus === s ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
-          <span className="ml-auto text-xs text-gray-400">{filtered.length} orders</span>
+        <div className="bg-white rounded-xl border border-gray-100 p-3 sm:p-4 mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            {['all', 'completed', 'pending', 'cancelled'].map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilterStatus(s)}
+                className={`px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  filterStatus === s ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'
+                }`}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+            <span className="ml-auto text-xs text-gray-400 shrink-0">{filtered.length} orders</span>
+          </div>
         </div>
 
-        {/* Table */}
+        {/* Table / Cards */}
         {paginated.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-100 p-16 text-center">
             <Package className="w-10 h-10 text-gray-200 mx-auto mb-3" />
@@ -121,7 +121,44 @@ const AdminOrders: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile cards */}
+            <div className="md:hidden divide-y divide-gray-50">
+              {paginated.map((order) => {
+                const user = order.user as User;
+                return (
+                  <button
+                    key={order._id}
+                    onClick={() => setSelectedOrder(order)}
+                    className="w-full text-left p-4 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <Hash className="w-3 h-3 text-gray-300 shrink-0" />
+                          <span className="text-sm font-semibold text-gray-900 truncate">{order.orderNumber}</span>
+                        </div>
+                        <p className="text-sm text-gray-900 truncate">{user?.name}</p>
+                        <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold text-gray-900">${order.totalAmount.toFixed(2)}</p>
+                        <p className="text-[11px] text-gray-400">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-50">
+                      {getStatusBadge(order.status)}
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(order.createdAt)}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-50">
                 <thead className="bg-gray-50">
                   <tr>
@@ -180,7 +217,7 @@ const AdminOrders: React.FC = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="px-5 py-4 border-t border-gray-50 flex items-center justify-between">
+              <div className="px-4 sm:px-5 py-4 border-t border-gray-50 flex items-center justify-between gap-2 flex-wrap">
                 <p className="text-xs text-gray-400">
                   Page {page} of {totalPages} — {filtered.length} orders
                 </p>

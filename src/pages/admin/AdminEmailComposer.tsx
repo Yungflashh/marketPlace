@@ -383,42 +383,43 @@ const AdminEmailComposer: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-start gap-3">
             <button
               onClick={() => navigate('/admin/emails')}
-              className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors"
+              className="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors shrink-0"
               aria-label="Back"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {readOnly ? 'View sent campaign' : isEdit ? 'Edit email' : 'New email'}
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs sm:text-sm text-gray-500">
                 {readOnly
                   ? 'This campaign has already been sent and cannot be edited.'
                   : 'Draft, preview, then approve before sending.'}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 lg:flex lg:items-center gap-2">
             <button
               onClick={openFullPreview}
-              className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:border-gray-300 bg-white text-gray-700 flex items-center gap-1.5 transition-colors"
+              className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium border border-gray-200 hover:border-gray-300 bg-white text-gray-700 flex items-center justify-center gap-1.5 transition-colors"
             >
               <Monitor className="w-4 h-4" />
-              Full preview
+              <span className="hidden sm:inline">Full preview</span>
+              <span className="sm:hidden">Preview</span>
             </button>
             {!readOnly && (
               <>
                 <button
                   onClick={handleSaveDraft}
                   disabled={saving}
-                  className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 hover:border-gray-300 bg-white text-gray-700 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium border border-gray-200 hover:border-gray-300 bg-white text-gray-700 flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save draft
@@ -426,7 +427,7 @@ const AdminEmailComposer: React.FC = () => {
                 <button
                   onClick={handleOpenSendModal}
                   disabled={saving || sending}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                  className="col-span-2 lg:col-span-1 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
                 >
                   <Send className="w-4 h-4" />
                   Review & send
@@ -453,19 +454,19 @@ const AdminEmailComposer: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {!readOnly && (
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
-                <div className="flex items-center gap-2 mb-3">
+              <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <Sparkles className="w-4 h-4 text-gray-700" />
                   <h2 className="font-semibold text-gray-900 text-sm">AI drafting</h2>
                   <span className="text-[10px] uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
                     Optional
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+                <div className="flex flex-col sm:grid sm:grid-cols-5 gap-2 sm:gap-3 mb-3">
                   <select
                     value={template}
                     onChange={(e) => setTemplate(e.target.value as Template)}
-                    className="md:col-span-2 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-400 bg-white"
+                    className="sm:col-span-2 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-400 bg-white truncate"
                   >
                     {TEMPLATE_OPTIONS.map((t) => (
                       <option key={t.value} value={t.value}>
@@ -476,7 +477,7 @@ const AdminEmailComposer: React.FC = () => {
                   <button
                     onClick={handleGenerate}
                     disabled={generating}
-                    className="md:col-span-3 px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="sm:col-span-3 px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
                   >
                     {generating ? (
                       <>
@@ -504,7 +505,7 @@ const AdminEmailComposer: React.FC = () => {
             )}
 
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-100">
                 <h2 className="font-semibold text-gray-900 text-sm">Email content</h2>
                 <button
                   onClick={() => setShowPreviewPane((v) => !v)}
@@ -514,7 +515,7 @@ const AdminEmailComposer: React.FC = () => {
                   {showPreviewPane ? 'Hide preview' : 'Show preview'}
                 </button>
               </div>
-              <div className="p-5 space-y-4">
+              <div className="p-4 sm:p-5 space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1.5 uppercase tracking-wide">
                     Subject
@@ -546,14 +547,14 @@ const AdminEmailComposer: React.FC = () => {
 
             {showPreviewPane && (
               <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2">
+                <div className="px-4 sm:px-5 py-3 border-b border-gray-100 flex items-center gap-2 flex-wrap">
                   <Eye className="w-4 h-4 text-gray-500" />
                   <h2 className="font-semibold text-gray-900 text-sm">Preview</h2>
-                  <span className="text-[10px] uppercase tracking-wider text-gray-400">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-400 hidden sm:inline">
                     {'{{name}}'} shown as "there"
                   </span>
                 </div>
-                <div className="p-5">
+                <div className="p-4 sm:p-5">
                   <div className="border border-gray-100 rounded-lg overflow-hidden">
                     <div className="bg-gray-50 px-4 py-2.5 border-b border-gray-100">
                       <p className="text-xs text-gray-500">Subject</p>
@@ -574,7 +575,7 @@ const AdminEmailComposer: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-4 h-4 text-gray-700" />
                 <h2 className="font-semibold text-gray-900 text-sm">Recipients</h2>
@@ -871,7 +872,7 @@ const AdminEmailComposer: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <Palette className="w-4 h-4 text-gray-700" />
                 <h2 className="font-semibold text-gray-900 text-sm">Design</h2>
@@ -958,31 +959,31 @@ const AdminEmailComposer: React.FC = () => {
       </div>
 
       {showFullPreview && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-3xl w-full shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <div className="flex items-center gap-2">
-                <Monitor className="w-4 h-4 text-gray-500" />
-                <div>
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full shadow-2xl border border-gray-200 max-h-[95vh] sm:max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <Monitor className="w-4 h-4 text-gray-500 shrink-0" />
+                <div className="min-w-0">
                   <h2 className="font-semibold text-gray-900 text-sm">Full email preview</h2>
-                  <p className="text-xs text-gray-500">
-                    Exactly what recipients will see (personalized name shown as "there")
+                  <p className="text-[11px] sm:text-xs text-gray-500 truncate">
+                    Exactly what recipients will see (name shown as "there")
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowFullPreview(false)}
-                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500"
+                className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
-              <div className="text-xs text-gray-500">
+            <div className="px-4 sm:px-6 py-3 border-b border-gray-100 bg-gray-50">
+              <div className="text-[11px] sm:text-xs text-gray-500 truncate">
                 <span className="font-medium text-gray-700">From:</span> no-reply@shoplogshere.com
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">
+              <div className="text-[11px] sm:text-xs text-gray-500 mt-0.5 truncate">
                 <span className="font-medium text-gray-700">Subject:</span>{' '}
                 {(subject || '(no subject)').replaceAll('{{name}}', 'there')}
               </div>
@@ -997,16 +998,16 @@ const AdminEmailComposer: React.FC = () => {
                 <iframe
                   title="Email preview"
                   srcDoc={fullPreviewHtml}
-                  className="w-full h-[60vh] border-0 bg-white"
+                  className="w-full h-[55vh] sm:h-[60vh] border-0 bg-white"
                   sandbox=""
                 />
               )}
             </div>
 
-            <div className="p-4 border-t border-gray-100 flex justify-end">
+            <div className="p-3 sm:p-4 border-t border-gray-100 flex justify-end">
               <button
                 onClick={() => setShowFullPreview(false)}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 w-full sm:w-auto"
               >
                 Close
               </button>
@@ -1016,21 +1017,21 @@ const AdminEmailComposer: React.FC = () => {
       )}
 
       {showSendModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full shadow-2xl border border-gray-200 max-h-[90vh] flex flex-col">
-            <div className="bg-gray-900 text-white px-6 py-5 rounded-t-xl flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5" />
+        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex items-center justify-center p-2 sm:p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full shadow-2xl border border-gray-200 max-h-[95vh] sm:max-h-[90vh] flex flex-col">
+            <div className="bg-gray-900 text-white px-4 sm:px-6 py-4 sm:py-5 rounded-t-xl flex items-start gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <h2 className="text-lg font-bold">Confirm before sending</h2>
-                <p className="text-sm text-gray-300">
+              <div className="min-w-0">
+                <h2 className="text-base sm:text-lg font-bold">Confirm before sending</h2>
+                <p className="text-xs sm:text-sm text-gray-300">
                   Review the recipients and content — sending cannot be undone.
                 </p>
               </div>
             </div>
 
-            <div className="p-6 space-y-5 overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto">
               <div className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-gray-400 mt-1" />
                 <div className="flex-1">
@@ -1085,7 +1086,7 @@ const AdminEmailComposer: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 p-6 border-t border-gray-100">
+            <div className="flex gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-100">
               <button
                 onClick={() => setShowSendModal(false)}
                 disabled={sending}
