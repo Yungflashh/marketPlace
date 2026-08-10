@@ -197,6 +197,11 @@ const AdminEmailComposer: React.FC = () => {
     setRecipients((r) => ({ ...r, userIds: pickedUsers.map((u) => u._id) }));
   }, [pickedUsers]);
 
+  const inlinePreviewSrcDoc = useMemo(() => {
+    const rendered = (body || '<p style="color:#9ca3af">(empty body)</p>').replaceAll('{{name}}', 'there');
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:20px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;color:${design.textColor};background:${design.backgroundColor};word-wrap:break-word;overflow-wrap:break-word}p{margin:0 0 12px}img{max-width:100%;height:auto}a{color:${design.accentColor}}</style></head><body>${rendered}</body></html>`;
+  }, [body, design.textColor, design.backgroundColor, design.accentColor]);
+
   const cleanRecipientsForBackend = useMemo(() => {
     const cleaned: Recipients = { ...recipients };
     if (recipients.type !== 'segment') {
@@ -562,11 +567,11 @@ const AdminEmailComposer: React.FC = () => {
                         {(subject || '(no subject)').replaceAll('{{name}}', 'there')}
                       </p>
                     </div>
-                    <div
-                      className="p-5 text-sm text-gray-700 dark:text-gray-300 prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: (body || '<p class="text-gray-400">(empty body)</p>').replaceAll('{{name}}', 'there'),
-                      }}
+                    <iframe
+                      title="Inline email preview"
+                      srcDoc={inlinePreviewSrcDoc}
+                      sandbox=""
+                      className="w-full h-80 border-0 bg-white dark:bg-gray-900 block"
                     />
                   </div>
                 </div>
@@ -1067,12 +1072,12 @@ const AdminEmailComposer: React.FC = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Body preview</p>
-                <div className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 max-h-64 overflow-y-auto">
-                  <div
-                    className="text-sm text-gray-700 dark:text-gray-300 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: body.replaceAll('{{name}}', 'there'),
-                    }}
+                <div className="border border-gray-100 dark:border-gray-800 rounded-lg overflow-hidden">
+                  <iframe
+                    title="Send confirmation body preview"
+                    srcDoc={inlinePreviewSrcDoc}
+                    sandbox=""
+                    className="w-full h-64 border-0 bg-white dark:bg-gray-900 block"
                   />
                 </div>
               </div>
