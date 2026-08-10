@@ -24,8 +24,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <Link to={`/product/${product._id}`} className="block group">
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
-        <div className="relative h-52 overflow-hidden bg-gray-50">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
+        <div className="relative h-52 overflow-hidden bg-gray-50 dark:bg-gray-950">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -47,29 +47,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
-          <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-1 capitalize">
+          <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1 capitalize">
             {product.category}
           </p>
-          <h3 className="text-sm font-semibold text-gray-900 mb-1.5 line-clamp-2 leading-snug">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1.5 line-clamp-2 leading-snug">
             {product.name}
           </h3>
-          <p className="text-xs text-gray-500 mb-3 line-clamp-2 flex-grow leading-relaxed">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2 flex-grow leading-relaxed">
             {product.description}
           </p>
 
-          <div className={`inline-flex items-center gap-1 mb-3 px-2 py-1 rounded-md text-[11px] font-medium w-fit ${
-            product.quantity === 0
-              ? 'bg-red-50 text-red-600'
-              : product.quantity <= 10
-              ? 'bg-orange-50 text-orange-600'
-              : 'bg-green-50 text-green-700'
-          }`}>
+          <div className={`inline-flex items-center gap-1 mb-3 px-2 py-1 rounded-md text-[11px] font-medium w-fit ${ product.quantity === 0 ? 'bg-red-50 text-red-600' : product.quantity <= 10 ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-700' }`}>
             <Layers className="w-3 h-3" />
             {product.quantity === 0 ? 'Out of stock' : `${product.quantity} logs available`}
           </div>
 
           <div className="flex items-center justify-between mt-auto">
-            <span className="text-lg font-bold text-gray-900">
+            <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
               ${product.price.toFixed(2)}
             </span>
             <button

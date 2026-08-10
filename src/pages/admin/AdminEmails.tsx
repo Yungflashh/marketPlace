@@ -202,15 +202,15 @@ const AdminEmails: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-6 sm:py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 shrink-0" />
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Email Automation</h1>
+              <Mail className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 dark:text-gray-300 shrink-0" />
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Email Automation</h1>
             </div>
-            <p className="text-gray-500 text-xs sm:text-sm sm:ml-10">
+            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm sm:ml-10">
               Draft, review, and send emails. AI-assisted or manual — you always approve before sending.
             </p>
           </div>
@@ -224,7 +224,7 @@ const AdminEmails: React.FC = () => {
         </div>
 
         {suggestions && (suggestions.suggestions.length > 0 || suggestions.aiInsight) && (
-          <div className="mb-6 bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div className="mb-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
             <div className="bg-gray-900 text-white px-4 sm:px-5 py-3 flex flex-wrap items-center gap-2">
               <Sparkles className="w-4 h-4 shrink-0" />
               <h2 className="text-sm font-semibold">AI suggestions</h2>
@@ -244,15 +244,15 @@ const AdminEmails: React.FC = () => {
                 {suggestions.suggestions.map((s) => (
                   <div
                     key={s.id}
-                    className="border border-gray-100 rounded-lg p-4 hover:border-gray-200 transition-colors"
+                    className="border border-gray-100 dark:border-gray-800 rounded-lg p-4 hover:border-gray-200 transition-colors"
                   >
-                    <div className="flex items-center gap-2 mb-2 text-gray-700">
-                      <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                    <div className="flex items-center gap-2 mb-2 text-gray-700 dark:text-gray-300">
+                      <div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                         {iconMap[s.icon] || <Mail className="w-4 h-4" />}
                       </div>
-                      <p className="text-sm font-semibold text-gray-900 flex-1">{s.title}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex-1">{s.title}</p>
                     </div>
-                    <p className="text-xs text-gray-500 mb-3 leading-relaxed">{s.reason}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">{s.reason}</p>
                     <button
                       onClick={() => handleActOnSuggestion(s)}
                       disabled={actingOn === s.id}
@@ -275,31 +275,31 @@ const AdminEmails: React.FC = () => {
         )}
 
         <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
-            <div className="bg-gray-100 rounded-lg p-1.5 sm:p-2 shrink-0">
-              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-1.5 sm:p-2 shrink-0">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-[10px] sm:text-xs text-gray-500 truncate">Total campaigns</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">Total campaigns</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
             <div className="bg-yellow-50 rounded-lg p-1.5 sm:p-2 shrink-0">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.drafts}</p>
-              <p className="text-[10px] sm:text-xs text-gray-500 truncate">Drafts</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">{stats.drafts}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">Drafts</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
             <div className="bg-green-50 rounded-lg p-1.5 sm:p-2 shrink-0">
               <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.sent}</p>
-              <p className="text-[10px] sm:text-xs text-gray-500 truncate">Sent</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">{stats.sent}</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">Sent</p>
             </div>
           </div>
         </div>
@@ -309,11 +309,7 @@ const AdminEmails: React.FC = () => {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors ${
-                filter === s
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
-              }`}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize transition-colors ${ filter === s ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-300' }`}
             >
               {s}
             </button>
@@ -321,14 +317,14 @@ const AdminEmails: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center text-sm text-gray-500">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center text-sm text-gray-500 dark:text-gray-400">
             Loading campaigns…
           </div>
         ) : campaigns.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
             <Mail className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="font-medium text-gray-900 mb-1">No campaigns yet</p>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">No campaigns yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               Create your first email — draft manually, let AI help, or load our starter templates.
             </p>
             <div className="flex items-center gap-2 justify-center">
@@ -342,7 +338,7 @@ const AdminEmails: React.FC = () => {
               <button
                 onClick={handleSeedDefaults}
                 disabled={seeding}
-                className="border border-gray-200 hover:border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50 transition-colors"
+                className="border border-gray-200 dark:border-gray-700 hover:border-gray-300 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50 transition-colors"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{seeding ? 'Seeding…' : 'Load starter templates'}</span>
@@ -350,15 +346,15 @@ const AdminEmails: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             {/* Mobile cards */}
-            <div className="md:hidden divide-y divide-gray-100">
+            <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-800">
               {campaigns.map((c) => (
                 <div key={c._id} className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <Link
                       to={`/admin/emails/${c._id}`}
-                      className="font-medium text-gray-900 hover:underline line-clamp-2 text-sm flex-1 min-w-0"
+                      className="font-medium text-gray-900 dark:text-gray-100 hover:underline line-clamp-2 text-sm flex-1 min-w-0"
                     >
                       {c.subject}
                     </Link>
@@ -369,24 +365,24 @@ const AdminEmails: React.FC = () => {
                       {c.status}
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-400 capitalize mb-2">
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500 capitalize mb-2">
                     {c.template} template
                     {c.status === 'sent' && c.sendResults && ` — ${c.sendResults.succeeded}/${c.sendResults.total} delivered`}
                   </p>
-                  <div className="flex items-center gap-3 text-[11px] text-gray-500 flex-wrap mb-3">
+                  <div className="flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400 flex-wrap mb-3">
                     <div className="flex items-center gap-1">
-                      <Users className="w-3 h-3 text-gray-400" />
+                      <Users className="w-3 h-3 text-gray-400 dark:text-gray-500" />
                       <span className="truncate">{recipientLabel(c.recipients)}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <Calendar className="w-3 h-3 text-gray-400 dark:text-gray-500" />
                       <span>{formatDate(c.sentAt || c.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => navigate(`/admin/emails/${c._id}`)}
-                      className="flex-1 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+                      className="flex-1 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
                     >
                       {c.status === 'sent' ? <Send className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
                       {c.status === 'sent' ? 'View' : 'Edit'}
@@ -406,7 +402,7 @@ const AdminEmails: React.FC = () => {
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 tracking-wider">
+                <thead className="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400 tracking-wider">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium">Subject</th>
                     <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -415,17 +411,17 @@ const AdminEmails: React.FC = () => {
                     <th className="text-right px-4 py-3 font-medium">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {campaigns.map((c) => (
-                    <tr key={c._id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={c._id} className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                       <td className="px-4 py-3">
                         <Link
                           to={`/admin/emails/${c._id}`}
-                          className="font-medium text-gray-900 hover:underline line-clamp-1"
+                          className="font-medium text-gray-900 dark:text-gray-100 hover:underline line-clamp-1"
                         >
                           {c.subject}
                         </Link>
-                        <p className="text-xs text-gray-400 mt-0.5 capitalize">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 capitalize">
                           {c.template} template
                         </p>
                       </td>
@@ -437,18 +433,18 @@ const AdminEmails: React.FC = () => {
                           {c.status}
                         </span>
                         {c.status === 'sent' && c.sendResults && (
-                          <p className="text-[11px] text-gray-400 mt-1">
+                          <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                             {c.sendResults.succeeded}/{c.sendResults.total} delivered
                           </p>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5 text-gray-700">
-                          <Users className="w-3.5 h-3.5 text-gray-400" />
+                        <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
+                          <Users className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
                           <span>{recipientLabel(c.recipients)}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{formatDate(c.sentAt || c.createdAt)}</span>
@@ -460,7 +456,7 @@ const AdminEmails: React.FC = () => {
                             <button
                               onClick={() => navigate(`/admin/emails/${c._id}`)}
                               title="Edit"
-                              className="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 flex items-center justify-center transition-colors"
+                              className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 flex items-center justify-center transition-colors"
                             >
                               <Edit3 className="w-4 h-4" />
                             </button>
@@ -469,7 +465,7 @@ const AdminEmails: React.FC = () => {
                             <button
                               onClick={() => navigate(`/admin/emails/${c._id}`)}
                               title="View"
-                              className="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-900 flex items-center justify-center transition-colors"
+                              className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 flex items-center justify-center transition-colors"
                             >
                               <Send className="w-4 h-4" />
                             </button>
@@ -478,7 +474,7 @@ const AdminEmails: React.FC = () => {
                             onClick={() => handleDelete(c._id)}
                             disabled={deletingId === c._id}
                             title="Delete"
-                            className="w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 flex items-center justify-center transition-colors disabled:opacity-40"
+                            className="w-8 h-8 rounded-lg hover:bg-red-50 text-gray-400 dark:text-gray-500 hover:text-red-600 flex items-center justify-center transition-colors disabled:opacity-40"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

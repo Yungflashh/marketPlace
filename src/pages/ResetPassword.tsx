@@ -62,25 +62,25 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-          <Link to="/" className="flex items-center justify-center gap-2.5 text-gray-900 mb-8">
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-8">
+          <Link to="/" className="flex items-center justify-center gap-2.5 text-gray-900 dark:text-gray-100 mb-8">
             <Logo size={20} />
             <span className="text-[17px] font-semibold tracking-tight">ShopLogs</span>
           </Link>
 
           <div className="text-center mb-7">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">Set a new password</h1>
-            <p className="text-sm text-gray-500">Enter the code we emailed you and choose a new password</p>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-1">Set a new password</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Enter the code we emailed you and choose a new password</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type="email"
                   name="email"
@@ -88,14 +88,14 @@ const ResetPassword: React.FC = () => {
                   onChange={handleChange}
                   required
                   placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                 />
               </div>
             </div>
 
             {/* OTP */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Reset code</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Reset code</label>
               <input
                 type="text"
                 name="otp"
@@ -104,15 +104,15 @@ const ResetPassword: React.FC = () => {
                 required
                 placeholder="6-digit code from your email"
                 maxLength={6}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors tracking-[0.3em] text-center font-semibold"
+                className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors tracking-[0.3em] text-center font-semibold"
               />
             </div>
 
             {/* New password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">New password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">New password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="newPassword"
@@ -121,10 +121,10 @@ const ResetPassword: React.FC = () => {
                   required
                   placeholder="Minimum 6 characters"
                   minLength={6}
-                  className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -144,9 +144,9 @@ const ResetPassword: React.FC = () => {
 
             {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm new password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm new password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   name="confirmPassword"
@@ -154,10 +154,10 @@ const ResetPassword: React.FC = () => {
                   onChange={handleChange}
                   required
                   placeholder="Re-enter your new password"
-                  className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                 />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -186,15 +186,15 @@ const ResetPassword: React.FC = () => {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100" />
+              <div className="w-full border-t border-gray-100 dark:border-gray-800" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-white text-gray-400">Didn't receive a code?</span>
+              <span className="px-3 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500">Didn't receive a code?</span>
             </div>
           </div>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 hover:underline">
+            <Link to="/forgot-password" className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100 hover:underline">
               Request a new code
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -202,7 +202,7 @@ const ResetPassword: React.FC = () => {
         </div>
 
         <div className="mt-4 text-center">
-          <div className="inline-flex items-center gap-1.5 text-xs text-gray-400">
+          <div className="inline-flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
             <Shield className="w-3.5 h-3.5" />
             <span>Secured with 256-bit encryption</span>
           </div>

@@ -175,19 +175,19 @@ const AdminProducts: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <p className="text-sm text-gray-400">Loading logs...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
+        <p className="text-sm text-gray-400 dark:text-gray-500">Loading logs...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Manage Logs</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{products.length} total logs · {featuredCount} featured</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Manage Logs</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{products.length} total logs · {featuredCount} featured</p>
         </div>
         <button onClick={() => handleOpenModal()} className="bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-gray-800 transition-colors text-sm font-medium">
           + Add New Log
@@ -195,34 +195,34 @@ const AdminProducts: React.FC = () => {
       </div>
 
       {products.length === 0 ? (
-        <div className="text-center bg-white rounded-2xl border border-gray-100 py-16">
-          <p className="text-gray-500">No logs yet. Add your first log above.</p>
+        <div className="text-center bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 py-16">
+          <p className="text-gray-500 dark:text-gray-400">No logs yet. Add your first log above.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-50">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-50 dark:divide-gray-800">
+              <thead className="bg-gray-50 dark:bg-gray-950">
                 <tr>
                   {['Log', 'Category', 'Price', 'Qty', 'Status', 'Featured', 'Actions'].map((h) => (
-                    <th key={h} className={`px-5 py-3 text-[11px] font-semibold text-gray-400 uppercase tracking-wider ${h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
+                    <th key={h} className={`px-5 py-3 text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider ${h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
                 {paginated.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={product._id} className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <img src={product.imageUrl} alt={product.name} className="h-9 w-9 rounded-lg object-cover bg-gray-100 shrink-0" />
-                        <span className="text-sm font-medium text-gray-900 truncate max-w-[160px]">{product.name}</span>
+                        <img src={product.imageUrl} alt={product.name} className="h-9 w-9 rounded-lg object-cover bg-gray-100 dark:bg-gray-800 shrink-0" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-[160px]">{product.name}</span>
                       </div>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full capitalize">{product.category}</span>
+                      <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full capitalize">{product.category}</span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className="text-sm font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
                     </td>
                     <td className="px-5 py-3.5">
                       <span className={`text-sm font-semibold ${product.quantity > 0 ? 'text-green-600' : 'text-red-500'}`}>{product.quantity}</span>
@@ -236,11 +236,7 @@ const AdminProducts: React.FC = () => {
                       <button
                         onClick={() => handleToggleFeatured(product)}
                         title={product.featured ? 'Remove from featured' : 'Mark as featured'}
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${
-                          product.featured
-                            ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
-                        }`}
+                        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-colors ${ product.featured ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'bg-gray-100 text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-600' }`}
                       >
                         <Star className={`w-3 h-3 ${product.featured ? 'fill-yellow-500' : ''}`} />
                         {product.featured ? 'Featured' : 'Set Featured'}
@@ -248,7 +244,7 @@ const AdminProducts: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => handleOpenModal(product)} className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">Edit</button>
+                        <button onClick={() => handleOpenModal(product)} className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">Edit</button>
                         <button onClick={() => handleToggleActive(product)} className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${product.isActive ? 'text-yellow-700 hover:bg-yellow-50' : 'text-green-700 hover:bg-green-50'}`}>
                           {product.isActive ? 'Deactivate' : 'Activate'}
                         </button>
@@ -264,10 +260,10 @@ const AdminProducts: React.FC = () => {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="px-5 py-4 border-t border-gray-50 flex items-center justify-between">
-              <p className="text-xs text-gray-400">Page {currentPage} of {totalPages}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Page {currentPage} of {totalPages}</p>
               <div className="flex items-center gap-1">
                 <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -282,7 +278,7 @@ const AdminProducts: React.FC = () => {
                         className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${currentPage === p ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>{p}</button>
                   )}
                 <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -296,15 +292,15 @@ const AdminProducts: React.FC = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
+          <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 dark:border-gray-700">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                 {editingProduct ? 'Edit Log' : 'Add New Log'}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Log Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Log Name</label>
                   <input
                     type="text"
                     name="name"
@@ -317,7 +313,7 @@ const AdminProducts: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                   <textarea
                     name="description"
                     value={formData.description}
@@ -331,7 +327,7 @@ const AdminProducts: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Price</label>
                     <input
                       type="number"
                       step="0.01"
@@ -346,7 +342,7 @@ const AdminProducts: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity</label>
                     <input
                       type="number"
                       min="0"
@@ -361,7 +357,7 @@ const AdminProducts: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
                   <input
                     type="text"
                     name="category"
@@ -374,7 +370,7 @@ const AdminProducts: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Log Image</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Log Image</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -400,7 +396,7 @@ const AdminProducts: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-200 transition-colors text-sm"
+                    className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
                   >
                     Cancel
                   </button>

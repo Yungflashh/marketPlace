@@ -34,38 +34,34 @@ const ConfirmDialog: React.FC<Props> = ({
       style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => { if (e.target === e.currentTarget && !loading) onCancel(); }}
     >
-      <div className={`bg-white rounded-2xl shadow-xl w-full max-w-sm transition-all duration-200 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+      <div className={`bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm transition-all duration-200 ${show ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
         <div className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${danger ? 'bg-red-100' : 'bg-yellow-100'}`}>
                 <AlertTriangle className={`w-5 h-5 ${danger ? 'text-red-600' : 'text-yellow-600'}`} />
               </div>
-              <h3 className="text-base font-semibold text-gray-900">{title}</h3>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
             </div>
             {!loading && (
-              <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={onCancel} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
-          <p className="text-sm text-gray-600 mb-6 ml-13 leading-relaxed" style={{ marginLeft: '52px' }}>{message}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 ml-13 leading-relaxed" style={{ marginLeft: '52px' }}>{message}</p>
           <div className="flex gap-3">
             <button
               onClick={onCancel}
               disabled={loading}
-              className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+              className="flex-1 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={onConfirm}
               disabled={loading}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-                danger
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-gray-900 text-white hover:bg-gray-800'
-              }`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${ danger ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-gray-900 text-white hover:bg-gray-800' }`}
             >
               {loading
                 ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Working...</>

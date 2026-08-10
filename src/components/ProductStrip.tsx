@@ -41,16 +41,16 @@ const ProductStrip: React.FC<Props> = ({ title, badge, badgeClass = 'bg-gray-900
       <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
           {icon}
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <span className="text-sm text-gray-400">({products.length})</span>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+          <span className="text-sm text-gray-400 dark:text-gray-500">({products.length})</span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
+            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
+            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -68,9 +68,9 @@ const ProductStrip: React.FC<Props> = ({ title, badge, badgeClass = 'bg-gray-900
             to={`/product/${product._id}`}
             className="shrink-0 w-[200px] group"
           >
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
               {/* Image */}
-              <div className="relative h-36 overflow-hidden bg-gray-50">
+              <div className="relative h-36 overflow-hidden bg-gray-50 dark:bg-gray-950">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
@@ -90,20 +90,16 @@ const ProductStrip: React.FC<Props> = ({ title, badge, badgeClass = 'bg-gray-900
 
               {/* Body */}
               <div className="p-3 flex flex-col flex-grow">
-                <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5 capitalize">{product.category}</p>
-                <h3 className="text-xs font-semibold text-gray-900 mb-2 line-clamp-2 leading-snug flex-grow">{product.name}</h3>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5 capitalize">{product.category}</p>
+                <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 leading-snug flex-grow">{product.name}</h3>
 
-                <div className={`inline-flex items-center gap-1 mb-2 px-1.5 py-0.5 rounded text-[10px] font-medium w-fit ${
-                  product.quantity === 0 ? 'bg-red-50 text-red-600'
-                  : product.quantity <= 10 ? 'bg-orange-50 text-orange-600'
-                  : 'bg-green-50 text-green-700'
-                }`}>
+                <div className={`inline-flex items-center gap-1 mb-2 px-1.5 py-0.5 rounded text-[10px] font-medium w-fit ${ product.quantity === 0 ? 'bg-red-50 text-red-600' : product.quantity <= 10 ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-700' }`}>
                   <Layers className="w-2.5 h-2.5" />
                   {product.quantity === 0 ? 'Out of stock' : `${product.quantity} available`}
                 </div>
 
                 <div className="flex items-center justify-between mt-auto">
-                  <span className="text-sm font-bold text-gray-900">${product.price.toFixed(2)}</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
                   <button
                     onClick={(e) => handleAdd(e, product)}
                     disabled={product.quantity === 0}

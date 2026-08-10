@@ -85,20 +85,20 @@ const Profile: React.FC = () => {
   const INPUT_CLS = 'w-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors';
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-2xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
-            <User className="w-7 h-7 text-gray-700" />
-            <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+            <User className="w-7 h-7 text-gray-700 dark:text-gray-300" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Profile</h1>
           </div>
-          <p className="text-gray-500 text-sm ml-10">Manage your account information</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm ml-10">Manage your account information</p>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-4">
           {/* Avatar + name */}
           <div className="flex items-center gap-5 mb-6">
             <div className="w-16 h-16 rounded-full bg-gray-900 flex items-center justify-center text-white font-bold text-xl shrink-0">
@@ -111,7 +111,7 @@ const Profile: React.FC = () => {
                     autoFocus
                     value={nameValue}
                     onChange={e => setNameValue(e.target.value)}
-                    className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none"
+                    className="flex-1 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-900 dark:text-gray-100 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none"
                     onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') handleCancelName(); }}
                   />
                   <button
@@ -123,17 +123,17 @@ const Profile: React.FC = () => {
                   </button>
                   <button
                     onClick={handleCancelName}
-                    className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                    className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group">
-                  <h2 className="text-lg font-semibold text-gray-900">{user.name}</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.name}</h2>
                   <button
                     onClick={() => { setNameValue(user.name); setEditingName(true); }}
-                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 transition-all"
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-all"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -142,7 +142,7 @@ const Profile: React.FC = () => {
               <div className="flex items-center gap-2 mt-1">
                 {user.role === 'admin'
                   ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-900 text-white text-xs font-semibold rounded-full"><Crown className="w-3 h-3" /> Admin</span>
-                  : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full"><User className="w-3 h-3" /> User</span>
+                  : <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full"><User className="w-3 h-3" /> User</span>
                 }
                 <span className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                   {user.isActive ? 'Active' : 'Inactive'}
@@ -153,43 +153,43 @@ const Profile: React.FC = () => {
 
           {/* Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-gray-400 mb-1">
+            <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 mb-1">
                 <Mail className="w-3.5 h-3.5" />
                 <span className="text-xs">Email</span>
               </div>
-              <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{user.email}</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-gray-400 mb-1">
+            <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 mb-1">
                 <Wallet className="w-3.5 h-3.5" />
                 <span className="text-xs">Wallet Balance</span>
               </div>
-              <p className="text-lg font-bold text-gray-900">${user.walletBalance.toFixed(2)}</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">${user.walletBalance.toFixed(2)}</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-gray-400 mb-1">
+            <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500 mb-1">
                 <Calendar className="w-3.5 h-3.5" />
                 <span className="text-xs">Member Since</span>
               </div>
-              <p className="text-sm font-medium text-gray-900">{formatDate(user.createdAt)}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatDate(user.createdAt)}</p>
             </div>
           </div>
         </div>
 
         {/* Change Password */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center gap-2 mb-5">
-            <Shield className="w-5 h-5 text-gray-600" />
-            <h3 className="text-base font-semibold text-gray-900">Change Password</h3>
+            <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Change Password</h3>
           </div>
 
           <form onSubmit={handleChangePassword} className="space-y-4">
             {/* Current password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Current password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Current password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type={showCurrent ? 'text' : 'password'}
                   value={pwData.currentPassword}
@@ -199,7 +199,7 @@ const Profile: React.FC = () => {
                   className={`${INPUT_CLS} pl-10 pr-10`}
                 />
                 <button type="button" onClick={() => setShowCurrent(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                   {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -207,9 +207,9 @@ const Profile: React.FC = () => {
 
             {/* New password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">New password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">New password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type={showNew ? 'text' : 'password'}
                   value={pwData.newPassword}
@@ -219,7 +219,7 @@ const Profile: React.FC = () => {
                   className={`${INPUT_CLS} pl-10 pr-10`}
                 />
                 <button type="button" onClick={() => setShowNew(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                   {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
@@ -239,9 +239,9 @@ const Profile: React.FC = () => {
 
             {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirm new password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm new password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   value={pwData.confirmPassword}
@@ -251,7 +251,7 @@ const Profile: React.FC = () => {
                   className={`${INPUT_CLS} pl-10 pr-10`}
                 />
                 <button type="button" onClick={() => setShowConfirm(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors">
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>

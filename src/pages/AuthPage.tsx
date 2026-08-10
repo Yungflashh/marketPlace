@@ -104,7 +104,7 @@ const AuthPage: React.FC = () => {
       : 'bg-red-400';
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
       <div className="w-full grid grid-cols-1 lg:grid-cols-2 min-h-screen">
         {/* Left Column - Branding */}
         <div className="hidden lg:flex flex-col justify-center items-start px-16 py-12 relative overflow-hidden bg-gradient-to-b from-gray-900 to-gray-950">
@@ -165,7 +165,7 @@ const AuthPage: React.FC = () => {
         </div>
 
         {/* Right Column - Auth Form with Flip */}
-        <div className="flex flex-col justify-center items-center px-6 lg:px-16 py-12 bg-white">
+        <div className="flex flex-col justify-center items-center px-6 lg:px-16 py-12 bg-white dark:bg-gray-900">
           <div className="w-full max-w-md" style={{ perspective: '1500px' }}>
             <div
               className="relative w-full transition-transform duration-700 ease-in-out"
@@ -185,15 +185,15 @@ const AuthPage: React.FC = () => {
               >
                 <div>
                   <div className="mb-10">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Create account</h2>
-                    <p className="text-gray-600">Join our community of shoppers</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Create account</h2>
+                    <p className="text-gray-600 dark:text-gray-400">Join our community of shoppers</p>
                   </div>
 
                   <form onSubmit={handleRegisterSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Full name</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full name</label>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type="text"
                           name="name"
@@ -201,15 +201,15 @@ const AuthPage: React.FC = () => {
                           onChange={handleRegisterChange}
                           required
                           placeholder="John Doe"
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email address</label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type="email"
                           name="email"
@@ -217,15 +217,15 @@ const AuthPage: React.FC = () => {
                           onChange={handleRegisterChange}
                           required
                           placeholder="you@example.com"
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type={showRegisterPassword ? 'text' : 'password'}
                           name="password"
@@ -234,12 +234,12 @@ const AuthPage: React.FC = () => {
                           required
                           placeholder="Minimum 6 characters"
                           minLength={6}
-                          className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                         <button
                           type="button"
                           onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
                         >
                           {showRegisterPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -251,10 +251,7 @@ const AuthPage: React.FC = () => {
                             <div className={`h-0.5 flex-1 rounded-full ${registerData.password.length >= 6 ? strengthColor : 'bg-gray-200'}`} />
                             <div className={`h-0.5 flex-1 rounded-full ${registerData.password.length >= 10 ? strengthColor : 'bg-gray-200'}`} />
                           </div>
-                          <p className={`text-xs mt-1 capitalize ${
-                            passwordStrength === 'strong' ? 'text-green-600' :
-                            passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-500'
-                          }`}>
+                          <p className={`text-xs mt-1 capitalize ${ passwordStrength === 'strong' ? 'text-green-600' : passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-500' }`}>
                             {passwordStrength} password
                           </p>
                         </div>
@@ -262,9 +259,9 @@ const AuthPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Confirm password</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Confirm password</label>
                       <div className="relative">
-                        <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <CheckCircle2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type={showConfirmPassword ? 'text' : 'password'}
                           name="confirmPassword"
@@ -272,20 +269,18 @@ const AuthPage: React.FC = () => {
                           onChange={handleRegisterChange}
                           required
                           placeholder="Re-enter your password"
-                          className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
                         >
                           {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                       {registerData.confirmPassword && (
-                        <p className={`text-xs mt-1 ${
-                          registerData.password === registerData.confirmPassword ? 'text-green-600' : 'text-red-500'
-                        }`}>
+                        <p className={`text-xs mt-1 ${ registerData.password === registerData.confirmPassword ? 'text-green-600' : 'text-red-500' }`}>
                           {registerData.password === registerData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
                         </p>
                       )}
@@ -308,11 +303,11 @@ const AuthPage: React.FC = () => {
                   </form>
 
                   <div className="text-center mt-8">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Already have an account?{' '}
                       <button
                         onClick={toggleMode}
-                        className="text-gray-900 hover:text-gray-700 font-semibold transition-colors"
+                        className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-200 font-semibold transition-colors"
                       >
                         Sign in
                       </button>
@@ -339,17 +334,17 @@ const AuthPage: React.FC = () => {
               >
                 <div>
                   <div className="mb-10">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign in</h2>
-                    <p className="text-gray-600">Welcome back to ShopLogs</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Sign in</h2>
+                    <p className="text-gray-600 dark:text-gray-400">Welcome back to ShopLogs</p>
                   </div>
 
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Email address
                       </label>
                       <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type="email"
                           name="email"
@@ -357,20 +352,20 @@ const AuthPage: React.FC = () => {
                           onChange={handleLoginChange}
                           required
                           placeholder="you@example.com"
-                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                       </div>
                     </div>
 
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-gray-700">Password</label>
-                        <a href="/forgot-password" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                        <a href="/forgot-password" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                           Forgot?
                         </a>
                       </div>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                         <input
                           type={showLoginPassword ? 'text' : 'password'}
                           name="password"
@@ -378,12 +373,12 @@ const AuthPage: React.FC = () => {
                           onChange={handleLoginChange}
                           required
                           placeholder="Enter your password"
-                          className="w-full pl-10 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
+                          className="w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none transition-colors"
                         />
                         <button
                           type="button"
                           onClick={() => setShowLoginPassword(!showLoginPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 transition-colors"
                         >
                           {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -397,9 +392,9 @@ const AuthPage: React.FC = () => {
                         name="rememberMe"
                         checked={loginData.rememberMe}
                         onChange={handleLoginChange}
-                        className="w-4 h-4 rounded border-gray-300 bg-gray-50 cursor-pointer"
+                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-950 cursor-pointer"
                       />
-                      <label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+                      <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                         Remember me for 30 days
                       </label>
                     </div>
@@ -421,11 +416,11 @@ const AuthPage: React.FC = () => {
                   </form>
 
                   <div className="text-center mt-8">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Don't have an account?{' '}
                       <button
                         onClick={toggleMode}
-                        className="text-gray-900 hover:text-gray-700 font-semibold transition-colors"
+                        className="text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-200 font-semibold transition-colors"
                       >
                         Create one
                       </button>
@@ -435,14 +430,14 @@ const AuthPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-8 text-center text-xs text-gray-500">
+            <div className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
               <p>
                 By continuing, you agree to our{' '}
-                <a href="#" className="text-gray-600 hover:text-gray-900">
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   Terms of Service
                 </a>
                 {' '}and{' '}
-                <a href="#" className="text-gray-600 hover:text-gray-900">
+                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                   Privacy Policy
                 </a>
               </p>

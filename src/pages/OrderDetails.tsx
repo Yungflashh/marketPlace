@@ -69,19 +69,19 @@ const OrderDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <p className="text-gray-500">Loading order details...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
+        <p className="text-gray-500 dark:text-gray-400">Loading order details...</p>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center bg-white rounded-xl border border-gray-200 p-10">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-10">
           <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Order Not Found</h2>
-          <p className="text-sm text-gray-500 mb-6">We couldn't find the order you're looking for.</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Order Not Found</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">We couldn't find the order you're looking for.</p>
           <button
             onClick={() => navigate('/orders')}
             className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
@@ -94,23 +94,23 @@ const OrderDetails: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate('/orders')}
-          className="mb-6 flex items-center gap-1.5 text-gray-700 hover:text-gray-700 text-sm font-medium"
+          className="mb-6 flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Orders</span>
         </button>
 
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-200">
+          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Order Details</h1>
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Order Details</h1>
+                <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-1">
                   <Hash className="w-3.5 h-3.5" />
                   <span>Order #{order.orderNumber}</span>
                 </div>
@@ -120,62 +120,62 @@ const OrderDetails: React.FC = () => {
           </div>
 
           {/* Order Info */}
-          <div className="px-6 py-5 border-b border-gray-100">
+          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <Calendar className="w-4 h-4 text-gray-600" />
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+                  <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Order Date</p>
-                  <p className="text-sm font-medium text-gray-900">{formatDate(order.createdAt)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Order Date</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatDate(order.createdAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <CreditCard className="w-4 h-4 text-gray-600" />
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+                  <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Payment Method</p>
-                  <p className="text-sm font-medium text-gray-900 capitalize">{order.paymentMethod}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Payment Method</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">{order.paymentMethod}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <ShoppingBag className="w-4 h-4 text-gray-600" />
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+                  <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Total Items</p>
-                  <p className="text-sm font-medium text-gray-900">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Items</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Items */}
-          <div className="px-6 py-5 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Order Items</h2>
+          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Order Items</h2>
             <div className="space-y-3">
               {order.items.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">{item.productName}</p>
-                    <p className="text-xs text-gray-500">Qty: {item.quantity} x ${item.price.toFixed(2)}</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.productName}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity} x ${item.price.toFixed(2)}</p>
                   </div>
-                  <p className="font-semibold text-gray-900 text-sm">${item.subtotal.toFixed(2)}</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">${item.subtotal.toFixed(2)}</p>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Total */}
-          <div className="px-6 py-5 bg-gray-50">
+          <div className="px-6 py-5 bg-gray-50 dark:bg-gray-950">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-sm font-semibold text-gray-900">Total Amount</p>
-                <p className="text-xs text-gray-500">{order.items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Total Amount</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{order.items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900">${order.totalAmount.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">${order.totalAmount.toFixed(2)}</p>
             </div>
           </div>
 

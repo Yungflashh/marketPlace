@@ -159,7 +159,7 @@ const Wallet: React.FC = () => {
       case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
       case 'failed': return <XCircle className="w-4 h-4 text-red-500" />;
       case 'pending': return <Clock className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-gray-400" />;
+      default: return <AlertCircle className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
     }
   };
 
@@ -170,11 +170,11 @@ const Wallet: React.FC = () => {
   const paginatedTxns = transactions.slice((txnPage - 1) * TXN_PAGE_SIZE, txnPage * TXN_PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">My Wallet</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Manage your funds and transactions</p>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">My Wallet</h1>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">Manage your funds and transactions</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -182,37 +182,37 @@ const Wallet: React.FC = () => {
           <div className="lg:col-span-1 space-y-4">
             {/* Balance Card */}
             <div className="bg-gray-900 rounded-xl p-6 text-white">
-              <p className="text-sm text-gray-400 mb-1">Available Balance</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Available Balance</p>
               <p className="text-3xl font-bold">${user?.walletBalance.toFixed(2)}</p>
-              <p className="text-xs text-gray-500 mt-3">Wallet balance — use it to checkout</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Wallet balance — use it to checkout</p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
                 <TrendingUp className="w-4 h-4 text-green-500 mb-2" />
-                <p className="text-base font-bold text-gray-900">${totalCredit.toFixed(2)}</p>
-                <p className="text-xs text-gray-400">Total credits</p>
+                <p className="text-base font-bold text-gray-900 dark:text-gray-100">${totalCredit.toFixed(2)}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Total credits</p>
               </div>
-              <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
                 <TrendingDown className="w-4 h-4 text-red-400 mb-2" />
-                <p className="text-base font-bold text-gray-900">${totalDebit.toFixed(2)}</p>
-                <p className="text-xs text-gray-400">Total debits</p>
+                <p className="text-base font-bold text-gray-900 dark:text-gray-100">${totalDebit.toFixed(2)}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Total debits</p>
               </div>
             </div>
 
             {/* Fund Wallet */}
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Banknote className="w-4 h-4 text-green-600" />
-                <h2 className="font-semibold text-gray-900 text-sm">Fund Wallet</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Fund Wallet</h2>
               </div>
 
               <form onSubmit={openPaymentModal} className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Amount (USD)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Amount (USD)</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
                     <input
                       type="number"
                       step="0.01"
@@ -221,19 +221,19 @@ const Wallet: React.FC = () => {
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="0.00"
                       required
-                      className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none"
+                      className="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Payment method</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Payment method</label>
                   <select
                     value={selectedCrypto}
                     onChange={(e) => setSelectedCrypto(e.target.value)}
                     required
                     disabled={paymentMethods.length === 0}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-700 focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none bg-white dark:bg-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                   >
                     <option value="">
                       {paymentMethods.length === 0 ? 'No payment methods available' : 'Choose payment method...'}
@@ -257,26 +257,26 @@ const Wallet: React.FC = () => {
 
           {/* Transaction History */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <h2 className="font-semibold text-gray-900">Transaction History</h2>
+                  <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  <h2 className="font-semibold text-gray-900 dark:text-gray-100">Transaction History</h2>
                 </div>
                 {transactions.length > 0 && (
-                  <span className="text-xs text-gray-400">{transactions.length} total</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{transactions.length} total</span>
                 )}
               </div>
 
               {transactionsLoading ? (
                 <div className="text-center py-12">
-                  <p className="text-sm text-gray-400">Loading transactions...</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">Loading transactions...</p>
                 </div>
               ) : transactions.length === 0 ? (
                 <div className="text-center py-12">
                   <WalletIcon className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                  <p className="font-medium text-gray-900 text-sm">No transactions yet</p>
-                  <p className="text-xs text-gray-400 mt-1">Your history will appear here</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">No transactions yet</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Your history will appear here</p>
                 </div>
               ) : (
                 <>
@@ -284,7 +284,7 @@ const Wallet: React.FC = () => {
                     {paginatedTxns.map((transaction) => (
                       <div
                         key={transaction._id}
-                        className="p-4 border border-gray-50 rounded-xl hover:bg-gray-50 transition-colors"
+                        className="p-4 border border-gray-50 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
                         style={{ borderLeftWidth: '3px', borderLeftColor: transaction.type === 'credit' ? '#10b981' : '#ef4444' }}
                       >
                         <div className="flex items-start justify-between mb-2">
@@ -296,8 +296,8 @@ const Wallet: React.FC = () => {
                               }
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900 text-sm">{transaction.description}</p>
-                              <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{transaction.description}</p>
+                              <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                                 <Calendar className="w-3 h-3" />
                                 <span>{formatDate(transaction.createdAt)}</span>
                               </div>
@@ -307,22 +307,18 @@ const Wallet: React.FC = () => {
                             <p className={`font-bold text-sm ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-500'}`}>
                               {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
                             </p>
-                            <p className="text-xs text-gray-400">Bal: ${transaction.balanceAfter.toFixed(2)}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">Bal: ${transaction.balanceAfter.toFixed(2)}</p>
                           </div>
                         </div>
 
                         <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                          <div className="flex items-center gap-1 text-xs text-gray-400">
+                          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
                             <Hash className="w-3 h-3" />
                             <span className="font-mono">{transaction.reference}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             {getStatusIcon(transaction.status)}
-                            <span className={`text-xs font-semibold uppercase ${
-                              transaction.status === 'completed' ? 'text-green-600'
-                              : transaction.status === 'failed' ? 'text-red-500'
-                              : 'text-yellow-500'
-                            }`}>
+                            <span className={`text-xs font-semibold uppercase ${ transaction.status === 'completed' ? 'text-green-600' : transaction.status === 'failed' ? 'text-red-500' : 'text-yellow-500' }`}>
                               {transaction.status}
                             </span>
                           </div>
@@ -332,15 +328,15 @@ const Wallet: React.FC = () => {
                   </div>
 
                   {txnTotalPages > 1 && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                      <p className="text-xs text-gray-400">
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         Page {txnPage} of {txnTotalPages} — {transactions.length} transactions
                       </p>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => setTxnPage(p => Math.max(1, p - 1))}
                           disabled={txnPage === 1}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronLeft className="w-4 h-4" />
                         </button>
@@ -360,7 +356,7 @@ const Wallet: React.FC = () => {
                         <button
                           onClick={() => setTxnPage(p => Math.min(txnTotalPages, p + 1))}
                           disabled={txnPage === txnTotalPages}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronRight className="w-4 h-4" />
                         </button>
@@ -381,13 +377,13 @@ const Wallet: React.FC = () => {
           className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${modalVisible ? 'opacity-100' : 'opacity-0'}`}
           style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
         >
-          <div className={`bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-200 ${modalVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className={`bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-200 ${modalVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="bg-gray-900 text-white p-6 rounded-t-2xl flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold">Complete Payment</h2>
-                <p className="text-gray-400 text-sm mt-0.5">Send exactly ${amount} USD to the destination below</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Send exactly ${amount} USD to the destination below</p>
               </div>
-              <button onClick={closePaymentModal} className="text-gray-500 hover:text-white transition-colors">
+              <button onClick={closePaymentModal} className="text-gray-500 dark:text-gray-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -397,34 +393,34 @@ const Wallet: React.FC = () => {
               <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <Timer className="w-4 h-4 text-orange-500" />
-                  <p className="text-xs font-medium text-gray-600">Time remaining</p>
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Time remaining</p>
                 </div>
                 <p className="text-2xl font-bold text-orange-500">{formatTime(timer)}</p>
               </div>
 
               {/* Payment Details */}
-              <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+              <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Method</span>
-                  <span className="font-medium text-gray-900">{selectedCrypto}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Method</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedCrypto}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Amount</span>
-                  <span className="font-medium text-gray-900">${amount} USD</span>
+                  <span className="text-gray-500 dark:text-gray-400">Amount</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">${amount} USD</span>
                 </div>
               </div>
 
               {/* Destination */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   {destinationLabel(selectedMethod?.type)}:
                 </label>
-                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3">
-                  <p className="text-xs font-mono text-gray-900 break-all mb-2 whitespace-pre-wrap">
+                <div className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl p-3">
+                  <p className="text-xs font-mono text-gray-900 dark:text-gray-100 break-all mb-2 whitespace-pre-wrap">
                     {selectedMethod?.address}
                   </p>
                   {selectedMethod?.instructions && (
-                    <p className="text-xs text-gray-500 mb-2">{selectedMethod.instructions}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{selectedMethod.instructions}</p>
                   )}
                   <button
                     onClick={() => selectedMethod && copyToClipboard(selectedMethod.address)}
@@ -437,12 +433,12 @@ const Wallet: React.FC = () => {
               </div>
 
               {/* Instructions */}
-              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4">
-                <h3 className="font-medium text-gray-900 text-sm mb-2 flex items-center gap-1.5">
-                  <AlertCircle className="w-4 h-4 text-gray-500" />
+              <div className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl p-4">
+                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   Instructions
                 </h3>
-                <ol className="space-y-1 text-xs text-gray-600 list-decimal list-inside">
+                <ol className="space-y-1 text-xs text-gray-600 dark:text-gray-400 list-decimal list-inside">
                   <li>Send exactly ${amount} USD via {selectedCrypto}</li>
                   <li>Complete within {formatTime(timer)}</li>
                   <li>Click "I've sent the payment" below</li>
@@ -453,7 +449,7 @@ const Wallet: React.FC = () => {
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={closePaymentModal}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-full font-medium text-sm transition-colors"
+                  className="flex-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 py-2.5 rounded-full font-medium text-sm transition-colors"
                 >
                   Cancel
                 </button>

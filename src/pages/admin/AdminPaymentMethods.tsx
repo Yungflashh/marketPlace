@@ -175,8 +175,8 @@ const AdminPaymentMethods: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <p className="text-sm text-gray-400">Loading payment methods...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
+        <p className="text-sm text-gray-400 dark:text-gray-500">Loading payment methods...</p>
       </div>
     );
   }
@@ -184,23 +184,23 @@ const AdminPaymentMethods: React.FC = () => {
   const activeCount = methods.filter(m => m.isActive).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <CreditCard className="w-7 h-7 text-gray-700" />
-              <h1 className="text-2xl font-bold text-gray-900">Payment Methods</h1>
+              <CreditCard className="w-7 h-7 text-gray-700 dark:text-gray-300" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payment Methods</h1>
             </div>
-            <p className="text-gray-500 text-sm ml-10">Manage the crypto wallets users pay into when funding</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm ml-10">Manage the crypto wallets users pay into when funding</p>
           </div>
           <div className="flex items-center gap-2">
             {methods.length === 0 && (
               <button
                 onClick={seedDefaults}
                 disabled={seeding}
-                className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Sparkles className="w-4 h-4" />
                 {seeding ? 'Seeding...' : 'Load defaults'}
@@ -218,46 +218,46 @@ const AdminPaymentMethods: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3">
-            <div className="bg-gray-100 rounded-lg p-2">
-              <CreditCard className="w-5 h-5 text-gray-700" />
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+              <CreditCard className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900">{methods.length}</p>
-              <p className="text-xs text-gray-500">Total methods</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{methods.length}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total methods</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
             <div className="bg-green-50 rounded-lg p-2">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900">{activeCount}</p>
-              <p className="text-xs text-gray-500">Active</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{activeCount}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
             <div className="bg-red-50 rounded-lg p-2">
               <XCircle className="w-5 h-5 text-red-500" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900">{methods.length - activeCount}</p>
-              <p className="text-xs text-gray-500">Disabled</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{methods.length - activeCount}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Disabled</p>
             </div>
           </div>
         </div>
 
         {/* List */}
         {methods.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
             <WalletIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="font-medium text-gray-900 mb-1">No payment methods yet</p>
-            <p className="text-sm text-gray-500 mb-4">Users can't fund their wallets until you add at least one method.</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">No payment methods yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Users can't fund their wallets until you add at least one method.</p>
             <div className="flex items-center justify-center gap-2">
               <button
                 onClick={seedDefaults}
                 disabled={seeding}
-                className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50"
+                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Sparkles className="w-4 h-4" />
                 {seeding ? 'Seeding...' : 'Load defaults'}
@@ -272,46 +272,42 @@ const AdminPaymentMethods: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="divide-y divide-gray-100">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {methods.map((m, idx) => (
-                <div key={m._id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div key={m._id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="font-semibold text-gray-900 text-sm">{m.label}</span>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{m.label}</span>
                         <span className="text-[10px] font-medium bg-gray-900 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
                           {typeMeta(m.type ?? 'crypto').label}
                         </span>
                         {m.network && (
-                          <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          <span className="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
                             {m.network}
                           </span>
                         )}
                         <button
                           onClick={() => toggleActive(m)}
-                          className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full transition-colors ${
-                            m.isActive
-                              ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                              : 'bg-red-50 text-red-700 hover:bg-red-100'
-                          }`}
+                          className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full transition-colors ${ m.isActive ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-red-50 text-red-700 hover:bg-red-100' }`}
                         >
                           {m.isActive ? 'Active' : 'Disabled'}
                         </button>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                         <Hash className="w-3 h-3 flex-shrink-0" />
                         <p className="font-mono truncate">{m.address}</p>
                         <button
                           onClick={() => copy(m.address)}
-                          className="text-gray-400 hover:text-gray-700 transition-colors flex-shrink-0"
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex-shrink-0"
                           title="Copy address"
                         >
                           <Copy className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       {m.instructions && (
-                        <p className="text-xs text-gray-400 mt-1">{m.instructions}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{m.instructions}</p>
                       )}
                     </div>
 
@@ -320,7 +316,7 @@ const AdminPaymentMethods: React.FC = () => {
                         <button
                           onClick={() => move(m, 'up')}
                           disabled={idx === 0}
-                          className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                           title="Move up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -328,7 +324,7 @@ const AdminPaymentMethods: React.FC = () => {
                         <button
                           onClick={() => move(m, 'down')}
                           disabled={idx === methods.length - 1}
-                          className="text-gray-400 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
                           title="Move down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -336,7 +332,7 @@ const AdminPaymentMethods: React.FC = () => {
                       </div>
                       <button
                         onClick={() => openEdit(m)}
-                        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+                        className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -368,19 +364,19 @@ const AdminPaymentMethods: React.FC = () => {
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
           className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
             <div className="bg-gray-900 text-white p-6 rounded-t-xl">
               <h2 className="text-lg font-semibold">{editingId ? 'Edit payment method' : 'Add payment method'}</h2>
-              <p className="text-gray-400 text-sm mt-0.5">Users will see this in the fund-wallet dropdown</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Users will see this in the fund-wallet dropdown</p>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Type</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value as PaymentType })}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm bg-white"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm bg-white dark:bg-gray-900"
                 >
                   {TYPE_OPTIONS.map(o => (
                     <option key={o.value} value={o.value}>{o.label}</option>
@@ -389,61 +385,61 @@ const AdminPaymentMethods: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Label</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Label</label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                   placeholder={formData.type === 'crypto' ? 'e.g. USDT (TRC20)' : formData.type === 'paypal' ? 'e.g. PayPal — Main' : 'Name users see in the dropdown'}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{typeMeta(formData.type).addressLabel}</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{typeMeta(formData.type).addressLabel}</label>
                 <textarea
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   placeholder={typeMeta(formData.type).addressPlaceholder}
                   required
                   rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 {typeMeta(formData.type).showNetwork && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Network</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Network</label>
                     <input
                       type="text"
                       value={formData.network}
                       onChange={(e) => setFormData({ ...formData, network: e.target.value })}
                       placeholder="TRC20"
-                      className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                     />
                   </div>
                 )}
                 <div className={typeMeta(formData.type).showNetwork ? '' : 'col-span-2'}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Sort order</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Sort order</label>
                   <input
                     type="number"
                     value={formData.sortOrder}
                     onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Instructions (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Instructions (optional)</label>
                 <textarea
                   value={formData.instructions}
                   onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                   placeholder="Any note shown to users when they select this method"
                   rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
                 />
               </div>
 
@@ -452,16 +448,16 @@ const AdminPaymentMethods: React.FC = () => {
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                  className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-gray-900 dark:focus:ring-gray-100"
                 />
-                <span className="text-sm text-gray-700">Active — show this method to users</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Active — show this method to users</span>
               </label>
 
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                  className="flex-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
                   Cancel
                 </button>

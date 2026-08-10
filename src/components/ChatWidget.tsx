@@ -123,7 +123,7 @@ const ChatWidget: React.FC = () => {
 
       {open && (
         <div
-          className="fixed inset-0 z-[100] bg-gray-50 flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[100] bg-gray-50 dark:bg-gray-950 flex flex-col overflow-hidden"
           style={{ height: '100dvh', width: '100vw' }}
         >
           {/* Header */}
@@ -169,8 +169,8 @@ const ChatWidget: React.FC = () => {
             <div className="max-w-3xl mx-auto w-full px-3 sm:px-6 py-4 space-y-3">
               {messages.length === 0 && (
                 <div className="flex justify-start">
-                  <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
-                    <p className="text-sm text-gray-700 leading-relaxed">
+                  <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
+                    <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
                       Hi! I'm ShopBot. Ask me about products, prices, payment methods, or how to check out. I remember our conversation between visits.
                     </p>
                   </div>
@@ -180,11 +180,7 @@ const ChatWidget: React.FC = () => {
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[85%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words rounded-2xl ${
-                      m.role === 'user'
-                        ? 'bg-gray-900 text-white rounded-br-sm'
-                        : 'bg-white border border-gray-100 text-gray-700 rounded-tl-sm'
-                    }`}
+                    className={`max-w-[85%] px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words rounded-2xl ${ m.role === 'user' ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-br-sm' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-tl-sm' }`}
                   >
                     {m.content}
                   </div>
@@ -193,9 +189,9 @@ const ChatWidget: React.FC = () => {
 
               {loading && (
                 <div className="flex justify-start">
-                  <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm px-4 py-2.5 flex items-center gap-2">
-                    <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin" />
-                    <span className="text-xs text-gray-500">Thinking…</span>
+                  <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-tl-sm px-4 py-2.5 flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 animate-spin" />
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Thinking…</span>
                   </div>
                 </div>
               )}
@@ -210,15 +206,15 @@ const ChatWidget: React.FC = () => {
 
           {/* Composer */}
           <div
-            className="border-t border-gray-100 bg-white shrink-0 w-full"
+            className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0 w-full"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
             <div className="max-w-3xl mx-auto w-full">
               {/* Suggested prompts strip */}
               <div className="px-3 sm:px-6 pt-3 pb-2 w-full overflow-hidden">
                 <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles className="w-3 h-3 text-gray-400 shrink-0" />
-                  <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium">
+                  <Sparkles className="w-3 h-3 text-gray-400 dark:text-gray-500 shrink-0" />
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium">
                     {messages.length === 0 ? 'Try asking' : 'Suggested'}
                   </p>
                 </div>
@@ -229,7 +225,7 @@ const ChatWidget: React.FC = () => {
                       type="button"
                       onClick={() => sendMessage(prompt)}
                       disabled={loading}
-                      className="shrink-0 snap-start text-xs px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100 text-gray-700 hover:border-gray-300 hover:bg-white transition-colors disabled:opacity-50 whitespace-nowrap"
+                      className="shrink-0 snap-start text-xs px-3 py-1.5 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-white dark:hover:bg-gray-700 transition-colors disabled:opacity-50 whitespace-nowrap"
                     >
                       {prompt}
                     </button>
@@ -245,13 +241,13 @@ const ChatWidget: React.FC = () => {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about products, orders…"
                   disabled={loading}
-                  className="flex-1 min-w-0 text-sm px-4 py-3 rounded-full bg-gray-50 border border-gray-100 focus:outline-none focus:border-gray-300 focus:bg-white placeholder:text-gray-400 disabled:opacity-60"
+                  className="flex-1 min-w-0 text-sm px-4 py-3 rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-300 dark:focus:border-gray-500 focus:bg-white dark:focus:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500 disabled:opacity-60"
                 />
                 <button
                   type="submit"
                   disabled={loading || !input.trim()}
                   aria-label="Send message"
-                  className="w-11 h-11 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="w-11 h-11 rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 flex items-center justify-center hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
                   <Send className="w-4 h-4" />
                 </button>

@@ -42,8 +42,8 @@ const ProductDetails: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex justify-center items-center">
-        <p className="text-gray-500 text-sm">Loading log...</p>
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex justify-center items-center">
+        <p className="text-gray-500 dark:text-gray-400 text-sm">Loading log...</p>
       </div>
     );
   }
@@ -51,17 +51,17 @@ const ProductDetails: React.FC = () => {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h2 className="text-2xl font-semibold text-gray-900">Log not found</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Log not found</h2>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <button
           onClick={() => navigate(-1)}
-          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -69,7 +69,7 @@ const ProductDetails: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {/* Image */}
-          <div className="rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+          <div className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800">
             <img
               src={product.imageUrl}
               alt={product.name}
@@ -79,21 +79,21 @@ const ProductDetails: React.FC = () => {
 
           {/* Info */}
           <div className="flex flex-col">
-            <p className="text-[11px] text-gray-400 uppercase tracking-wider mb-2 capitalize">
+            <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 capitalize">
               {product.category}
             </p>
 
-            <h1 className="text-2xl font-semibold text-gray-900 mb-4 leading-snug">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4 leading-snug">
               {product.name}
             </h1>
 
             <div className="mb-6">
-              <span className="text-3xl font-bold text-gray-900">${product.price.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
             </div>
 
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{product.description}</p>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{product.description}</p>
             </div>
 
             <div className="mb-6">
@@ -113,20 +113,20 @@ const ProductDetails: React.FC = () => {
             {product.quantity > 0 && (
               <div className="space-y-4 mt-auto">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                  <div className="flex items-center gap-0 border border-gray-200 rounded-full w-fit">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Quantity</label>
+                  <div className="flex items-center gap-0 border border-gray-200 dark:border-gray-700 rounded-full w-fit">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-9 h-9 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-l-full transition-colors"
+                      className="w-9 h-9 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 rounded-l-full transition-colors"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-10 text-center text-sm font-semibold text-gray-900">
+                    <span className="w-10 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(Math.min(product.quantity, quantity + 1))}
-                      className="w-9 h-9 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-r-full transition-colors"
+                      className="w-9 h-9 flex items-center justify-center text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 rounded-r-full transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>

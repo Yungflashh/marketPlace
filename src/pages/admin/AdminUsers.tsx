@@ -148,23 +148,23 @@ const AdminUsers: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex justify-center items-center">
-        <p className="text-gray-600 font-medium">Loading users...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
+        <p className="text-gray-600 dark:text-gray-400 font-medium">Loading users...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
-            <Users className="w-7 h-7 text-gray-700" />
-            <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+            <Users className="w-7 h-7 text-gray-700 dark:text-gray-300" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
           </div>
-          <p className="text-gray-500 text-sm ml-10">View and manage all registered users</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm ml-10">View and manage all registered users</p>
         </div>
 
         {/* Stats */}
@@ -175,9 +175,9 @@ const AdminUsers: React.FC = () => {
             { label: 'Inactive', value: stats.inactive, color: 'text-red-600' },
             { label: 'Admins', value: stats.admins, color: 'text-gray-700' },
           ].map(s => (
-            <div key={s.label} className="bg-white rounded-lg border border-gray-200 p-4">
+            <div key={s.label} className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-sm text-gray-500">{s.label}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{s.label}</p>
             </div>
           ))}
         </div>
@@ -185,41 +185,41 @@ const AdminUsers: React.FC = () => {
         {/* Search */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <input
               type="text"
               placeholder="Search users by name or email..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
             />
           </div>
         </div>
 
         {/* Table */}
         {filteredUsers.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
-            <p className="text-gray-500">{searchTerm ? 'No users found' : 'No users yet'}</p>
+          <div className="text-center py-16 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+            <p className="text-gray-500 dark:text-gray-400">{searchTerm ? 'No users found' : 'No users yet'}</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-950">
                   <tr>
                     {['User', 'Email', 'Role', 'Balance', 'Status', 'Actions'].map((h, i) => (
-                      <th key={h} className={`px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider ${i === 5 ? 'text-right' : 'text-left'}`}>{h}</th>
+                      <th key={h} className={`px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${i === 5 ? 'text-right' : 'text-left'}`}>{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                   {paginatedUsers.map((user) => (
-                    <tr key={user._id} className="hover:bg-gray-50">
+                    <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">{user.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">{user.email}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{user.email}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.role === 'admin' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700'}`}>
@@ -227,7 +227,7 @@ const AdminUsers: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-gray-900">${user.walletBalance.toFixed(2)}</span>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">${user.walletBalance.toFixed(2)}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -238,7 +238,7 @@ const AdminUsers: React.FC = () => {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openModal(user)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" /> View
                           </button>
@@ -260,11 +260,11 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
-                <p className="text-xs text-gray-400">Page {currentPage} of {totalPages} — {filteredUsers.length} users</p>
+              <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <p className="text-xs text-gray-400 dark:text-gray-500">Page {currentPage} of {totalPages} — {filteredUsers.length} users</p>
                 <div className="flex items-center gap-1">
                   <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -281,7 +281,7 @@ const AdminUsers: React.FC = () => {
                         </button>
                     )}
                   <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -298,7 +298,7 @@ const AdminUsers: React.FC = () => {
           className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${modalVisible ? 'opacity-100' : 'opacity-0'}`}
           style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
         >
-          <div className={`bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transition-all duration-200 ${modalVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className={`bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transition-all duration-200 ${modalVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             {/* Modal Header */}
             <div className="bg-gray-900 px-6 py-5 flex items-start justify-between">
               <div className="flex items-center gap-4">
@@ -307,10 +307,10 @@ const AdminUsers: React.FC = () => {
                 </div>
                 <div>
                   <h2 className="text-white font-semibold text-lg leading-tight">{selectedUser.name}</h2>
-                  <p className="text-gray-400 text-sm">{selectedUser.email}</p>
+                  <p className="text-gray-400 dark:text-gray-500 text-sm">{selectedUser.email}</p>
                 </div>
               </div>
-              <button onClick={closeModal} className="text-gray-400 hover:text-white transition-colors mt-0.5">
+              <button onClick={closeModal} className="text-gray-400 dark:text-gray-500 hover:text-white transition-colors mt-0.5">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -318,48 +318,46 @@ const AdminUsers: React.FC = () => {
             <div className="p-6 space-y-5">
               {/* Info grid */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-400 mb-1">Role</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Role</p>
                   <div className="flex items-center gap-2">
-                    {selectedUser.role === 'admin' ? <Crown className="w-4 h-4 text-gray-700" /> : <UserCheck className="w-4 h-4 text-gray-500" />}
-                    <span className="font-semibold text-gray-900 capitalize">{selectedUser.role}</span>
+                    {selectedUser.role === 'admin' ? <Crown className="w-4 h-4 text-gray-700 dark:text-gray-300" /> : <UserCheck className="w-4 h-4 text-gray-500 dark:text-gray-400" />}
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 capitalize">{selectedUser.role}</span>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-400 mb-1">Status</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Status</p>
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${selectedUser.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                     {selectedUser.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-400 mb-1">Wallet Balance</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Wallet Balance</p>
                   <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-4 h-4 text-gray-500" />
-                    <span className="font-bold text-gray-900 text-lg">{selectedUser.walletBalance.toFixed(2)}</span>
+                    <DollarSign className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="font-bold text-gray-900 dark:text-gray-100 text-lg">{selectedUser.walletBalance.toFixed(2)}</span>
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-400 mb-1">Member Since</p>
+                <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Member Since</p>
                   <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-gray-500" />
-                    <span className="font-medium text-gray-900 text-sm">{formatDate(selectedUser.createdAt)}</span>
+                    <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{formatDate(selectedUser.createdAt)}</span>
                   </div>
                 </div>
               </div>
 
               {/* Email */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-xl">
-                <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="text-sm text-gray-700 truncate">{selectedUser.email}</span>
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-950 rounded-xl">
+                <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+                <span className="text-sm text-gray-700 dark:text-gray-300 truncate">{selectedUser.email}</span>
               </div>
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => handleToggleStatus(selectedUser)}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                    selectedUser.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'
-                  }`}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${ selectedUser.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100' }`}
                 >
                   {selectedUser.isActive
                     ? <><ShieldOff className="w-4 h-4" /> Deactivate</>
@@ -368,9 +366,7 @@ const AdminUsers: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleToggleRole(selectedUser)}
-                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                    selectedUser.role === 'admin' ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-gray-900 text-white hover:bg-gray-800'
-                  }`}
+                  className={`flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${ selectedUser.role === 'admin' ? 'bg-gray-100 text-gray-700 dark:text-gray-300 hover:bg-gray-200' : 'bg-gray-900 text-white hover:bg-gray-800' }`}
                 >
                   {selectedUser.role === 'admin'
                     ? <><UserCheck className="w-4 h-4" /> Demote to User</>
@@ -380,11 +376,11 @@ const AdminUsers: React.FC = () => {
               </div>
 
               {/* Balance Adjustment */}
-              <div className="border border-gray-200 rounded-xl p-4">
-                <p className="text-sm font-medium text-gray-700 mb-3">Adjust Wallet Balance</p>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Adjust Wallet Balance</p>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm">$</span>
                     <input
                       type="number"
                       min="0"
@@ -392,7 +388,7 @@ const AdminUsers: React.FC = () => {
                       placeholder="0.00"
                       value={balanceInput}
                       onChange={(e) => setBalanceInput(e.target.value)}
-                      className="w-full pl-7 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-gray-900 focus:ring-1 focus:ring-gray-900 outline-none"
+                      className="w-full pl-7 pr-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none"
                     />
                   </div>
                   <button

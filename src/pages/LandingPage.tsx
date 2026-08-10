@@ -58,7 +58,7 @@ const steps = [
 
 const LandingPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
       <section
@@ -92,7 +92,7 @@ const LandingPage: React.FC = () => {
           {/* CTAs */}
           <div className="animate-fade-up [animation-delay:340ms] mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link to="/store">
-              <button className="bg-white text-gray-900 text-sm font-semibold px-7 py-3 rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+              <button className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm font-semibold px-7 py-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shadow-lg">
                 Browse the Store
               </button>
             </Link>
@@ -134,7 +134,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Trust Bar ────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-gray-100">
+      <section className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-center">
             {[
@@ -144,8 +144,8 @@ const LandingPage: React.FC = () => {
               { value: 'BTC · ETH · USDT', label: 'Crypto accepted' },
             ].map((s) => (
               <div key={s.label}>
-                <p className="text-lg font-bold text-gray-900">{s.value}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{s.label}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{s.value}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{s.label}</p>
               </div>
             ))}
           </div>
@@ -153,14 +153,14 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── About / What is ShopLogs ─────────────────────────────── */}
-      <section className="bg-gray-50 py-20 sm:py-28">
+      <section className="bg-gray-50 dark:bg-gray-950 py-20 sm:py-28">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto text-center mb-16">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">What is ShopLogs</p>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 leading-snug tracking-tight">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">What is ShopLogs</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-gray-100 leading-snug tracking-tight">
               The go-to marketplace for bank logs and financial accounts
             </h2>
-            <p className="mt-4 text-gray-500 text-base leading-relaxed">
+            <p className="mt-4 text-gray-500 dark:text-gray-400 text-base leading-relaxed">
               ShopLogs stocks verified bank logs, PayPal accounts, crypto wallets, and more —
               all sourced fresh and ready to use. Fund your wallet with crypto, pick what you need, and get it instantly.
             </p>
@@ -171,13 +171,13 @@ const LandingPage: React.FC = () => {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="bg-white rounded-2xl border border-gray-100 p-6 hover:border-gray-200 hover:shadow-sm transition-all"
+                className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 hover:border-gray-200 hover:shadow-sm transition-all"
               >
-                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
-                  <f.icon className="w-5 h-5 text-gray-700" />
+                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center mb-4">
+                  <f.icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 </div>
-                <h3 className="font-semibold text-gray-900 text-sm mb-2">{f.title}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-2">{f.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -185,26 +185,26 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── How It Works ─────────────────────────────────────────── */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white dark:bg-gray-900 py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">How it works</p>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 tracking-tight">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">How it works</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Get started in 3 simple steps
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 relative">
             {/* Connector line (desktop only) */}
-            <div className="hidden md:block absolute top-6 left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gray-100" />
+            <div className="hidden md:block absolute top-6 left-[calc(16.66%+1.5rem)] right-[calc(16.66%+1.5rem)] h-px bg-gray-100 dark:bg-gray-800" />
 
             {steps.map((step) => (
               <div key={step.n} className="relative text-center">
                 <div className="w-12 h-12 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold tracking-wider mx-auto mb-5 relative z-10">
                   {step.n}
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">{step.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs mx-auto">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -212,15 +212,15 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Why choose ShopLogs ──────────────────────────────────── */}
-      <section className="bg-gray-50 py-20 sm:py-28">
+      <section className="bg-gray-50 dark:bg-gray-950 py-20 sm:py-28">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Why ShopLogs</p>
-              <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 tracking-tight leading-snug mb-6">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Why ShopLogs</p>
+              <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight leading-snug mb-6">
                 Fresh logs. Verified accounts. Instant access.
               </h2>
-              <p className="text-gray-500 text-base leading-relaxed mb-8">
+              <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-8">
                 Every log on ShopLogs is screened before it goes live. No dead links, no recycled accounts.
                 We carry bank logs from major US, UK, Canadian, and Australian banks — plus PayPal, Cash App, and crypto accounts.
                 Pay with crypto, stay anonymous, and get your order the second it's placed.
@@ -234,17 +234,17 @@ const LandingPage: React.FC = () => {
                 ].map((point) => (
                   <div key={point} className="flex items-center gap-3">
                     <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
-                    <p className="text-sm text-gray-700">{point}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{point}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Visual card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <Logo size={20} className="text-gray-900" />
-                <span className="font-semibold text-gray-900">ShopLogs</span>
+                <Logo size={20} className="text-gray-900 dark:text-gray-100" />
+                <span className="font-semibold text-gray-900 dark:text-gray-100">ShopLogs</span>
                 <span className="ml-auto text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">● Live</span>
               </div>
 
@@ -254,12 +254,12 @@ const LandingPage: React.FC = () => {
                   { label: 'Last Log', value: 'Chase Business — $48,200 bal', sub: 'Delivered instantly' },
                   { label: 'Coverage', value: 'US · UK · CA · AU', sub: 'Bank logs available' },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div key={item.label} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-xl">
                     <div>
-                      <p className="text-xs text-gray-400">{item.label}</p>
-                      <p className="text-sm font-semibold text-gray-900 mt-0.5">{item.value}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{item.label}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-0.5">{item.value}</p>
                     </div>
-                    <p className="text-xs text-gray-400">{item.sub}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{item.sub}</p>
                   </div>
                 ))}
               </div>
@@ -276,11 +276,11 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* ── Reviews ─────────────────────────────────────────────── */}
-      <section className="bg-white py-20 sm:py-28">
+      <section className="bg-white dark:bg-gray-900 py-20 sm:py-28">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Customer Reviews</p>
-            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 tracking-tight">
+            <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">Customer Reviews</p>
+            <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
               Trusted by buyers worldwide
             </h2>
           </div>
@@ -330,17 +330,17 @@ const LandingPage: React.FC = () => {
                 tag: 'PayPal Logs',
               },
             ].map((review) => (
-              <div key={review.name} className="bg-gray-50 rounded-2xl border border-gray-100 p-6 flex flex-col gap-4">
+              <div key={review.name} className="bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-0.5">
                   {[...Array(review.rating)].map((_, i) => (
                     <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed flex-1">"{review.text}"</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed flex-1">"{review.text}"</p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">{review.name}</p>
-                    <p className="text-xs text-gray-400">{review.location}</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{review.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{review.location}</p>
                   </div>
                   <span className="text-[11px] font-medium bg-gray-900 text-white px-2.5 py-1 rounded-full">
                     {review.tag}
@@ -365,7 +365,7 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link to="/store">
-              <button className="bg-white text-gray-900 text-sm font-semibold px-7 py-3 rounded-full hover:bg-gray-100 transition-colors">
+              <button className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm font-semibold px-7 py-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 Browse the Store
               </button>
             </Link>
