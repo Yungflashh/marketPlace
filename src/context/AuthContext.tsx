@@ -42,12 +42,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (userData: RegisterData): Promise<void> => {
-    const response = await api.post('/auth/register', userData);
-    const { token: newToken, user: newUser } = response.data.data;
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-    setUser(newUser);
-    setAuthToken(newToken);
+    await api.post('/auth/register', userData);
+    // Registration returns only { email } — no token issued until OTP is verified.
+    // User must complete /verify-otp before /login gives them a token.
   };
 
   const login = async (credentials: LoginCredentials): Promise<void> => {
