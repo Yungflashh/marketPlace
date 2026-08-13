@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api'; // <-- IMPORTANT
+import api from '../../utils/api';
 import type { Product } from '../../types';
 import { toast } from 'react-toastify';
+import { Plus, Pencil, Trash2, Power, Package } from 'lucide-react';
+import {
+  PageHeader,
+  Button,
+  Badge,
+  Modal,
+  Input,
+  Textarea,
+  Skeleton,
+  EmptyState,
+  Container,
+} from '../../components/ui';
 
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -154,234 +166,177 @@ const AdminProducts: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Manage Products</h1>
-        <button onClick={() => handleOpenModal()} className="btn btn-primary">
-          Add New Product
-        </button>
-      </div>
+    <Container className="py-8 sm:py-10">
+      <PageHeader
+        eyebrow="Admin"
+        title="Products"
+        description={`${products.length} ${products.length === 1 ? 'listing' : 'listings'} in your catalog`}
+        actions={
+          <Button icon={<Plus />} onClick={() => handleOpenModal()}>
+            Add product
+          </Button>
+        }
+      />
 
-      {products.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-xl text-gray-600">No products yet</p>
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : products.length === 0 ? (
+        <div className="rounded-xl border border-hairline bg-surface">
+          <EmptyState
+            icon={<Package />}
+            title="No products yet"
+            description="Add your first product to start selling."
+            action={
+              <Button icon={<Plus />} onClick={() => handleOpenModal()}>
+                Add product
+              </Button>
+            }
+          />
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Quantity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block rounded-xl border border-hairline bg-surface overflow-hidden">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-hairline">
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Product</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Category</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Price</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Stock</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Status</th>
+                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-ink-faint">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {products.map((product) => (
-                  <tr key={product._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="h-10 w-10 rounded object-cover"
-                        />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                        </div>
+                  <tr key={product._id} className="border-b border-hairline last:border-0">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <img src={product.imageUrl} alt={product.name} className="w-10 h-10 rounded-lg object-cover bg-canvas-raised shrink-0" />
+                        <span className="text-sm font-medium text-ink truncate">{product.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 capitalize">{product.category}</span>
+                    <td className="px-5 py-3.5">
+                      <span className="text-sm text-ink-faint capitalize">{product.category}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-semibold text-gray-900">
-                        ${product.price.toFixed(2)}
-                      </span>
+                    <td className="px-5 py-3.5">
+                      <span className="text-sm font-semibold text-ink">${product.price.toFixed(2)}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`text-sm font-semibold ${
-                          product.quantity > 0 ? 'text-green-600' : 'text-red-600'
-                        }`}
-                      >
+                    <td className="px-5 py-3.5">
+                      <span className={`text-sm font-medium ${product.quantity > 0 ? 'text-ink' : 'text-danger'}`}>
                         {product.quantity}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          product.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}
-                      >
+                    <td className="px-5 py-3.5">
+                      <Badge tone={product.isActive ? 'success' : 'neutral'}>
                         {product.isActive ? 'Active' : 'Inactive'}
-                      </span>
+                      </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <button onClick={() => handleOpenModal(product)} className="text-blue-600 hover:text-blue-900">
-                        Edit
-                      </button>
-                      <button onClick={() => handleToggleActive(product)} className="text-yellow-600 hover:text-yellow-900">
-                        {product.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button onClick={() => handleDelete(product._id)} className="text-red-600 hover:text-red-900">
-                        Delete
-                      </button>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleOpenModal(product)} aria-label="Edit" className="w-8 h-8 rounded-lg flex items-center justify-center text-ink-faint hover:text-gold hover:bg-gold-soft transition-colors">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleToggleActive(product)} aria-label="Toggle status" className="w-8 h-8 rounded-lg flex items-center justify-center text-ink-faint hover:text-warning hover:bg-warning-soft transition-colors">
+                          <Power className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(product._id)} aria-label="Delete" className="w-8 h-8 rounded-lg flex items-center justify-center text-ink-faint hover:text-danger hover:bg-danger-soft transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {products.map((product) => (
+              <div key={product._id} className="rounded-xl border border-hairline bg-surface p-4">
+                <div className="flex gap-3">
+                  <img src={product.imageUrl} alt={product.name} className="w-14 h-14 rounded-lg object-cover bg-canvas-raised shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-ink truncate">{product.name}</p>
+                      <Badge tone={product.isActive ? 'success' : 'neutral'}>{product.isActive ? 'Active' : 'Inactive'}</Badge>
+                    </div>
+                    <p className="text-xs text-ink-faint capitalize mt-0.5">{product.category}</p>
+                    <div className="flex items-center gap-3 mt-2 text-sm">
+                      <span className="font-semibold text-ink">${product.price.toFixed(2)}</span>
+                      <span className={product.quantity > 0 ? 'text-ink-faint' : 'text-danger'}>{product.quantity} in stock</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-hairline">
+                  <Button variant="secondary" size="sm" icon={<Pencil />} onClick={() => handleOpenModal(product)} className="flex-1">
+                    Edit
+                  </Button>
+                  <Button variant="secondary" size="sm" icon={<Power />} onClick={() => handleToggleActive(product)} className="flex-1">
+                    {product.isActive ? 'Disable' : 'Enable'}
+                  </Button>
+                  <button
+                    onClick={() => handleDelete(product._id)}
+                    aria-label="Delete"
+                    className="w-9 h-9 shrink-0 rounded-lg flex items-center justify-center text-ink-faint hover:text-danger hover:bg-danger-soft transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                {editingProduct ? 'Edit Product' : 'Add New Product'}
-              </h2>
+      <Modal
+        open={showModal}
+        onClose={handleCloseModal}
+        title={editingProduct ? 'Edit product' : 'Add new product'}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input label="Product name" name="name" value={formData.name} onChange={handleChange} required placeholder="Enter product name" />
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="input"
-                    placeholder="Enter product name"
-                  />
-                </div>
+          <Textarea label="Description" name="description" value={formData.description} onChange={handleChange} required rows={4} placeholder="Enter product description" />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    required
-                    rows={4}
-                    className="input"
-                    placeholder="Enter product description"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleChange}
-                      required
-                      className="input"
-                      placeholder="0.00"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                    <input
-                      type="number"
-                      min="0"
-                      name="quantity"
-                      value={formData.quantity}
-                      onChange={handleChange}
-                      required
-                      className="input"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="input"
-                    placeholder="Category"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="input"
-                  />
-                  {formData.image ? (
-                    <img
-                      src={URL.createObjectURL(formData.image)}
-                      alt="Preview"
-                      className="h-24 w-24 mt-2 object-cover rounded"
-                    />
-                  ) : formData.imageUrl ? (
-                    <img
-                      src={formData.imageUrl}
-                      alt="Current"
-                      className="h-24 w-24 mt-2 object-cover rounded"
-                    />
-                  ) : null}
-                </div>
-
-                <div className="flex justify-end space-x-4 mt-6">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="btn btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    {editingProduct ? 'Update Product' : 'Add Product'}
-                  </button>
-                </div>
-              </form>
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Price" type="number" step="0.01" min="0" name="price" value={formData.price} onChange={handleChange} required placeholder="0.00" />
+            <Input label="Quantity" type="number" min="0" name="quantity" value={formData.quantity} onChange={handleChange} required placeholder="0" />
           </div>
-        </div>
-      )}
-    </div>
+
+          <Input label="Category" name="category" value={formData.category} onChange={handleChange} required placeholder="Category" />
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-muted mb-1.5">Product image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="block w-full text-sm text-ink-faint file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-surface-hover file:text-ink file:text-sm file:font-medium hover:file:bg-hairline-strong file:cursor-pointer cursor-pointer"
+            />
+            {formData.image ? (
+              <img src={URL.createObjectURL(formData.image)} alt="Preview" className="h-20 w-20 mt-3 object-cover rounded-lg border border-hairline" />
+            ) : formData.imageUrl ? (
+              <img src={formData.imageUrl} alt="Current" className="h-20 w-20 mt-3 object-cover rounded-lg border border-hairline" />
+            ) : null}
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="secondary" onClick={handleCloseModal}>Cancel</Button>
+            <Button type="submit">{editingProduct ? 'Update product' : 'Add product'}</Button>
+          </div>
+        </form>
+      </Modal>
+    </Container>
   );
 };
 

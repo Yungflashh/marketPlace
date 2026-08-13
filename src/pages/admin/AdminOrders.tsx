@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../utils/api'; // <-- IMPORTANT: Using centralized API utility
+import api from '../../utils/api';
 import type { Order, User } from '../../types';
 import { toast } from 'react-toastify';
+import { Eye, Receipt } from 'lucide-react';
+import { PageHeader, Badge, Modal, Skeleton, EmptyState, Container } from '../../components/ui';
 
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -25,16 +27,16 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: string): string => {
+  const statusTone = (status: string): 'success' | 'warning' | 'error' | 'neutral' => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'error';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral';
     }
   };
 
@@ -53,91 +55,59 @@ const AdminOrders: React.FC = () => {
     setShowModal(true);
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">All Orders</h1>
+    <Container className="py-8 sm:py-10">
+      <PageHeader eyebrow="Admin" title="Orders" description={`${orders.length} orders placed on ShopLogs`} />
 
-      {orders.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-xl text-gray-600">No orders yet</p>
+      {loading ? (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="rounded-xl border border-hairline bg-surface">
+          <EmptyState icon={<Receipt />} title="No orders yet" description="Orders placed by customers will show up here." />
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order Number
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Items
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block rounded-xl border border-hairline bg-surface overflow-hidden">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b border-hairline">
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Order</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Customer</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Date</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Items</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Total</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-ink-faint">Status</th>
+                  <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-ink-faint">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {orders.map((order) => {
                   const user = order.user as User;
                   return (
-                    <tr key={order._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-gray-900">
-                          {order.orderNumber}
-                        </span>
+                    <tr key={order._id} className="border-b border-hairline last:border-0">
+                      <td className="px-5 py-3.5 text-sm font-medium text-ink">{order.orderNumber}</td>
+                      <td className="px-5 py-3.5">
+                        <div className="text-sm text-ink">{user?.name}</div>
+                        <div className="text-xs text-ink-faint">{user?.email}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{user?.name}</div>
-                        <div className="text-sm text-gray-500">{user?.email}</div>
+                      <td className="px-5 py-3.5 text-sm text-ink-muted">{formatDate(order.createdAt)}</td>
+                      <td className="px-5 py-3.5 text-sm text-ink-muted">{order.items.length}</td>
+                      <td className="px-5 py-3.5 text-sm font-semibold text-ink">${order.totalAmount.toFixed(2)}</td>
+                      <td className="px-5 py-3.5">
+                        <Badge tone={statusTone(order.status)}>{order.status}</Badge>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-900">
-                          {formatDate(order.createdAt)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-900">
-                          {order.items.length} item(s)
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-gray-900">
-                          ${order.totalAmount.toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-5 py-3.5 text-right">
                         <button
                           onClick={() => handleViewDetails(order)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-ink-faint hover:text-gold hover:bg-gold-soft transition-colors"
+                          aria-label="View details"
                         >
-                          View Details
+                          <Eye className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
@@ -146,91 +116,81 @@ const AdminOrders: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </div>
+
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {orders.map((order) => {
+              const user = order.user as User;
+              return (
+                <button
+                  key={order._id}
+                  onClick={() => handleViewDetails(order)}
+                  className="w-full text-left rounded-xl border border-hairline bg-surface p-4"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-ink truncate">{order.orderNumber}</p>
+                      <p className="text-xs text-ink-faint truncate">{user?.name} · {user?.email}</p>
+                    </div>
+                    <Badge tone={statusTone(order.status)}>{order.status}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-ink-faint">{order.items.length} items · {formatDate(order.createdAt)}</span>
+                    <span className="font-semibold text-ink">${order.totalAmount.toFixed(2)}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
       )}
 
       {/* Order Details Modal */}
-      {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Order Details
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  ✕
-                </button>
+      <Modal open={showModal} onClose={() => setShowModal(false)} title="Order details" size="lg">
+        {selectedOrder && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-canvas-raised rounded-lg border border-hairline">
+              <div>
+                <p className="text-xs text-ink-faint">Order number</p>
+                <p className="font-medium text-ink text-sm mt-0.5">{selectedOrder.orderNumber}</p>
               </div>
-
-              <div className="space-y-6">
-                {/* Order Info */}
-                <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="text-sm text-gray-600">Order Number</p>
-                    <p className="font-semibold">{selectedOrder.orderNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Order Date</p>
-                    <p className="font-semibold">{formatDate(selectedOrder.createdAt)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Customer</p>
-                    <p className="font-semibold">{(selectedOrder.user as User)?.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Status</p>
-                    <span className={`px-2 py-1 inline-flex text-xs font-semibold rounded-full ${getStatusColor(selectedOrder.status)}`}>
-                      {selectedOrder.status.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Order Items */}
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
-                  <div className="space-y-3">
-                    {selectedOrder.items.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <div>
-                          <p className="font-medium">{item.productName}</p>
-                          <p className="text-sm text-gray-600">
-                            Qty: {item.quantity} × ${item.price.toFixed(2)}
-                          </p>
-                        </div>
-                        <p className="font-semibold">${item.subtotal.toFixed(2)}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Total */}
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-semibold">Total Amount</span>
-                    <span className="text-2xl font-bold text-blue-600">
-                      ${selectedOrder.totalAmount.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <p className="text-xs text-ink-faint">Order date</p>
+                <p className="font-medium text-ink text-sm mt-0.5">{formatDate(selectedOrder.createdAt)}</p>
               </div>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="btn btn-secondary"
-                >
-                  Close
-                </button>
+              <div>
+                <p className="text-xs text-ink-faint">Customer</p>
+                <p className="font-medium text-ink text-sm mt-0.5">{(selectedOrder.user as User)?.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">Status</p>
+                <Badge tone={statusTone(selectedOrder.status)} className="mt-1">{selectedOrder.status}</Badge>
               </div>
             </div>
+
+            <div>
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-ink-faint mb-3">Order items</h3>
+              <div className="space-y-2">
+                {selectedOrder.items.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 bg-canvas-raised rounded-lg border border-hairline">
+                    <div>
+                      <p className="font-medium text-ink text-sm">{item.productName}</p>
+                      <p className="text-xs text-ink-faint">Qty: {item.quantity} × ${item.price.toFixed(2)}</p>
+                    </div>
+                    <p className="font-semibold text-ink text-sm">${item.subtotal.toFixed(2)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-hairline pt-4 flex justify-between items-center">
+              <span className="text-sm font-medium text-ink">Total amount</span>
+              <span className="font-display text-2xl text-ink">${selectedOrder.totalAmount.toFixed(2)}</span>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </Modal>
+    </Container>
   );
 };
 
