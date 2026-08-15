@@ -307,6 +307,17 @@ const Wallet: React.FC = () => {
                             </span>
                           </div>
                         </div>
+
+                        {transaction.status === 'failed' && transaction.rejectionReason && (
+                          <div className="mt-2 border border-error/30 bg-error-soft rounded-[var(--radius-sm)] px-3 py-2">
+                            <p className="text-[10.5px] font-semibold uppercase tracking-wide text-error mb-0.5 flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3" /> Reason for rejection
+                            </p>
+                            <p className="text-[12px] text-ink-soft whitespace-pre-wrap break-words">
+                              {transaction.rejectionReason}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

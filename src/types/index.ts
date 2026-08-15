@@ -61,6 +61,7 @@ export interface Transaction {
   status: 'pending' | 'completed' | 'failed';
   paymentMethod?: string;  // Add this
   walletAddress?: string;  // Add this
+  rejectionReason?: string;
   relatedOrder?: string | Order;
   createdAt: string;
   updatedAt: string;
