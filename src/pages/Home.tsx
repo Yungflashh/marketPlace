@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
+import api from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import type { Product } from '../types';
 import { toast } from 'react-toastify';
-import { Search, Filter, ShoppingBag, Sparkles, TrendingUp, Star, Package, Grid3x3, Bell, MapPin, DollarSign } from 'lucide-react';
+import { Search, Package, Bell, MapPin, X, ShieldCheck, Zap, Truck } from 'lucide-react';
+import { Skeleton, EmptyState, Button, Container } from '../components/ui';
+
+const trustPoints = [
+  { icon: ShieldCheck, label: 'Verified sellers' },
+  { icon: Zap, label: 'Instant wallet checkout' },
+  { icon: Truck, label: 'Fast dispatch' },
+];
 
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,23 +19,37 @@ const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentNotification, setCurrentNotification] = useState(0);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   // Fake purchase notifications
   const notifications = [
-    { name: "Sarah M.", location: "New York", amount: 245, product: "Wireless Headphones" },
-    { name: "James K.", location: "Los Angeles", amount: 189, product: "Smart Watch" },
-    { name: "Emily R.", location: "Chicago", amount: 520, product: "Laptop Stand" },
-    { name: "Michael B.", location: "Houston", amount: 350, product: "Gaming Mouse" },
-    { name: "Jessica L.", location: "Miami", amount: 120, product: "Phone Case" },
-    { name: "David W.", location: "Seattle", amount: 890, product: "Mechanical Keyboard" },
-    { name: "Ashley P.", location: "Boston", amount: 275, product: "Fitness Tracker" },
-    { name: "Chris T.", location: "Denver", amount: 445, product: "Bluetooth Speaker" },
+    { name: "Sarah M.", location: "New York", amount: 245, product: "Wireless Headphones", tx: "TX-4471" },
+    { name: "James K.", location: "Los Angeles", amount: 189, product: "Smart Watch", tx: "TX-8834" },
+    { name: "Emily R.", location: "Chicago", amount: 520, product: "Laptop Stand", tx: "TX-2290" },
+    { name: "Michael B.", location: "Houston", amount: 350, product: "Gaming Mouse", tx: "TX-6612" },
+    { name: "Jessica L.", location: "Miami", amount: 120, product: "Phone Case", tx: "TX-8841" },
+    { name: "David W.", location: "Seattle", amount: 890, product: "Mechanical Keyboard", tx: "TX-1027" },
+    { name: "Ashley P.", location: "Boston", amount: 275, product: "Fitness Tracker", tx: "TX-3358" },
+    { name: "Chris T.", location: "Denver", amount: 445, product: "Bluetooth Speaker", tx: "TX-9903" },
   ];
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, [selectedCategory, searchTerm]);
+
+  // "/" focuses search, like most dev-facing tools
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const tag = (document.activeElement as HTMLElement | null)?.tagName;
+      if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   // Rotate notifications every 3 seconds
   useEffect(() => {
@@ -45,7 +66,7 @@ const Home: React.FC = () => {
       if (selectedCategory) params.category = selectedCategory;
       if (searchTerm) params.search = searchTerm;
 
-      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/products', { params });
+      const response = await api.get('/products', { params });
       setProducts(response.data.data.products);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error fetching Logs');
@@ -56,7 +77,7 @@ const Home: React.FC = () => {
 
   const fetchCategories = async (): Promise<void> => {
     try {
-      const response = await axios.get('https://marketplc-be-c2a5.onrender.com/api/products/categories');
+      const response = await api.get('/products/categories');
       setCategories(response.data.data.categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -67,33 +88,44 @@ const Home: React.FC = () => {
     e.preventDefault();
   };
 
+  const notification = notifications[currentNotification];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Live Purchase Notification - Positioned at bottom left */}
-      {notifications.length > 0 && (
-        <div className="fixed bottom-6 left-6 z-50 animate-slide-in max-w-sm">
-          <div className="bg-white rounded-2xl shadow-2xl p-4 border-l-4 border-green-500 backdrop-blur-lg">
+    <div className="min-h-screen bg-canvas bg-spotlight relative overflow-hidden">
+      {/* Decorative ambient glows + technical grid */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-grid" />
+      <div className="pointer-events-none absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-gold/[0.08] blur-3xl animate-drift-slow" />
+      <div className="pointer-events-none absolute top-[28rem] -left-32 w-[320px] h-[320px] rounded-full bg-gold/[0.05] blur-3xl animate-drift" />
+
+      {/* Live Purchase Notification */}
+      {notification && (
+        <div key={currentNotification} className="hidden xl:block fixed bottom-6 left-6 z-30 w-72 animate-rise-in">
+          <div className="bg-elevated border border-hairline-strong rounded-lg p-4 shadow-2xl shadow-black/40">
             <div className="flex items-start gap-3">
-              <div className="bg-green-100 rounded-full p-2">
-                <Bell className="w-5 h-5 text-green-600" />
+              <div className="bg-success-soft rounded-md p-1.5 shrink-0">
+                <Bell className="w-3.5 h-3.5 text-success" />
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="font-semibold text-gray-900">{notifications[currentNotification].name}</p>
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                    Just purchased
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-sm font-semibold text-ink truncate">{notification.name}</p>
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-success-soft text-success px-1.5 py-0.5 rounded font-mono uppercase tracking-wide shrink-0">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-success" />
+                    </span>
+                    Live
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{notifications[currentNotification].product}</p>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
+                <p className="text-xs text-ink-faint mb-1.5 truncate">{notification.product}</p>
+                <div className="flex items-center gap-2.5 text-[11px] font-mono text-ink-faint">
+                  <span className="flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    <span>{notifications[currentNotification].location}</span>
-                  </div>
-                  <div className="flex items-center gap-1 font-semibold text-green-600">
-                    <DollarSign className="w-3 h-3" />
-                    <span>{notifications[currentNotification].amount}</span>
-                  </div>
+                    {notification.location}
+                  </span>
+                  <span className="text-hairline-strong">·</span>
+                  <span className="font-semibold text-gold">${notification.amount.toFixed(2)}</span>
+                  <span className="text-hairline-strong">·</span>
+                  <span>{notification.tx}</span>
                 </div>
               </div>
             </div>
@@ -101,141 +133,177 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="flex items-center justify-center mb-4">
-            <Sparkles className="w-8 h-8 mr-3 animate-pulse" />
-            <h1 className="text-5xl font-extrabold tracking-tight">Welcome to ShopLogs</h1>
-            <Sparkles className="w-8 h-8 ml-3 animate-pulse" />
-          </div>
-          <p className="text-xl text-center text-indigo-100 max-w-2xl mx-auto">
-            Discover amazing products at unbeatable prices. Your perfect find is just a click away.
+      {/* Header */}
+      <Container className="pt-12 sm:pt-20 pb-8 relative">
+        <div className="max-w-xl">
+          <p
+            className="inline-flex items-center gap-2 text-[11px] font-mono font-medium uppercase tracking-[0.2em] text-gold mb-3 animate-rise-in"
+            style={{ animationFillMode: 'backwards' }}
+          >
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-60" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-gold" />
+            </span>
+            [ the catalog ]
           </p>
-          
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-6 mt-12 max-w-3xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center border border-white/20 hover:bg-white/20 transition-all">
-              <ShoppingBag className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-3xl font-bold">{products.length}+</div>
-              <div className="text-sm text-indigo-100">Products</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center border border-white/20 hover:bg-white/20 transition-all">
-              <TrendingUp className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-3xl font-bold">{categories.length}+</div>
-              <div className="text-sm text-indigo-100">Categories</div>
-            </div>
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 text-center border border-white/20 hover:bg-white/20 transition-all">
-              <Star className="w-8 h-8 mx-auto mb-2" />
-              <div className="text-3xl font-bold">4.8</div>
-              <div className="text-sm text-indigo-100">Avg Rating</div>
-            </div>
-          </div>
+          <h1
+            className="font-display text-[34px] sm:text-[44px] font-medium text-ink tracking-tight leading-[1.05] animate-rise-in"
+            style={{ animationDelay: '70ms', animationFillMode: 'backwards' }}
+          >
+            Discover your next{' '}
+            <span className="bg-gradient-to-r from-gold via-gold-strong to-gold bg-clip-text text-transparent text-glow-gold">
+              favorite thing
+            </span>
+          </h1>
+          <p
+            className="text-ink-faint mt-4 text-[15px] leading-relaxed animate-rise-in"
+            style={{ animationDelay: '140ms', animationFillMode: 'backwards' }}
+          >
+            Curated products at honest prices — pay instantly from your ShopLogs wallet.
+          </p>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search and Filter Section */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border border-gray-100 -mt-16 relative z-10">
-          <div className="flex items-center gap-2 mb-6">
-            <Filter className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Find Your Perfect Product</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Search Box */}
-            <form onSubmit={handleSearch}>
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-indigo-600 transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Search for products, brands, or categories..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-gray-700 placeholder-gray-400"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition-colors font-medium"
-                >
-                  Search
-                </button>
-              </div>
-            </form>
-
-            {/* Category Filter */}
-            <div className="relative group">
-              <Grid3x3 className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-purple-600 transition-colors" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition-all text-gray-700 appearance-none bg-white cursor-pointer"
+        {/* Search */}
+        <form
+          onSubmit={handleSearch}
+          className="mt-8 max-w-lg animate-rise-in"
+          style={{ animationDelay: '200ms', animationFillMode: 'backwards' }}
+        >
+          <div className="relative group">
+            <Search className="w-4 h-4 text-ink-faint absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-gold" />
+            <input
+              ref={searchRef}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search for products, brands, or categories…"
+              className="w-full h-12 rounded-md border border-hairline-strong bg-surface pl-11 pr-11 text-[15px] text-ink placeholder:text-ink-faint outline-none transition-all duration-200 focus:border-gold focus:ring-4 focus:ring-gold/15 focus:shadow-lg focus:shadow-gold/5"
+            />
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                aria-label="Clear search"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors"
               >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
-              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+                <X className="w-4 h-4" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:flex items-center justify-center absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded border border-hairline-strong bg-canvas-raised text-ink-faint font-mono text-[11px] group-focus-within:opacity-0 transition-opacity">
+                /
+              </kbd>
+            )}
           </div>
+        </form>
+
+        {/* Trust strip */}
+        <div
+          className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 animate-rise-in"
+          style={{ animationDelay: '260ms', animationFillMode: 'backwards' }}
+        >
+          {trustPoints.map(({ icon: Icon, label }) => (
+            <span key={label} className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+              <Icon className="w-3.5 h-3.5 text-gold" />
+              {label}
+            </span>
+          ))}
         </div>
 
-        {/* Products Section */}
-        <div className="mb-6 flex items-center justify-between">
+        {/* Category chips */}
+        {categories.length > 0 && (
+          <div
+            className="mt-6 -mx-4 sm:mx-0 px-4 sm:px-0 flex gap-2 overflow-x-auto pb-1 animate-fade-in [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            style={{ animationDelay: '320ms', animationFillMode: 'backwards' }}
+          >
+            <button
+              onClick={() => setSelectedCategory('')}
+              className={`shrink-0 px-4 py-2 rounded-md text-sm font-medium border transition-all duration-150 ${
+                selectedCategory === ''
+                  ? 'bg-gold-soft text-gold border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
+                  : 'bg-surface text-ink-muted border-hairline-strong hover:border-ink-faint'
+              }`}
+            >
+              All
+            </button>
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`shrink-0 px-4 py-2 rounded-md text-sm font-medium border capitalize transition-all duration-150 ${
+                  selectedCategory === category
+                    ? 'bg-gold-soft text-gold border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
+                    : 'bg-surface text-ink-muted border-hairline-strong hover:border-ink-faint'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        )}
+      </Container>
+
+      <Container className="pb-16 relative">
+        <div className="flex items-center justify-between mb-5 pt-2">
           <div className="flex items-center gap-2">
-            <Package className="w-6 h-6 text-indigo-600" />
-            <h2 className="text-2xl font-bold text-gray-900">
-              {selectedCategory ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Products` : 'All Products'}
+            <Package className="w-4 h-4 text-ink-faint" />
+            <h2 className="text-[15px] font-semibold text-ink">
+              {selectedCategory ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} products` : 'All products'}
             </h2>
           </div>
           {!loading && products.length > 0 && (
-            <span className="text-gray-600 font-medium">
-              {products.length} {products.length === 1 ? 'product' : 'products'} found
+            <span className="font-mono text-xs text-ink-faint">
+              [ {String(products.length).padStart(3, '0')} ]
             </span>
           )}
         </div>
 
-        {/* Products Grid */}
         {loading ? (
-          <div className="flex flex-col justify-center items-center min-h-[400px]">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-              <ShoppingBag className="w-8 h-8 text-indigo-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-            </div>
-            <p className="mt-6 text-gray-600 font-medium">Loading amazing products...</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-lg border border-hairline overflow-hidden">
+                <Skeleton className="aspect-square rounded-none" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-5 w-1/3 mt-2" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl shadow-lg">
-            <Package className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-            <p className="text-2xl font-bold text-gray-900 mb-2">No products found</p>
-            <p className="text-gray-500 text-lg">Try adjusting your search or filters to find what you're looking for</p>
-            {(searchTerm || selectedCategory) && (
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCategory('');
-                }}
-                className="mt-6 px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg hover:shadow-xl"
-              >
-                Clear Filters
-              </button>
-            )}
+          <div className="rounded-lg border border-hairline bg-surface animate-fade-in">
+            <EmptyState
+              icon={<Package />}
+              title="No products found"
+              description="Try adjusting your search or filters to find what you're looking for."
+              action={
+                (searchTerm || selectedCategory) && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedCategory('');
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                )
+              }
+            />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <ProductCard key={product._id} product={product} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            {products.map((product, index) => (
+              <div
+                key={product._id}
+                className="animate-rise-in"
+                style={{ animationDelay: `${Math.min(index, 11) * 40}ms`, animationFillMode: 'backwards' }}
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         )}
-      </div>
+      </Container>
     </div>
   );
 };
