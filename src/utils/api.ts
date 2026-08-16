@@ -1,8 +1,6 @@
-// src/utils/api.ts
 import axios from 'axios';
-// src/utils/api.ts
 
-const API_BASE_URL = "https://marketplc-be-r3xd.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9000';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -22,8 +20,6 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
-
 
 // Optionally set token dynamically
 export const setAuthToken = (token: string | null) => {
