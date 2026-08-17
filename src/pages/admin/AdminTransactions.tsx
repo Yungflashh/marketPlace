@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import api from '../../utils/api';
 import {
   Wallet, Clock, CheckCircle2, XCircle,
-  ArrowUpCircle, ArrowDownCircle, Hash, User, Calendar,
+  ArrowUpCircle, ArrowDownCircle, Hash, User, Calendar, AlertTriangle,
 } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import StatTile from '../../components/ui/StatTile';
@@ -12,8 +12,10 @@ import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Pagination from '../../components/ui/Pagination';
 import Dialog from '../../components/ui/Dialog';
+import Textarea from '../../components/ui/Textarea';
 import EmptyState from '../../components/ui/EmptyState';
 import PageLoader from '../../components/ui/PageLoader';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 const PAGE_SIZE = 15;
 
@@ -35,6 +37,7 @@ interface Transaction {
   reference: string;
   balanceBefore: number;
   balanceAfter: number;
+  rejectionReason?: string;
   createdAt: string;
 }
 
@@ -47,6 +50,10 @@ const AdminTransactions: React.FC = () => {
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [detailTxn, setDetailTxn] = useState<Transaction | null>(null);
+  const [approveTarget, setApproveTarget] = useState<Transaction | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<Transaction | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [reasonError, setReasonError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -67,18 +74,58 @@ const AdminTransactions: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (id: string, newStatus: 'completed' | 'failed'): Promise<void> => {
+  const submitStatusChange = async (
+    id: string,
+    newStatus: 'completed' | 'failed',
+    reason?: string,
+  ): Promise<void> => {
     setProcessingId(id);
     try {
-      await api.patch(`/admin/transactions/${id}`, { status: newStatus });
+      const payload: { status: 'completed' | 'failed'; rejectionReason?: string } = { status: newStatus };
+      if (newStatus === 'failed') payload.rejectionReason = reason ?? '';
+      await api.patch(`/admin/transactions/${id}`, payload);
       toast.success(`Transaction ${newStatus === 'completed' ? 'approved' : 'rejected'}`);
       await fetchTransactions();
       if (detailTxn?._id === id) setDetailTxn(null);
+      setApproveTarget(null);
+      setRejectTarget(null);
+      setRejectionReason('');
+      setReasonError(null);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error updating transaction');
     } finally {
       setProcessingId(null);
     }
+  };
+
+  const requestApprove = (txn: Transaction) => setApproveTarget(txn);
+
+  const requestReject = (txn: Transaction) => {
+    setRejectionReason('');
+    setReasonError(null);
+    setRejectTarget(txn);
+  };
+
+  const confirmApprove = () => {
+    if (!approveTarget) return;
+    submitStatusChange(approveTarget._id, 'completed');
+  };
+
+  const confirmReject = () => {
+    if (!rejectTarget) return;
+    const trimmed = rejectionReason.trim();
+    if (!trimmed) {
+      setReasonError('Please provide a reason so the user knows why their transaction was rejected.');
+      return;
+    }
+    submitStatusChange(rejectTarget._id, 'failed', trimmed);
+  };
+
+  const closeRejectDialog = () => {
+    if (processingId) return;
+    setRejectTarget(null);
+    setRejectionReason('');
+    setReasonError(null);
   };
 
   const formatDate = (d: string) =>
@@ -168,8 +215,8 @@ const AdminTransactions: React.FC = () => {
                   <Button size="sm" variant="secondary" onClick={() => setDetailTxn(txn)}>Details</Button>
                   {txn.status === 'pending' && (
                     <>
-                      <Button size="sm" variant="destructive" onClick={() => handleStatusChange(txn._id, 'failed')} loading={processingId === txn._id}>Reject</Button>
-                      <Button size="sm" onClick={() => handleStatusChange(txn._id, 'completed')} loading={processingId === txn._id} className="!bg-success hover:!bg-success">Approve</Button>
+                      <Button size="sm" variant="destructive" onClick={() => requestReject(txn)} loading={processingId === txn._id}>Reject</Button>
+                      <Button size="sm" onClick={() => requestApprove(txn)} loading={processingId === txn._id} className="!bg-success hover:!bg-success">Approve</Button>
                     </>
                   )}
                 </div>
@@ -240,10 +287,10 @@ const AdminTransactions: React.FC = () => {
         footer={
           detailTxn?.status === 'pending' ? (
             <>
-              <Button variant="destructive" fullWidth onClick={() => handleStatusChange(detailTxn._id, 'failed')} loading={processingId === detailTxn._id} icon={<XCircle className="w-4 h-4" />}>
+              <Button variant="destructive" fullWidth onClick={() => requestReject(detailTxn)} loading={processingId === detailTxn._id} icon={<XCircle className="w-4 h-4" />}>
                 Reject
               </Button>
-              <Button fullWidth onClick={() => handleStatusChange(detailTxn._id, 'completed')} loading={processingId === detailTxn._id} className="!bg-success hover:!bg-success" icon={<CheckCircle2 className="w-4 h-4" />}>
+              <Button fullWidth onClick={() => requestApprove(detailTxn)} loading={processingId === detailTxn._id} className="!bg-success hover:!bg-success" icon={<CheckCircle2 className="w-4 h-4" />}>
                 Approve
               </Button>
             </>
@@ -302,8 +349,80 @@ const AdminTransactions: React.FC = () => {
                 <p className="text-[13px] text-ink-soft">{detailTxn.description}</p>
               </div>
             )}
+
+            {detailTxn.status === 'failed' && detailTxn.rejectionReason && (
+              <div className="border border-error/30 bg-error-soft rounded-[var(--radius-md)] p-3">
+                <p className="text-[11px] font-semibold text-error mb-1 flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> Rejection reason
+                </p>
+                <p className="text-[13px] text-ink-soft whitespace-pre-wrap">{detailTxn.rejectionReason}</p>
+              </div>
+            )}
           </div>
         )}
+      </Dialog>
+
+      <ConfirmDialog
+        open={!!approveTarget}
+        title="Approve transaction?"
+        message={
+          approveTarget
+            ? `This will credit $${approveTarget.amount.toFixed(2)} to ${approveTarget.user?.name ?? 'the user'}'s wallet. This action cannot be undone.`
+            : ''
+        }
+        confirmLabel="Yes, approve"
+        loading={!!approveTarget && processingId === approveTarget._id}
+        onConfirm={confirmApprove}
+        onCancel={() => { if (!processingId) setApproveTarget(null); }}
+      />
+
+      <Dialog
+        open={!!rejectTarget}
+        onClose={closeRejectDialog}
+        size="sm"
+        title="Reject transaction?"
+        description={
+          rejectTarget
+            ? `The user will see this reason on their transaction history. Amount: $${rejectTarget.amount.toFixed(2)}.`
+            : undefined
+        }
+        footer={
+          <>
+            <Button variant="secondary" fullWidth onClick={closeRejectDialog} disabled={!!processingId}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              fullWidth
+              onClick={confirmReject}
+              loading={!!rejectTarget && processingId === rejectTarget._id}
+            >
+              Reject transaction
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <label className="block text-[13px] font-medium text-ink-soft">
+            Reason for rejection <span className="text-error">*</span>
+          </label>
+          <Textarea
+            rows={4}
+            value={rejectionReason}
+            onChange={(e) => {
+              setRejectionReason(e.target.value);
+              if (reasonError) setReasonError(null);
+            }}
+            placeholder="e.g. Payment not received at wallet address, or amount does not match."
+            invalid={!!reasonError}
+            disabled={!!processingId}
+          />
+          {reasonError && (
+            <p className="text-[12px] text-error flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> {reasonError}
+            </p>
+          )}
+        </div>
       </Dialog>
     </div>
   );
