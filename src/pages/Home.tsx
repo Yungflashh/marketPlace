@@ -79,6 +79,9 @@ const Home: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortBy, setSortBy] = useState<SortBy>('newest');
   const searchRef = useRef<HTMLInputElement>(null);
+  const freshRailRef = useRef<HTMLDivElement>(null);
+  const freshRailPaused = useRef(false);
+  const freshRailResumeTimer = useRef<number | undefined>(undefined);
 
   // Live-purchase toast — cycles through fake notifications, sliding in/out.
   const [notifIndex, setNotifIndex] = useState(0);
@@ -130,6 +133,26 @@ const Home: React.FC = () => {
       timers.forEach(clearTimeout);
     };
   }, [notifDismissed]);
+
+  // Gently auto-scrolls the "Fresh picks" rail so the home screen feels alive;
+  // pauses on hover/touch so users can still browse manually.
+  useEffect(() => {
+    const railIsShown = !loading && !selectedCategory && !searchTerm && products.length > 0;
+    const el = freshRailRef.current;
+    if (!railIsShown || !el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let raf: number;
+    const step = () => {
+      if (!freshRailPaused.current) {
+        const max = el.scrollWidth - el.clientWidth;
+        el.scrollLeft = max <= 0 ? 0 : el.scrollLeft >= max - 1 ? 0 : el.scrollLeft + 0.6;
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [loading, selectedCategory, searchTerm, products.length]);
 
   const fetchProducts = async (): Promise<void> => {
     try {
@@ -311,7 +334,7 @@ const Home: React.FC = () => {
         {/* Live snapshot panel — balances the wide empty gap next to the hero text on large screens */}
         <div className="hidden lg:flex flex-col gap-4 animate-rise-in" style={{ animationDelay: '260ms', animationFillMode: 'backwards' }}>
           <div className="relative overflow-hidden rounded-2xl border border-hairline-strong bg-surface p-6">
-            <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gold/10 blur-3xl" />
+            <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gold/10 blur-3xl animate-drift" />
             <p className="font-mono text-[11px] uppercase tracking-wide text-ink-faint mb-5">[ live snapshot ]</p>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -405,7 +428,7 @@ const Home: React.FC = () => {
       <Container className="pb-10 relative">
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="relative overflow-hidden rounded-xl border border-hairline-strong bg-gradient-to-br from-gold-soft/70 via-surface to-surface p-5 sm:p-6">
-            <WalletIcon className="w-20 h-20 text-gold/10 absolute -right-3 -bottom-4" />
+            <WalletIcon className="w-20 h-20 text-gold/10 absolute -right-3 -bottom-4 animate-float" />
             <p className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-gold mb-2">
               <Zap className="w-3 h-3" /> Instant checkout
             </p>
@@ -422,7 +445,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="relative overflow-hidden rounded-xl border border-hairline bg-surface p-5 sm:p-6">
-            <ShieldCheck className="w-20 h-20 text-ink-faint/[0.06] absolute -right-3 -bottom-4" />
+            <ShieldCheck className="w-20 h-20 text-ink-faint/[0.06] absolute -right-3 -bottom-4 animate-float-slow" />
             <p className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-ink-faint mb-2">
               <ShieldCheck className="w-3 h-3 text-gold" /> Buyer protection
             </p>
@@ -441,9 +464,23 @@ const Home: React.FC = () => {
             <Sparkles className="w-4 h-4 text-gold" />
             <h2 className="text-[15px] font-semibold text-ink">Fresh picks</h2>
           </div>
-          <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div
+            ref={freshRailRef}
+            onMouseEnter={() => (freshRailPaused.current = true)}
+            onMouseLeave={() => (freshRailPaused.current = false)}
+            onTouchStart={() => {
+              freshRailPaused.current = true;
+              window.clearTimeout(freshRailResumeTimer.current);
+            }}
+            onTouchEnd={() => {
+              freshRailResumeTimer.current = window.setTimeout(() => {
+                freshRailPaused.current = false;
+              }, 1500);
+            }}
+            className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
             {products.slice(0, 8).map((product) => (
-              <div key={product._id} className="shrink-0 w-[46vw] sm:w-[200px] snap-start">
+              <div key={product._id} className="shrink-0 w-[46vw] sm:w-[200px]">
                 <ProductCard product={product} />
               </div>
             ))}
