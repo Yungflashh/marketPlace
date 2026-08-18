@@ -1,9 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import type { Product } from '../types';
 import { toast } from 'react-toastify';
-import { Search, Package, Bell, MapPin, X, ShieldCheck, Zap, Truck } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { cn } from '../utils/cn';
+import {
+  Search,
+  Package,
+  MapPin,
+  X,
+  ShieldCheck,
+  Zap,
+  Truck,
+  Sparkles,
+  ArrowUpDown,
+  ArrowRight,
+  Grid3x3,
+  Smartphone,
+  Shirt,
+  Sofa,
+  Dumbbell,
+  BookOpen,
+  Gem,
+  Car,
+  Gamepad2,
+  UtensilsCrossed,
+  Tag,
+  Wallet as WalletIcon,
+} from 'lucide-react';
 import { Skeleton, EmptyState, Button, Container } from '../components/ui';
 
 const trustPoints = [
@@ -12,26 +38,52 @@ const trustPoints = [
   { icon: Truck, label: 'Fast dispatch' },
 ];
 
+type SortBy = 'newest' | 'price-asc' | 'price-desc';
+
+// Maps a free-text category name to a representative icon — categories come
+// from the API with no icon field of their own.
+const categoryIconFor = (category: string) => {
+  const c = category.toLowerCase();
+  if (/(phone|electronic|laptop|computer|tech|gadget)/.test(c)) return Smartphone;
+  if (/(fashion|cloth|apparel|wear|shoe)/.test(c)) return Shirt;
+  if (/(home|furniture|kitchen|decor)/.test(c)) return Sofa;
+  if (/(beauty|cosmetic|skincare)/.test(c)) return Sparkles;
+  if (/(sport|fitness|gym)/.test(c)) return Dumbbell;
+  if (/(book|stationery)/.test(c)) return BookOpen;
+  if (/(jewel|accessor|watch)/.test(c)) return Gem;
+  if (/(auto|car|vehicle)/.test(c)) return Car;
+  if (/(toy|game|kids)/.test(c)) return Gamepad2;
+  if (/(food|grocery|drink)/.test(c)) return UtensilsCrossed;
+  return Tag;
+};
+
+const initialsOf = (name: string) =>
+  name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+
+// Fake purchase notifications — social proof only, not backed by real orders.
+const notifications = [
+  { name: 'Sarah M.', location: 'New York', amount: 245, product: 'Wireless Headphones' },
+  { name: 'James K.', location: 'Los Angeles', amount: 189, product: 'Smart Watch' },
+  { name: 'Emily R.', location: 'Chicago', amount: 520, product: 'Laptop Stand' },
+  { name: 'Michael B.', location: 'Houston', amount: 350, product: 'Gaming Mouse' },
+  { name: 'Jessica L.', location: 'Miami', amount: 120, product: 'Phone Case' },
+  { name: 'David W.', location: 'Seattle', amount: 890, product: 'Mechanical Keyboard' },
+];
+
 const Home: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [currentNotification, setCurrentNotification] = useState(0);
+  const [sortBy, setSortBy] = useState<SortBy>('newest');
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Fake purchase notifications
-  const notifications = [
-    { name: "Sarah M.", location: "New York", amount: 245, product: "Wireless Headphones", tx: "TX-4471" },
-    { name: "James K.", location: "Los Angeles", amount: 189, product: "Smart Watch", tx: "TX-8834" },
-    { name: "Emily R.", location: "Chicago", amount: 520, product: "Laptop Stand", tx: "TX-2290" },
-    { name: "Michael B.", location: "Houston", amount: 350, product: "Gaming Mouse", tx: "TX-6612" },
-    { name: "Jessica L.", location: "Miami", amount: 120, product: "Phone Case", tx: "TX-8841" },
-    { name: "David W.", location: "Seattle", amount: 890, product: "Mechanical Keyboard", tx: "TX-1027" },
-    { name: "Ashley P.", location: "Boston", amount: 275, product: "Fitness Tracker", tx: "TX-3358" },
-    { name: "Chris T.", location: "Denver", amount: 445, product: "Bluetooth Speaker", tx: "TX-9903" },
-  ];
+  // Live-purchase toast — cycles through fake notifications, sliding in/out.
+  const [notifIndex, setNotifIndex] = useState(0);
+  const [notifVisible, setNotifVisible] = useState(false);
+  const [notifDismissed, setNotifDismissed] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -51,13 +103,33 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
-  // Rotate notifications every 3 seconds
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentNotification((prev) => (prev + 1) % notifications.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (notifDismissed) return;
+    let live = true;
+    const timers: number[] = [];
+    const runCycle = () => {
+      if (!live) return;
+      setNotifVisible(true);
+      timers.push(
+        window.setTimeout(() => {
+          if (!live) return;
+          setNotifVisible(false);
+          timers.push(
+            window.setTimeout(() => {
+              if (!live) return;
+              setNotifIndex((i) => (i + 1) % notifications.length);
+              runCycle();
+            }, 500)
+          );
+        }, 4500)
+      );
+    };
+    timers.push(window.setTimeout(runCycle, 1600));
+    return () => {
+      live = false;
+      timers.forEach(clearTimeout);
+    };
+  }, [notifDismissed]);
 
   const fetchProducts = async (): Promise<void> => {
     try {
@@ -88,7 +160,20 @@ const Home: React.FC = () => {
     e.preventDefault();
   };
 
-  const notification = notifications[currentNotification];
+  const dismissNotification = (): void => {
+    setNotifVisible(false);
+    setNotifDismissed(true);
+  };
+
+  const sortedProducts = useMemo(() => {
+    if (sortBy === 'newest') return products;
+    const list = [...products];
+    list.sort((a, b) => (sortBy === 'price-asc' ? a.price - b.price : b.price - a.price));
+    return list;
+  }, [products, sortBy]);
+
+  const showBrowseSections = !loading && !selectedCategory && !searchTerm && products.length > 0;
+  const notification = notifications[notifIndex];
 
   return (
     <div className="min-h-screen bg-canvas bg-spotlight relative overflow-hidden">
@@ -97,35 +182,42 @@ const Home: React.FC = () => {
       <div className="pointer-events-none absolute -top-24 -right-24 w-[420px] h-[420px] rounded-full bg-gold/[0.08] blur-3xl animate-drift-slow" />
       <div className="pointer-events-none absolute top-[28rem] -left-32 w-[320px] h-[320px] rounded-full bg-gold/[0.05] blur-3xl animate-drift" />
 
-      {/* Live Purchase Notification */}
-      {notification && (
-        <div key={currentNotification} className="hidden xl:block fixed bottom-6 left-6 z-30 w-72 animate-rise-in">
-          <div className="bg-elevated border border-hairline-strong rounded-lg p-4 shadow-2xl shadow-black/40">
-            <div className="flex items-start gap-3">
-              <div className="bg-success-soft rounded-md p-1.5 shrink-0">
-                <Bell className="w-3.5 h-3.5 text-success" />
+      {/* Live purchase toast — desktop only, bottom-right, self-dismissing */}
+      {!notifDismissed && notification && (
+        <div className="hidden lg:block fixed bottom-6 right-6 z-30 w-[300px]">
+          <div
+            className={cn(
+              'transition-all duration-500 ease-out',
+              notifVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-6 pointer-events-none'
+            )}
+          >
+            <div className="relative bg-elevated border border-hairline-strong rounded-xl p-3.5 pr-8 shadow-2xl shadow-black/40 flex items-start gap-3">
+              <button
+                onClick={dismissNotification}
+                aria-label="Dismiss notification"
+                className="absolute top-2.5 right-2.5 text-ink-faint hover:text-ink transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 rounded-full bg-gold-soft text-gold flex items-center justify-center text-[11px] font-bold select-none">
+                  {initialsOf(notification.name)}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success border-2 border-elevated" />
+                </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold text-ink truncate">{notification.name}</p>
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-success-soft text-success px-1.5 py-0.5 rounded font-mono uppercase tracking-wide shrink-0">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
-                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-success" />
-                    </span>
-                    Live
-                  </span>
-                </div>
-                <p className="text-xs text-ink-faint mb-1.5 truncate">{notification.product}</p>
-                <div className="flex items-center gap-2.5 text-[11px] font-mono text-ink-faint">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {notification.location}
-                  </span>
+                <p className="text-[13px] text-ink leading-snug">
+                  <span className="font-semibold">{notification.name}</span> just bought{' '}
+                  <span className="font-medium">{notification.product}</span>
+                </p>
+                <div className="flex items-center gap-1.5 mt-1 font-mono text-[10.5px] text-ink-faint">
+                  <MapPin className="w-3 h-3 shrink-0" />
+                  <span className="truncate">{notification.location}</span>
                   <span className="text-hairline-strong">·</span>
-                  <span className="font-semibold text-gold">${notification.amount.toFixed(2)}</span>
-                  <span className="text-hairline-strong">·</span>
-                  <span>{notification.tx}</span>
+                  <span className="text-gold font-semibold shrink-0">${notification.amount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -133,8 +225,10 @@ const Home: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
+      {/* Hero */}
       <Container className="pt-12 sm:pt-20 pb-8 relative">
+        <div className="lg:grid lg:grid-cols-[1fr_320px] lg:gap-12 lg:items-start">
+        <div>
         <div className="max-w-xl">
           <p
             className="inline-flex items-center gap-2 text-[11px] font-mono font-medium uppercase tracking-[0.2em] text-gold mb-3 animate-rise-in"
@@ -195,70 +289,203 @@ const Home: React.FC = () => {
           </div>
         </form>
 
-        {/* Trust strip */}
+        {/* Trust cards */}
         <div
-          className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 animate-rise-in"
+          className="mt-6 grid grid-cols-3 gap-2.5 sm:gap-3 max-w-lg animate-rise-in"
           style={{ animationDelay: '260ms', animationFillMode: 'backwards' }}
         >
           {trustPoints.map(({ icon: Icon, label }) => (
-            <span key={label} className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
-              <Icon className="w-3.5 h-3.5 text-gold" />
-              {label}
-            </span>
+            <div
+              key={label}
+              className="rounded-xl border border-hairline bg-surface px-3 py-3 flex flex-col items-start gap-2"
+            >
+              <span className="w-8 h-8 rounded-lg bg-gold-soft flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-gold" />
+              </span>
+              <span className="text-[11px] sm:text-[11.5px] font-medium text-ink-muted leading-tight">{label}</span>
+            </div>
           ))}
         </div>
+        </div>
 
-        {/* Category chips */}
+        {/* Live snapshot panel — balances the wide empty gap next to the hero text on large screens */}
+        <div className="hidden lg:flex flex-col gap-4 animate-rise-in" style={{ animationDelay: '260ms', animationFillMode: 'backwards' }}>
+          <div className="relative overflow-hidden rounded-2xl border border-hairline-strong bg-surface p-6">
+            <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gold/10 blur-3xl" />
+            <p className="font-mono text-[11px] uppercase tracking-wide text-ink-faint mb-5">[ live snapshot ]</p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-2.5 text-sm text-ink-muted">
+                  <Package className="w-4 h-4 text-gold" /> Listings live
+                </span>
+                <span className="font-mono text-lg font-semibold text-ink">{loading ? '—' : products.length}</span>
+              </div>
+              <div className="h-px bg-hairline" />
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-2.5 text-sm text-ink-muted">
+                  <Grid3x3 className="w-4 h-4 text-gold" /> Categories
+                </span>
+                <span className="font-mono text-lg font-semibold text-ink">{categories.length || '—'}</span>
+              </div>
+              <div className="h-px bg-hairline" />
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-2.5 text-sm text-ink-muted">
+                  <ShieldCheck className="w-4 h-4 text-gold" /> Seller checks
+                </span>
+                <span className="font-mono text-lg font-semibold text-ink">100%</span>
+              </div>
+            </div>
+          </div>
+          <p className="text-[12px] text-ink-faint leading-relaxed px-1">
+            Every listing is reviewed before it goes live — browse with confidence.
+          </p>
+        </div>
+        </div>
+
+        {/* Category tiles */}
         {categories.length > 0 && (
           <div
-            className="mt-6 -mx-4 sm:mx-0 px-4 sm:px-0 flex gap-2 overflow-x-auto pb-1 animate-fade-in [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-8 animate-fade-in"
             style={{ animationDelay: '320ms', animationFillMode: 'backwards' }}
           >
-            <button
-              onClick={() => setSelectedCategory('')}
-              className={`shrink-0 px-4 py-2 rounded-md text-sm font-medium border transition-all duration-150 ${
-                selectedCategory === ''
-                  ? 'bg-gold-soft text-gold border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
-                  : 'bg-surface text-ink-muted border-hairline-strong hover:border-ink-faint'
-              }`}
-            >
-              All
-            </button>
-            {categories.map((category) => (
+            <div className="flex items-center gap-2 mb-3">
+              <Grid3x3 className="w-4 h-4 text-ink-faint" />
+              <h2 className="text-[13px] font-semibold text-ink-muted uppercase tracking-wide">Browse categories</h2>
+            </div>
+            <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-3 overflow-x-auto snap-x pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`shrink-0 px-4 py-2 rounded-md text-sm font-medium border capitalize transition-all duration-150 ${
-                  selectedCategory === category
-                    ? 'bg-gold-soft text-gold border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
-                    : 'bg-surface text-ink-muted border-hairline-strong hover:border-ink-faint'
-                }`}
+                onClick={() => setSelectedCategory('')}
+                className="group shrink-0 w-[76px] flex flex-col items-center gap-2 snap-start"
               >
-                {category}
+                <span
+                  className={cn(
+                    'w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-150',
+                    selectedCategory === ''
+                      ? 'bg-gold text-canvas border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
+                      : 'bg-surface text-ink-muted border-hairline-strong group-hover:border-ink-faint group-hover:text-ink'
+                  )}
+                >
+                  <Grid3x3 className="w-5 h-5" />
+                </span>
+                <span className={cn('text-[11px] font-medium text-center leading-tight', selectedCategory === '' ? 'text-gold' : 'text-ink-faint')}>
+                  All
+                </span>
               </button>
-            ))}
+              {categories.map((category) => {
+                const Icon = categoryIconFor(category);
+                const active = selectedCategory === category;
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className="group shrink-0 w-[76px] flex flex-col items-center gap-2 snap-start"
+                  >
+                    <span
+                      className={cn(
+                        'w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-150',
+                        active
+                          ? 'bg-gold text-canvas border-gold shadow-[0_0_16px_-4px_var(--color-gold)]'
+                          : 'bg-surface text-ink-muted border-hairline-strong group-hover:border-ink-faint group-hover:text-ink'
+                      )}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </span>
+                    <span className={cn('text-[11px] font-medium text-center leading-tight capitalize line-clamp-2', active ? 'text-gold' : 'text-ink-faint')}>
+                      {category}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
       </Container>
 
-      <Container className="pb-16 relative">
-        <div className="flex items-center justify-between mb-5 pt-2">
-          <div className="flex items-center gap-2">
-            <Package className="w-4 h-4 text-ink-faint" />
-            <h2 className="text-[15px] font-semibold text-ink">
+      {/* Promo strip */}
+      <Container className="pb-10 relative">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="relative overflow-hidden rounded-xl border border-hairline-strong bg-gradient-to-br from-gold-soft/70 via-surface to-surface p-5 sm:p-6">
+            <WalletIcon className="w-20 h-20 text-gold/10 absolute -right-3 -bottom-4" />
+            <p className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-gold mb-2">
+              <Zap className="w-3 h-3" /> Instant checkout
+            </p>
+            <h3 className="font-display text-lg font-medium text-ink mb-1">Fund your wallet</h3>
+            <p className="text-[13px] text-ink-faint max-w-[230px] leading-relaxed">
+              Top up once, then check out in a single tap — no card required.
+            </p>
+            <Link
+              to={isAuthenticated ? '/wallet' : '/login'}
+              className="inline-flex items-center gap-1.5 mt-4 text-[13px] font-semibold text-gold hover:gap-2.5 transition-all duration-150"
+            >
+              Go to wallet <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="relative overflow-hidden rounded-xl border border-hairline bg-surface p-5 sm:p-6">
+            <ShieldCheck className="w-20 h-20 text-ink-faint/[0.06] absolute -right-3 -bottom-4" />
+            <p className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-ink-faint mb-2">
+              <ShieldCheck className="w-3 h-3 text-gold" /> Buyer protection
+            </p>
+            <h3 className="font-display text-lg font-medium text-ink mb-1">Every seller verified</h3>
+            <p className="text-[13px] text-ink-faint max-w-[240px] leading-relaxed">
+              Manual checks and wallet escrow keep every order safe, start to finish.
+            </p>
+          </div>
+        </div>
+      </Container>
+
+      {/* Featured rail — only on the unfiltered view */}
+      {showBrowseSections && (
+        <Container className="pb-2 relative">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-4 h-4 text-gold" />
+            <h2 className="text-[15px] font-semibold text-ink">Fresh picks</h2>
+          </div>
+          <div className="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {products.slice(0, 8).map((product) => (
+              <div key={product._id} className="shrink-0 w-[46vw] sm:w-[200px] snap-start">
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </Container>
+      )}
+
+      {/* Main grid */}
+      <Container className="pt-8 pb-16 relative">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="flex items-center gap-2 min-w-0">
+            <Package className="w-4 h-4 text-ink-faint shrink-0" />
+            <h2 className="text-[15px] font-semibold text-ink truncate">
               {selectedCategory ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} products` : 'All products'}
             </h2>
+            {!loading && products.length > 0 && (
+              <span className="font-mono text-xs text-ink-faint shrink-0">
+                [ {String(products.length).padStart(3, '0')} ]
+              </span>
+            )}
           </div>
-          {!loading && products.length > 0 && (
-            <span className="font-mono text-xs text-ink-faint">
-              [ {String(products.length).padStart(3, '0')} ]
-            </span>
+
+          {!loading && products.length > 1 && (
+            <div className="relative shrink-0">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                aria-label="Sort products"
+                className="h-9 rounded-lg border border-hairline-strong bg-surface pl-3 pr-8 text-[12.5px] font-medium text-ink-muted outline-none appearance-none transition-colors focus:border-gold cursor-pointer"
+              >
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
+              <ArrowUpDown className="w-3 h-3 text-ink-faint absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           )}
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+            {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="rounded-lg border border-hairline overflow-hidden">
                 <Skeleton className="aspect-square rounded-none" />
                 <div className="p-4 space-y-2">
@@ -269,7 +496,7 @@ const Home: React.FC = () => {
               </div>
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : sortedProducts.length === 0 ? (
           <div className="rounded-lg border border-hairline bg-surface animate-fade-in">
             <EmptyState
               icon={<Package />}
@@ -291,8 +518,8 @@ const Home: React.FC = () => {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {products.map((product, index) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
+            {sortedProducts.map((product, index) => (
               <div
                 key={product._id}
                 className="animate-rise-in"
