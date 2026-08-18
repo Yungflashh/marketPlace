@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import PageLoader from './ui/PageLoader';
+import AdminLayout from './admin/AdminLayout';
 
 interface AdminRouteProps {
   children: ReactNode;
@@ -10,11 +12,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="spinner"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!isAuthenticated) {
@@ -25,7 +23,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     return <Navigate to="/" />;
   }
 
-  return <>{children}</>;
+  return <AdminLayout>{children}</AdminLayout>;
 };
 
 export default AdminRoute;

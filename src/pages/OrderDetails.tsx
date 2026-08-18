@@ -5,7 +5,6 @@ import type { Order } from '../types';
 import { toast } from 'react-toastify';
 import {
   ArrowLeft,
-  Package,
   Calendar,
   CreditCard,
   CheckCircle2,
@@ -13,8 +12,12 @@ import {
   XCircle,
   ShoppingBag,
   Hash,
-  Truck
+  Truck,
 } from 'lucide-react';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
+import PageLoader from '../components/ui/PageLoader';
 
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +27,7 @@ const OrderDetails: React.FC = () => {
 
   useEffect(() => {
     fetchOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchOrder = async (): Promise<void> => {
@@ -38,159 +42,137 @@ const OrderDetails: React.FC = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      completed: 'bg-green-100 text-green-700',
-      pending: 'bg-yellow-100 text-yellow-700',
-      cancelled: 'bg-red-100 text-red-700',
-    };
-    const icons: Record<string, React.ReactNode> = {
-      completed: <CheckCircle2 className="w-4 h-4" />,
-      pending: <Clock className="w-4 h-4" />,
-      cancelled: <XCircle className="w-4 h-4" />,
-    };
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
-        {icons[status] || <Package className="w-4 h-4" />}
-        {status.toUpperCase()}
-      </span>
-    );
+  const statusTone: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
+    completed: 'success',
+    pending: 'warning',
+    cancelled: 'error',
+  };
+  const statusIcon: Record<string, React.ReactNode> = {
+    completed: <CheckCircle2 className="w-3.5 h-3.5" />,
+    pending: <Clock className="w-3.5 h-3.5" />,
+    cancelled: <XCircle className="w-3.5 h-3.5" />,
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  const formatDate = (dateString: string): string =>
+    new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
-  };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
-        <p className="text-gray-500 dark:text-gray-400">Loading order details...</p>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-10">
-          <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Order Not Found</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">We couldn't find the order you're looking for.</p>
-          <button
-            onClick={() => navigate('/orders')}
-            className="bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
-          >
-            View All Orders
-          </button>
+      <div className="min-h-[70vh] bg-canvas flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <Card>
+            <XCircle className="w-11 h-11 text-error mx-auto mb-4" />
+            <h2 className="font-display text-[19px] font-bold text-ink mb-2">Order not found</h2>
+            <p className="text-[13px] text-ink-muted mb-6">We couldn't find the order you're looking for.</p>
+            <Button onClick={() => navigate('/orders')}>View all orders</Button>
+          </Card>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
+    <div className="bg-canvas py-6 sm:py-10">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate('/orders')}
-          className="mb-6 flex items-center gap-1.5 text-gray-700 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 text-sm font-medium"
+          className="mb-6 flex items-center gap-1.5 text-ink-soft hover:text-ink text-[13px] font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Orders</span>
+          <span>Back to orders</span>
         </button>
 
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
+        <Card padded={false}>
+          <div className="px-5 sm:px-6 py-5 border-b border-border">
+            <div className="flex items-center justify-between gap-3">
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Order Details</h1>
-                <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h1 className="font-display text-[19px] font-bold text-ink">Order details</h1>
+                <div className="flex items-center gap-1.5 text-[12.5px] text-ink-muted mt-1">
                   <Hash className="w-3.5 h-3.5" />
                   <span>Order #{order.orderNumber}</span>
                 </div>
               </div>
-              {getStatusBadge(order.status)}
+              <Badge tone={statusTone[order.status] || 'neutral'}>
+                {statusIcon[order.status]} {order.status.toUpperCase()}
+              </Badge>
             </div>
           </div>
 
-          {/* Order Info */}
-          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+          <div className="px-5 sm:px-6 py-5 border-b border-border">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
-                  <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div className="bg-surface-hover rounded-[var(--radius-sm)] p-2">
+                  <Calendar className="w-4 h-4 text-ink-muted" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Order Date</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatDate(order.createdAt)}</p>
+                  <p className="text-[11px] text-ink-muted">Order date</p>
+                  <p className="text-[13px] font-medium text-ink">{formatDate(order.createdAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
-                  <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div className="bg-surface-hover rounded-[var(--radius-sm)] p-2">
+                  <CreditCard className="w-4 h-4 text-ink-muted" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Payment Method</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">{order.paymentMethod}</p>
+                  <p className="text-[11px] text-ink-muted">Payment method</p>
+                  <p className="text-[13px] font-medium text-ink capitalize">{order.paymentMethod}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
-                  <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <div className="bg-surface-hover rounded-[var(--radius-sm)] p-2">
+                  <ShoppingBag className="w-4 h-4 text-ink-muted" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Items</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                  <p className="text-[11px] text-ink-muted">Total items</p>
+                  <p className="text-[13px] font-medium text-ink">{order.items.reduce((sum, item) => sum + item.quantity, 0)}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Items */}
-          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Order Items</h2>
-            <div className="space-y-3">
+          <div className="px-5 sm:px-6 py-5 border-b border-border">
+            <h2 className="text-[13px] font-semibold text-ink mb-3">Order items</h2>
+            <div className="space-y-2.5">
               {order.items.map((item, index) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
+                <div key={index} className="flex justify-between items-center p-3 bg-surface-hover rounded-[var(--radius-md)]">
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{item.productName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity} x ${item.price.toFixed(2)}</p>
+                    <p className="font-medium text-ink text-[13px]">{item.productName}</p>
+                    <p className="text-[11.5px] text-ink-muted">Qty: {item.quantity} × ${item.price.toFixed(2)}</p>
                   </div>
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">${item.subtotal.toFixed(2)}</p>
+                  <p className="font-semibold text-ink text-[13px]">${item.subtotal.toFixed(2)}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Total */}
-          <div className="px-6 py-5 bg-gray-50 dark:bg-gray-950">
+          <div className="px-5 sm:px-6 py-5 bg-surface-hover">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Total Amount</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{order.items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
+                <p className="text-[13px] font-semibold text-ink">Total amount</p>
+                <p className="text-[11.5px] text-ink-muted">{order.items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">${order.totalAmount.toFixed(2)}</p>
+              <p className="font-display text-[24px] font-bold text-ink">${order.totalAmount.toFixed(2)}</p>
             </div>
           </div>
 
           {order.status === 'completed' && (
-            <div className="px-6 py-4 bg-green-50 border-t border-green-100">
-              <div className="flex items-center gap-2 text-green-700">
+            <div className="px-5 sm:px-6 py-4 bg-success-soft border-t border-success/20">
+              <div className="flex items-center gap-2 text-success">
                 <Truck className="w-5 h-5" />
                 <div>
-                  <p className="font-medium text-sm">Order Completed</p>
-                  <p className="text-xs text-green-600">Your order has been successfully delivered</p>
+                  <p className="font-medium text-[13px]">Order completed</p>
+                  <p className="text-[11.5px] opacity-80">Your order has been successfully delivered</p>
                 </div>
               </div>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

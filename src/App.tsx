@@ -42,9 +42,9 @@ const AppContent: React.FC = () => {
   const isAuthRoute = authRoutes.includes(location.pathname);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-canvas flex flex-col overflow-x-hidden">
       {!isAuthRoute && <Navbar />}
-      <main className="flex-1 pb-12">
+      <main className={`flex-1 ${isAuthRoute ? '' : 'pb-24 lg:pb-12'}`}>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/store" element={<Home />} />

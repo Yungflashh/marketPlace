@@ -18,6 +18,9 @@ import {
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import EmptyState from '../components/ui/EmptyState';
 
 const Cart: React.FC = () => {
   const { cartItems, removeFromCart, updateQuantity, getCartTotal, clearCart } = useCart();
@@ -69,19 +72,19 @@ const Cart: React.FC = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center bg-gray-50 dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 p-12">
-          <ShoppingCart className="w-10 h-10 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Your cart is empty</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Add some logs to get started.</p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-gray-900 text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Browse logs</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+      <div className="min-h-[70vh] bg-canvas flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <EmptyState
+            icon={<ShoppingCart className="w-6 h-6" />}
+            title="Your cart is empty"
+            description="Add some logs to get started."
+            action={
+              <Button onClick={() => navigate('/')} icon={<ShoppingBag className="w-4 h-4" />}>
+                Browse logs <ArrowRight className="w-4 h-4" />
+              </Button>
+            }
+            className="bg-surface border border-border rounded-[var(--radius-xl)]"
+          />
         </div>
       </div>
     );
@@ -92,117 +95,110 @@ const Cart: React.FC = () => {
   const hasEnoughBalance = user ? user.walletBalance >= subtotal : false;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
+    <div className="bg-canvas py-6 sm:py-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Shopping Cart</h1>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">
+          <h1 className="font-display text-[22px] sm:text-[26px] font-bold text-ink">Shopping cart</h1>
+          <p className="text-[13px] text-ink-muted mt-0.5">
             {totalItems} {totalItems === 1 ? 'item' : 'items'}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-3">
             {cartItems.map((item) => (
-              <div key={item._id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
+              <Card key={item._id} padded={false} className="p-4">
                 <div className="flex gap-4">
                   <img
                     src={item.imageUrl}
                     alt={item.name}
-                    className="w-20 h-20 object-cover rounded-lg bg-gray-50 dark:bg-gray-950 shrink-0"
+                    className="w-20 h-20 object-cover rounded-[var(--radius-md)] bg-surface-hover shrink-0"
                   />
                   <div className="flex-grow min-w-0">
                     <div className="flex justify-between items-start mb-1">
                       <div className="min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{item.name}</h3>
+                        <h3 className="font-medium text-ink text-[13.5px] truncate">{item.name}</h3>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <Tag className="w-3 h-3 text-gray-300" />
-                          <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">{item.category}</span>
+                          <Tag className="w-3 h-3 text-ink-muted" />
+                          <span className="text-[11.5px] text-ink-muted capitalize">{item.category}</span>
                         </div>
                       </div>
                       <button
                         onClick={() => removeFromCart(item._id)}
-                        className="text-gray-300 hover:text-red-400 p-1 rounded transition-colors shrink-0 ml-2"
+                        className="text-ink-muted hover:text-error p-1 rounded transition-colors shrink-0 ml-2"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-1 bg-gray-50 dark:bg-gray-950 rounded-full border border-gray-100 dark:border-gray-800 p-0.5">
+                      <div className="flex items-center gap-1 bg-surface-hover rounded-full border border-border p-0.5">
                         <button
                           onClick={() => handleQuantityChange(item._id, item.quantity - 1)}
-                          className="w-7 h-7 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-900 hover:text-white transition-colors flex items-center justify-center"
+                          className="w-7 h-7 rounded-full text-ink-soft hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-7 text-center text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {item.quantity}
-                        </span>
+                        <span className="w-7 text-center text-[13px] font-semibold text-ink">{item.quantity}</span>
                         <button
                           onClick={() => handleQuantityChange(item._id, item.quantity + 1)}
-                          className="w-7 h-7 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-900 hover:text-white transition-colors flex items-center justify-center"
+                          className="w-7 h-7 rounded-full text-ink-soft hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-gray-400 dark:text-gray-500">${item.price.toFixed(2)} each</p>
-                        <p className="text-base font-bold text-gray-900 dark:text-gray-100">
+                        <p className="text-[11px] text-ink-muted">${item.price.toFixed(2)} each</p>
+                        <p className="font-display text-[15px] font-bold text-ink">
                           ${(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6 sticky top-24">
+            <Card className="sticky top-24" elevated>
               <div className="flex items-center gap-2 mb-4">
-                <Package className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                <h2 className="font-semibold text-gray-900 dark:text-gray-100">Order summary</h2>
+                <Package className="w-4 h-4 text-ink-muted" />
+                <h2 className="font-display font-bold text-ink text-[15px]">Order summary</h2>
               </div>
 
-              <div className="space-y-3 mb-4 pb-4 border-b border-gray-50 text-sm">
-                <div className="flex justify-between text-gray-600 dark:text-gray-400">
+              <div className="space-y-3 mb-4 pb-4 border-b border-border text-[13.5px]">
+                <div className="flex justify-between text-ink-muted">
                   <span>Items ({totalItems})</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">${subtotal.toFixed(2)}</span>
+                  <span className="font-medium text-ink">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                  <span>Shipping</span>
-                  <span className="font-medium text-green-600">Free</span>
+                <div className="flex justify-between text-ink-muted">
+                  <span>Delivery</span>
+                  <span className="font-medium text-success">Free · Instant</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center mb-5">
-                <span className="font-medium text-gray-700 dark:text-gray-300 text-sm">Total</span>
-                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">${subtotal.toFixed(2)}</span>
+                <span className="font-medium text-ink-soft text-[13.5px]">Total</span>
+                <span className="font-display text-[22px] font-bold text-ink">${subtotal.toFixed(2)}</span>
               </div>
 
               {user && (
-                <div
-                  className={`mb-4 p-3 rounded-xl border text-sm ${ hasEnoughBalance ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100' }`}
-                >
+                <div className={`mb-4 p-3.5 rounded-[var(--radius-md)] border ${hasEnoughBalance ? 'bg-success-soft border-success/20' : 'bg-error-soft border-error/20'}`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Wallet className={`w-4 h-4 ${hasEnoughBalance ? 'text-green-600' : 'text-red-500'}`} />
-                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Wallet balance</p>
+                    <Wallet className={`w-4 h-4 ${hasEnoughBalance ? 'text-success' : 'text-error'}`} />
+                    <p className="text-[11.5px] font-medium text-ink-muted">Wallet balance</p>
                   </div>
-                  <p className={`text-lg font-bold ${hasEnoughBalance ? 'text-green-600' : 'text-red-500'}`}>
+                  <p className={`text-[17px] font-bold ${hasEnoughBalance ? 'text-success' : 'text-error'}`}>
                     ${user.walletBalance.toFixed(2)}
                   </p>
-                  {!hasEnoughBalance && (
-                    <div className="flex items-start gap-1.5 mt-2 text-xs text-red-500">
+                  {!hasEnoughBalance ? (
+                    <div className="flex items-start gap-1.5 mt-2 text-[11.5px] text-error">
                       <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <p>Need ${(subtotal - user.walletBalance).toFixed(2)} more</p>
                     </div>
-                  )}
-                  {hasEnoughBalance && (
-                    <div className="flex items-center gap-1.5 mt-2 text-xs text-green-600">
+                  ) : (
+                    <div className="flex items-center gap-1.5 mt-2 text-[11.5px] text-success">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <p>Sufficient balance</p>
                     </div>
@@ -210,32 +206,26 @@ const Cart: React.FC = () => {
                 </div>
               )}
 
-              <button
+              <Button
                 onClick={handleCheckout}
-                disabled={loading || !!(user && !hasEnoughBalance)}
-                className="w-full bg-gray-900 text-white py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 mb-2"
+                disabled={!!(user && !hasEnoughBalance)}
+                loading={loading}
+                fullWidth
+                icon={<CreditCard className="w-4 h-4" />}
+                className="mb-2"
               >
-                {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <>
-                    <CreditCard className="w-4 h-4" />
-                    <span>Checkout</span>
-                  </>
-                )}
-              </button>
+                {loading ? 'Processing...' : 'Checkout'}
+              </Button>
 
-              <button
+              <Button
                 onClick={() => navigate('/')}
-                className="w-full bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 py-2.5 rounded-full text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 border border-gray-100 dark:border-gray-800"
+                variant="secondary"
+                fullWidth
+                icon={<ShoppingBag className="w-4 h-4" />}
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span>Continue shopping</span>
-              </button>
-            </div>
+                Continue shopping
+              </Button>
+            </Card>
           </div>
         </div>
       </div>
