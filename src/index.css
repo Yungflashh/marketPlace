@@ -218,6 +218,10 @@ h1, h2, h3, h4, .font-display {
   background-clip: text;
   color: transparent;
   animation: vault-gradient-shift 7s ease-in-out infinite;
+  /* Gradient-fill text is transparent, so an inherited text-shadow (e.g. from a
+     .text-pattern-safe ancestor) would paint as opaque blurred blobs right through
+     the glyphs instead of a subtle halo behind them — cancel it here. */
+  text-shadow: none;
 }
 
 @keyframes vault-badge-glow {
@@ -296,18 +300,31 @@ h1, h2, h3, h4, .font-display {
 }
 .reveal.is-visible .timeline-fill-v { transform: scaleY(1); }
 
-/* Static mobile background texture — bold diagonal hatching, swapped in for the
+/* Static mobile background texture — faint diagonal hatching, swapped in for the
    animated candlestick ticker below the `sm` breakpoint (cheaper to render, and a
-   stretched chart doesn't read well on narrow/tall mobile sections anyway). Thicker
-   and higher-contrast than a fine dot grid so it reads clearly at a glance. */
+   stretched chart doesn't read well on narrow/tall mobile sections anyway). Kept
+   deliberately quiet — a neutral watermark, not something that competes with
+   whatever text happens to sit on top of it. */
 .pattern-mobile-lines {
   background-image: repeating-linear-gradient(
     -45deg,
-    var(--vault-ink-muted) 0,
-    var(--vault-ink-muted) 2px,
-    transparent 2px,
-    transparent 10px
+    var(--vault-border) 0,
+    var(--vault-border) 1px,
+    transparent 1px,
+    transparent 14px
   );
+}
+
+/* Lifts bare heading/label text that sits directly over a SectionPattern band off the
+   pattern — a soft halo in the section's own background color, not a visible box —
+   so pattern stripes/candles never fight the text for contrast. Layered blurs read as
+   a smooth halo rather than a single muddy blur. */
+.text-pattern-safe {
+  text-shadow:
+    0 0 1px var(--vault-canvas),
+    0 0 10px var(--vault-canvas),
+    0 0 10px var(--vault-canvas),
+    0 0 22px var(--vault-canvas);
 }
 
 @media (prefers-reduced-motion: reduce) {

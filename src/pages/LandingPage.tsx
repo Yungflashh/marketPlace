@@ -42,7 +42,7 @@ const NEW_WAY = [
 ];
 
 const SystemLabel: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <p className={`inline-flex items-center gap-2 text-[11px] font-semibold text-primary uppercase tracking-[0.14em] font-mono mb-4 ${className}`}>
+  <p className={`text-pattern-safe inline-flex items-center gap-2 text-[11px] font-semibold text-primary uppercase tracking-[0.14em] font-mono mb-4 ${className}`}>
     <span className="w-1.5 h-1.5 bg-primary rounded-[2px]" />
     {children}
   </p>
@@ -76,13 +76,13 @@ const LandingPage: React.FC = () => {
                 STATUS: MARKETPLACE ONLINE
               </span>
 
-              <h1 className="animate-fade-up [animation-delay:80ms] font-display text-ink leading-[1.04] tracking-tight text-[38px] min-[480px]:text-[44px] sm:text-[56px] lg:text-[58px] font-extrabold">
+              <h1 className="text-pattern-safe animate-fade-up [animation-delay:80ms] font-display text-ink leading-[1.04] tracking-tight text-[38px] min-[480px]:text-[44px] sm:text-[56px] lg:text-[58px] font-extrabold">
                 Every log,
                 <br />
                 <span className="text-gradient-shimmer">verified before it's yours.</span>
               </h1>
 
-              <p className="animate-fade-up [animation-delay:160ms] mt-6 text-ink-muted text-[14.5px] sm:text-[16px] leading-relaxed max-w-lg mx-auto lg:mx-0">
+              <p className="text-pattern-safe animate-fade-up [animation-delay:160ms] mt-6 text-ink-muted text-[14.5px] sm:text-[16px] leading-relaxed max-w-lg mx-auto lg:mx-0">
                 ShopLogs screens every bank log, PayPal log, and crypto account before it's listed —
                 then delivers it the instant your wallet clears. No dead accounts. No guesswork.
               </p>
@@ -100,7 +100,7 @@ const LandingPage: React.FC = () => {
 
               <div className="animate-fade-up [animation-delay:320ms] mt-10 flex flex-col sm:flex-row sm:flex-wrap items-center lg:items-start justify-center lg:justify-start gap-x-6 gap-y-2.5">
                 {['Screened before listing', 'Instant wallet delivery', 'Crypto-only checkout'].map((fact) => (
-                  <div key={fact} className="flex items-center gap-1.5 text-[12.5px] text-ink-soft">
+                  <div key={fact} className="text-pattern-safe flex items-center gap-1.5 text-[12.5px] text-ink-soft">
                     <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0" />
                     {fact}
                   </div>
@@ -115,7 +115,7 @@ const LandingPage: React.FC = () => {
         </div>
 
         <div className="hidden sm:flex justify-center pb-8">
-          <div className="flex flex-col items-center gap-1.5 text-ink-muted/60 animate-fade-in [animation-delay:800ms]">
+          <div className="text-pattern-safe flex flex-col items-center gap-1.5 text-ink-muted/60 animate-fade-in [animation-delay:800ms]">
             <ChevronDown className="w-4 h-4" />
             <span className="text-[9.5px] font-mono tracking-widest uppercase">Scroll</span>
           </div>
@@ -128,7 +128,7 @@ const LandingPage: React.FC = () => {
         <div ref={diffRef} className="reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mx-auto text-center mb-14">
             <SystemLabel className="justify-center">The difference</SystemLabel>
-            <h2 className="font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug">
+            <h2 className="text-pattern-safe font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug">
               Buying logs shouldn't feel like a gamble.
             </h2>
           </div>
@@ -182,7 +182,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <SystemLabel className="justify-center">How it works</SystemLabel>
-            <h2 className="font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight">
+            <h2 className="text-pattern-safe font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight">
               From sign-up to delivery in minutes.
             </h2>
           </div>
@@ -198,10 +198,10 @@ const LandingPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
               <SystemLabel className="justify-center lg:justify-start">Inside the vault</SystemLabel>
-              <h2 className="font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug mb-5">
+              <h2 className="text-pattern-safe font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug mb-5">
                 See what you'll actually use.
               </h2>
-              <p className="text-ink-muted text-[14px] leading-relaxed max-w-md mx-auto lg:mx-0 mb-6">
+              <p className="text-pattern-safe text-ink-muted text-[14px] leading-relaxed max-w-md mx-auto lg:mx-0 mb-6">
                 No surprises. Browse verified logs, fund your wallet with crypto, and track every order —
                 the same panels you'll land in the moment you sign up.
               </p>
@@ -221,7 +221,7 @@ const LandingPage: React.FC = () => {
         <div ref={featuresRef} className="reveal max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-xl mb-14">
             <SystemLabel>Capabilities</SystemLabel>
-            <h2 className="font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug">
+            <h2 className="text-pattern-safe font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight leading-snug">
               Built around one job: verified delivery.
             </h2>
           </div>
@@ -285,10 +285,10 @@ const LandingPage: React.FC = () => {
         <SectionPattern variant="a" speed={44} />
         <div ref={trustRef} className="reveal max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <SystemLabel className="justify-center">Security &amp; payments</SystemLabel>
-          <h2 className="font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight mb-5">
+          <h2 className="text-pattern-safe font-display text-[26px] sm:text-[34px] font-bold text-ink tracking-tight mb-5">
             Pay your way. Stay in control.
           </h2>
-          <p className="text-ink-muted text-[14px] leading-relaxed max-w-lg mx-auto mb-10">
+          <p className="text-pattern-safe text-ink-muted text-[14px] leading-relaxed max-w-lg mx-auto mb-10">
             ShopLogs never stores card details. Every purchase is funded from your wallet and settled in crypto,
             so what you buy stays between you and the vault.
           </p>
@@ -323,10 +323,10 @@ const LandingPage: React.FC = () => {
 
         <div ref={ctaRef} className="reveal max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Logo size={34} className="mx-auto mb-6" />
-          <h2 className="font-display text-[28px] sm:text-[38px] font-bold text-ink tracking-tight mb-4">
+          <h2 className="text-pattern-safe font-display text-[28px] sm:text-[38px] font-bold text-ink tracking-tight mb-4">
             Your next log is already waiting.
           </h2>
-          <p className="text-ink-muted text-[14.5px] leading-relaxed mb-9 max-w-md mx-auto">
+          <p className="text-pattern-safe text-ink-muted text-[14.5px] leading-relaxed mb-9 max-w-md mx-auto">
             Fund your wallet, browse what's verified, and check out in seconds.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
@@ -341,7 +341,7 @@ const LandingPage: React.FC = () => {
               </Button>
             </Link>
           </div>
-          <p className="inline-flex items-center gap-1.5 text-[10.5px] font-mono text-ink-muted uppercase tracking-widest">
+          <p className="text-pattern-safe inline-flex items-center gap-1.5 text-[10.5px] font-mono text-ink-muted uppercase tracking-widest">
             <LiveDot />
             Status: marketplace online
           </p>

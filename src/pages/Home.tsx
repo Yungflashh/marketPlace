@@ -200,60 +200,95 @@ const Home: React.FC = () => {
 
   return (
     <div className="bg-canvas">
-      {/* Live purchase notification */}
+      {/* Live purchase notification — compact top toast on mobile (out of the thumb
+          zone and off the bottom tab bar), the fuller corner card on desktop. */}
       {notifications.length > 0 && !notificationDismissed && (
-        <div
-          className="fixed bottom-24 lg:bottom-6 left-4 right-4 sm:left-6 sm:right-auto z-30 max-w-xs"
-          style={{
-            opacity: showNotification ? 1 : 0,
-            transform: showNotification ? 'translateY(0)' : 'translateY(10px)',
-            transition: 'opacity 0.35s ease, transform 0.35s ease',
-          }}
-        >
-          <div className="group bg-elevated/95 backdrop-blur-md rounded-[var(--radius-lg)] shadow-[var(--shadow-vault-lg)] border border-border overflow-hidden ring-1 ring-black/[0.02]">
-            <button
-              onClick={() => setNotificationDismissed(true)}
-              aria-label="Dismiss notification"
-              className="absolute top-2 right-2 z-10 p-1 rounded-full text-ink-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover transition-opacity"
-            >
-              <X className="w-3 h-3" />
-            </button>
-            <div className="px-4 py-3">
-              <div className="flex items-center gap-3">
-                <div className="relative shrink-0">
-                  <div className="animate-badge-glow bg-primary-soft text-primary rounded-full p-2">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success ring-2 ring-elevated" />
+        <>
+          <div
+            className="sm:hidden fixed top-16 inset-x-3 z-30"
+            style={{
+              opacity: showNotification ? 1 : 0,
+              transform: showNotification ? 'translateY(0)' : 'translateY(-8px)',
+              transition: 'opacity 0.35s ease, transform 0.35s ease',
+            }}
+          >
+            <div className="flex items-center gap-2.5 bg-elevated/95 backdrop-blur-md border border-border rounded-full shadow-[var(--shadow-vault-md)] pl-2 pr-2.5 py-2">
+              <div className="relative shrink-0">
+                <div className="bg-primary-soft text-primary rounded-full p-1.5">
+                  <User className="w-3.5 h-3.5" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-ink truncate">
-                    {notifications[currentNotification].name}
-                  </p>
-                  <p className="text-[11.5px] text-ink-muted truncate">
-                    purchased{' '}
-                    <span className="font-medium text-ink-soft">
-                      {notifications[currentNotification].product}
-                    </span>
-                  </p>
-                </div>
-                <p className="text-[13px] font-bold text-success shrink-0 tabular-nums">
-                  ${notifications[currentNotification].amount}
-                </p>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-success ring-2 ring-elevated" />
               </div>
+              <p className="flex-1 min-w-0 text-[11.5px] text-ink-soft truncate">
+                <span className="font-semibold text-ink">{notifications[currentNotification].name}</span> bought{' '}
+                {notifications[currentNotification].product}
+              </p>
+              <span className="text-[12px] font-bold text-success shrink-0 tabular-nums">
+                ${notifications[currentNotification].amount}
+              </span>
+              <button
+                onClick={() => setNotificationDismissed(true)}
+                aria-label="Dismiss notification"
+                className="shrink-0 -mr-1 p-1 rounded-full text-ink-muted hover:bg-surface-hover transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
             </div>
-            <div className="bg-surface-hover px-4 py-1.5 flex items-center justify-between">
-              <div className="flex items-center gap-1 text-[10.5px] text-ink-muted">
-                <MapPin className="w-3 h-3" />
-                <span>{notifications[currentNotification].location}</span>
+          </div>
+
+          <div
+            className="hidden sm:block fixed bottom-6 left-6 z-30 max-w-xs"
+            style={{
+              opacity: showNotification ? 1 : 0,
+              transform: showNotification ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'opacity 0.35s ease, transform 0.35s ease',
+            }}
+          >
+            <div className="group bg-elevated/95 backdrop-blur-md rounded-[var(--radius-lg)] shadow-[var(--shadow-vault-lg)] border border-border overflow-hidden ring-1 ring-black/[0.02]">
+              <button
+                onClick={() => setNotificationDismissed(true)}
+                aria-label="Dismiss notification"
+                className="absolute top-2 right-2 z-10 p-1 rounded-full text-ink-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+              <div className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="relative shrink-0">
+                    <div className="animate-badge-glow bg-primary-soft text-primary rounded-full p-2">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-success ring-2 ring-elevated" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-ink truncate">
+                      {notifications[currentNotification].name}
+                    </p>
+                    <p className="text-[11.5px] text-ink-muted truncate">
+                      purchased{' '}
+                      <span className="font-medium text-ink-soft">
+                        {notifications[currentNotification].product}
+                      </span>
+                    </p>
+                  </div>
+                  <p className="text-[13px] font-bold text-success shrink-0 tabular-nums">
+                    ${notifications[currentNotification].amount}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-1 text-[10.5px] text-success font-medium">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>Verified</span>
+              <div className="bg-surface-hover px-4 py-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1 text-[10.5px] text-ink-muted">
+                  <MapPin className="w-3 h-3" />
+                  <span>{notifications[currentNotification].location}</span>
+                </div>
+                <div className="flex items-center gap-1 text-[10.5px] text-success font-medium">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Verified</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Hero */}
@@ -284,7 +319,7 @@ const Home: React.FC = () => {
             Wallet-funded checkout, delivered instantly
           </span>
 
-          <h1 className="animate-fade-up [animation-delay:80ms] font-display text-ink leading-[1.02] tracking-tight text-[38px] min-[400px]:text-[46px] sm:text-6xl lg:text-[80px] font-extrabold">
+          <h1 className="text-pattern-safe animate-fade-up [animation-delay:80ms] font-display text-ink leading-[1.02] tracking-tight text-[38px] min-[400px]:text-[46px] sm:text-6xl lg:text-[80px] font-extrabold">
             Find your logs
             <br className="hidden sm:block" />{' '}
             <span className="relative inline-block text-primary">
@@ -307,7 +342,7 @@ const Home: React.FC = () => {
             </span>
           </h1>
 
-          <p className="animate-fade-up [animation-delay:160ms] mt-6 text-ink-muted text-[14px] sm:text-[16.5px] leading-relaxed max-w-md mx-auto">
+          <p className="text-pattern-safe animate-fade-up [animation-delay:160ms] mt-6 text-ink-muted text-[14px] sm:text-[16.5px] leading-relaxed max-w-md mx-auto">
             Thousands of verified logs, delivered fast. Pay straight from your wallet — no card required.
           </p>
 
@@ -334,7 +369,7 @@ const Home: React.FC = () => {
           {/* Trust row */}
           <div className="animate-fade-up [animation-delay:300ms] mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {trustPoints.map((t) => (
-              <div key={t.label} className="flex items-center gap-1.5 text-[12px] font-medium text-ink-soft">
+              <div key={t.label} className="text-pattern-safe flex items-center gap-1.5 text-[12px] font-medium text-ink-soft">
                 <span className="text-primary">{t.icon}</span>
                 {t.label}
               </div>

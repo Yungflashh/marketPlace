@@ -63,7 +63,11 @@ const HeroPanel: React.FC = () => {
   const complete = step >= CHECKS.length;
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-[440px] select-none" style={{ perspective: '1200px' }}>
+    <div
+      ref={wrapRef}
+      className="relative mx-auto w-full max-w-[440px] select-none mb-24 sm:mb-28 lg:mb-0"
+      style={{ perspective: '1200px' }}
+    >
       {/* ambient glow anchored behind the panel, not washing the page */}
       <div
         className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-40 dark:opacity-30"
@@ -74,7 +78,7 @@ const HeroPanel: React.FC = () => {
       {/* Secondary panel — wallet / instant delivery */}
       <div
         ref={sideRef}
-        className="animate-panel-float absolute -right-6 -bottom-8 sm:-right-10 sm:-bottom-10 w-[190px] bg-elevated border border-border rounded-[var(--radius-lg)] shadow-[var(--shadow-vault-lg)] p-4 transition-transform duration-200 ease-out"
+        className="animate-panel-float absolute z-10 -right-6 -bottom-8 sm:-right-10 sm:-bottom-10 w-[190px] bg-elevated border border-border rounded-[var(--radius-lg)] shadow-[var(--shadow-vault-lg)] p-4 transition-transform duration-200 ease-out"
         style={{ '--panel-rot': '-4deg', transform: 'rotate(-4deg)' } as React.CSSProperties}
       >
         <div className="flex items-center gap-2 mb-3">

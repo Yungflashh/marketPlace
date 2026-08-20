@@ -26,8 +26,8 @@ const ProcessTimeline: React.FC<{ steps: Step[] }> = ({ steps }) => {
             >
               {step.n}
             </div>
-            <h3 className="font-semibold text-ink text-[14px] mb-2">{step.title}</h3>
-            <p className="text-[13px] text-ink-muted leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+            <h3 className="text-pattern-safe font-semibold text-ink text-[14px] mb-2">{step.title}</h3>
+            <p className="text-pattern-safe text-[13px] text-ink-muted leading-relaxed max-w-xs mx-auto">{step.desc}</p>
           </div>
         ))}
       </div>
@@ -43,8 +43,8 @@ const ProcessTimeline: React.FC<{ steps: Step[] }> = ({ steps }) => {
               <div className="absolute -left-11 top-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold font-mono z-10">
                 {step.n}
               </div>
-              <h3 className="font-semibold text-ink text-[14px] mb-1.5">{step.title}</h3>
-              <p className="text-[12.5px] text-ink-muted leading-relaxed">{step.desc}</p>
+              <h3 className="text-pattern-safe font-semibold text-ink text-[14px] mb-1.5">{step.title}</h3>
+              <p className="text-pattern-safe text-[12.5px] text-ink-muted leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </div>
