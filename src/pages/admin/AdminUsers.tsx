@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../utils/api';
 import type { User } from '../../types';
 import { toast } from 'react-toastify';
-import { Users, Search, Shield, ShieldOff, Crown, UserCheck, DollarSign, Calendar, Mail, Eye, X } from 'lucide-react';
+import { Users, Search, Shield, ShieldOff, Crown, UserCheck, DollarSign, Calendar, Mail, Eye, X, Ban, MailWarning, AlertTriangle } from 'lucide-react';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import StatTile from '../../components/ui/StatTile';
@@ -10,6 +10,7 @@ import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Textarea from '../../components/ui/Textarea';
 import Pagination from '../../components/ui/Pagination';
 import Dialog from '../../components/ui/Dialog';
 import EmptyState from '../../components/ui/EmptyState';
@@ -34,6 +35,17 @@ const AdminUsers: React.FC = () => {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [balanceInput, setBalanceInput] = useState('');
+
+  const [banTarget, setBanTarget] = useState<User | null>(null);
+  const [banDays, setBanDays] = useState('7');
+  const [banReason, setBanReason] = useState('');
+  const [banError, setBanError] = useState<string | null>(null);
+  const [banLoading, setBanLoading] = useState(false);
+
+  const [warnTarget, setWarnTarget] = useState<User | null>(null);
+  const [warnPreview, setWarnPreview] = useState<{ subject: string; html: string; to: string; failedCount: number } | null>(null);
+  const [warnPreviewLoading, setWarnPreviewLoading] = useState(false);
+  const [warnSending, setWarnSending] = useState(false);
 
   const fetchUsers = useCallback(async (): Promise<void> => {
     try {
@@ -124,6 +136,106 @@ const AdminUsers: React.FC = () => {
     });
   };
 
+  const openBanDialog = (user: User) => {
+    setBanTarget(user);
+    setBanDays('7');
+    setBanReason('');
+    setBanError(null);
+  };
+
+  const closeBanDialog = () => {
+    if (banLoading) return;
+    setBanTarget(null);
+    setBanError(null);
+  };
+
+  const submitBan = async () => {
+    if (!banTarget) return;
+    const days = Number(banDays);
+    if (!Number.isFinite(days) || days <= 0) {
+      setBanError('Enter a valid number of days (must be greater than 0).');
+      return;
+    }
+    if (!banReason.trim()) {
+      setBanError('Provide a reason so the user understands why they were banned.');
+      return;
+    }
+    setBanLoading(true);
+    try {
+      await api.post(`/users/${banTarget._id}/ban`, { days, reason: banReason.trim() });
+      toast.success(`${banTarget.name} banned for ${days} day${days === 1 ? '' : 's'}`);
+      setBanTarget(null);
+      await fetchUsers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error banning user');
+    } finally {
+      setBanLoading(false);
+    }
+  };
+
+  const handleUnban = (user: User) => {
+    ask({
+      title: 'Unban user',
+      message: `Restore ${user.name}'s access immediately? Their consecutive-failure counter will also be reset.`,
+      confirmLabel: 'Yes, unban',
+      danger: false,
+      execute: async () => {
+        await api.post(`/users/${user._id}/unban`);
+        toast.success('User unbanned');
+        await fetchUsers();
+      },
+    });
+  };
+
+  const openWarningDialog = async (user: User) => {
+    setWarnTarget(user);
+    setWarnPreview(null);
+    setWarnPreviewLoading(true);
+    try {
+      const res = await api.get(`/users/${user._id}/warning-email/preview`);
+      setWarnPreview(res.data.data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error loading email preview');
+      setWarnTarget(null);
+    } finally {
+      setWarnPreviewLoading(false);
+    }
+  };
+
+  const closeWarningDialog = () => {
+    if (warnSending) return;
+    setWarnTarget(null);
+    setWarnPreview(null);
+  };
+
+  const sendWarning = async () => {
+    if (!warnTarget) return;
+    setWarnSending(true);
+    try {
+      await api.post(`/users/${warnTarget._id}/warning-email`);
+      toast.success(`Warning email sent to ${warnTarget.email}`);
+      setWarnTarget(null);
+      setWarnPreview(null);
+      await fetchUsers();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error sending warning email');
+    } finally {
+      setWarnSending(false);
+    }
+  };
+
+  const isCurrentlyBanned = (user: User): boolean => {
+    if (!user.isBanned) return false;
+    if (!user.banExpiresAt) return true;
+    return new Date(user.banExpiresAt) > new Date();
+  };
+
+  const formatBanExpiry = (iso?: string | null): string => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
   const filteredUsers = users.filter(
     (user) => user.name.toLowerCase().includes(searchTerm.toLowerCase()) || user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -135,8 +247,9 @@ const AdminUsers: React.FC = () => {
 
   const stats = {
     total: users.length,
-    active: users.filter((u) => u.isActive).length,
+    active: users.filter((u) => u.isActive && !isCurrentlyBanned(u)).length,
     inactive: users.filter((u) => !u.isActive).length,
+    banned: users.filter((u) => isCurrentlyBanned(u)).length,
     admins: users.filter((u) => u.role === 'admin').length,
   };
 
@@ -151,10 +264,11 @@ const AdminUsers: React.FC = () => {
     <div>
       <AdminPageHeader icon={<Users className="w-5 h-5" />} title="User management" subtitle="View and manage all registered users" />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <StatTile label="Total users" value={stats.total} />
         <StatTile label="Active" value={stats.active} tone="success" />
         <StatTile label="Inactive" value={stats.inactive} tone="error" />
+        <StatTile label="Banned" value={stats.banned} tone="warning" />
         <StatTile label="Admins" value={stats.admins} tone="accent" />
       </div>
 
@@ -189,6 +303,12 @@ const AdminUsers: React.FC = () => {
                 <div className="flex items-center gap-1.5 flex-wrap mb-3">
                   <Badge tone={user.role === 'admin' ? 'accent' : 'neutral'}>{user.role.toUpperCase()}</Badge>
                   <Badge tone={user.isActive ? 'success' : 'error'}>{user.isActive ? 'Active' : 'Inactive'}</Badge>
+                  {isCurrentlyBanned(user) && (
+                    <Badge tone="warning"><Ban className="w-3 h-3" /> Banned</Badge>
+                  )}
+                  {(user.failedTransactionCount ?? 0) > 0 && (
+                    <Badge tone="error">{user.failedTransactionCount} failed</Badge>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="secondary" onClick={() => openModal(user)} icon={<Eye className="w-3 h-3" />}>View</Button>
@@ -216,7 +336,17 @@ const AdminUsers: React.FC = () => {
                     <td className="px-5 py-3.5"><span className="text-[13px] text-ink-soft">{user.email}</span></td>
                     <td className="px-5 py-3.5"><Badge tone={user.role === 'admin' ? 'accent' : 'neutral'}>{user.role.toUpperCase()}</Badge></td>
                     <td className="px-5 py-3.5"><span className="text-[13px] font-semibold text-ink">${user.walletBalance.toFixed(2)}</span></td>
-                    <td className="px-5 py-3.5"><Badge tone={user.isActive ? 'success' : 'error'}>{user.isActive ? 'Active' : 'Inactive'}</Badge></td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Badge tone={user.isActive ? 'success' : 'error'}>{user.isActive ? 'Active' : 'Inactive'}</Badge>
+                        {isCurrentlyBanned(user) && (
+                          <Badge tone="warning"><Ban className="w-3 h-3" /> Banned</Badge>
+                        )}
+                        {(user.failedTransactionCount ?? 0) > 0 && (
+                          <Badge tone="error">{user.failedTransactionCount} failed</Badge>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button size="sm" variant="ghost" onClick={() => openModal(user)} icon={<Eye className="w-3.5 h-3.5" />}>View</Button>
@@ -326,6 +456,64 @@ const AdminUsers: React.FC = () => {
                   <Button variant="destructive" onClick={() => handleAdjustBalance('debit', selectedUser)}>Debit</Button>
                 </div>
               </div>
+
+              <div className="border border-border rounded-[var(--radius-md)] p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[13px] font-medium text-ink-soft">Trust &amp; safety</p>
+                    <p className="text-[11.5px] text-ink-muted mt-0.5">
+                      Consecutive failed funding requests: <span className="font-semibold text-ink">{selectedUser.failedTransactionCount ?? 0}</span>
+                    </p>
+                    {selectedUser.lastWarningEmailAt && (
+                      <p className="text-[11px] text-ink-muted">
+                        Last warning email: {formatBanExpiry(selectedUser.lastWarningEmailAt)}
+                      </p>
+                    )}
+                  </div>
+                  {(selectedUser.failedTransactionCount ?? 0) >= 3 && !isCurrentlyBanned(selectedUser) && (
+                    <span className="text-[10.5px] font-semibold uppercase tracking-wide text-error flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Threshold reached
+                    </span>
+                  )}
+                </div>
+
+                {isCurrentlyBanned(selectedUser) && (
+                  <div className="bg-warning-soft border border-warning/30 rounded-[var(--radius-sm)] px-3 py-2 text-[12px] text-ink-soft">
+                    <p className="font-semibold text-warning flex items-center gap-1 mb-0.5">
+                      <Ban className="w-3 h-3" /> Currently banned until {formatBanExpiry(selectedUser.banExpiresAt)}
+                    </p>
+                    {selectedUser.banReason && <p className="whitespace-pre-wrap">Reason: {selectedUser.banReason}</p>}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => openWarningDialog(selectedUser)}
+                    icon={<MailWarning className="w-4 h-4" />}
+                  >
+                    Send warning email
+                  </Button>
+                  {isCurrentlyBanned(selectedUser) ? (
+                    <Button
+                      onClick={() => handleUnban(selectedUser)}
+                      icon={<Shield className="w-4 h-4" />}
+                      className="!bg-success hover:!bg-success"
+                    >
+                      Unban user
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="destructive"
+                      onClick={() => openBanDialog(selectedUser)}
+                      icon={<Ban className="w-4 h-4" />}
+                      disabled={selectedUser.role === 'admin'}
+                    >
+                      Ban user
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -341,6 +529,140 @@ const AdminUsers: React.FC = () => {
         onConfirm={runAction}
         onCancel={() => { if (!actionLoading) setPendingAction(null); }}
       />
+
+      <Dialog
+        open={!!banTarget}
+        onClose={closeBanDialog}
+        size="sm"
+        title="Ban user"
+        description={
+          banTarget
+            ? `${banTarget.name} will lose dashboard access for the duration you set. They will see the reason on login.`
+            : undefined
+        }
+        footer={
+          <>
+            <Button variant="secondary" fullWidth onClick={closeBanDialog} disabled={banLoading}>
+              Cancel
+            </Button>
+            <Button variant="destructive" fullWidth onClick={submitBan} loading={banLoading} icon={<Ban className="w-4 h-4" />}>
+              Ban user
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">
+              Duration (days) <span className="text-error">*</span>
+            </label>
+            <Input
+              type="number"
+              min="1"
+              max="3650"
+              step="1"
+              value={banDays}
+              onChange={(e) => { setBanDays(e.target.value); if (banError) setBanError(null); }}
+              placeholder="e.g. 7"
+              disabled={banLoading}
+            />
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {[1, 3, 7, 14, 30, 90].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => { setBanDays(String(d)); if (banError) setBanError(null); }}
+                  className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-surface-hover border border-border text-ink-soft hover:border-border-strong transition-colors"
+                  disabled={banLoading}
+                >
+                  {d}d
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">
+              Reason <span className="text-error">*</span>
+            </label>
+            <Textarea
+              rows={3}
+              value={banReason}
+              onChange={(e) => { setBanReason(e.target.value); if (banError) setBanError(null); }}
+              placeholder="e.g. Repeated fraudulent funding attempts."
+              disabled={banLoading}
+              invalid={!!banError && !banReason.trim()}
+            />
+          </div>
+
+          {banError && (
+            <p className="text-[12px] text-error flex items-center gap-1">
+              <AlertTriangle className="w-3 h-3" /> {banError}
+            </p>
+          )}
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={!!warnTarget}
+        onClose={closeWarningDialog}
+        size="lg"
+        title="Review warning email"
+        description={
+          warnTarget
+            ? `This email will be sent to ${warnTarget.email}. Review the content before confirming.`
+            : undefined
+        }
+        footer={
+          <>
+            <Button variant="secondary" fullWidth onClick={closeWarningDialog} disabled={warnSending}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              fullWidth
+              onClick={sendWarning}
+              loading={warnSending}
+              disabled={!warnPreview}
+              icon={<MailWarning className="w-4 h-4" />}
+            >
+              Send warning email
+            </Button>
+          </>
+        }
+      >
+        {warnPreviewLoading || !warnPreview ? (
+          <div className="py-12 flex items-center justify-center text-[13px] text-ink-muted">
+            Loading preview…
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 space-y-1.5 text-[12.5px]">
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">To</span>
+                <span className="font-medium text-ink truncate">{warnPreview.to}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">Subject</span>
+                <span className="font-medium text-ink text-right">{warnPreview.subject}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">Failed transactions on record</span>
+                <span className="font-semibold text-error">{warnPreview.failedCount}</span>
+              </div>
+            </div>
+
+            <div className="border border-border rounded-[var(--radius-md)] overflow-hidden bg-white">
+              <iframe
+                title="Warning email preview"
+                srcDoc={warnPreview.html}
+                sandbox=""
+                className="w-full h-[420px] block"
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };

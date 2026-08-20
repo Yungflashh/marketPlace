@@ -6,6 +6,11 @@ export interface User {
   role: 'user' | 'admin';
   walletBalance: number;
   isActive: boolean;
+  isBanned?: boolean;
+  banExpiresAt?: string | null;
+  banReason?: string;
+  failedTransactionCount?: number;
+  lastWarningEmailAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

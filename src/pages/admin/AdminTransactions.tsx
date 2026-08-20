@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import api from '../../utils/api';
 import {
   Wallet, Clock, CheckCircle2, XCircle,
-  ArrowUpCircle, ArrowDownCircle, Hash, User, Calendar, AlertTriangle,
+  ArrowUpCircle, ArrowDownCircle, Hash, User, Calendar, AlertTriangle, MailWarning,
 } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import StatTile from '../../components/ui/StatTile';
@@ -23,6 +23,9 @@ interface UserInfo {
   _id: string;
   name: string;
   email: string;
+  failedTransactionCount?: number;
+  isBanned?: boolean;
+  banExpiresAt?: string | null;
 }
 
 interface Transaction {
@@ -54,6 +57,11 @@ const AdminTransactions: React.FC = () => {
   const [rejectTarget, setRejectTarget] = useState<Transaction | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [reasonError, setReasonError] = useState<string | null>(null);
+
+  const [warnTxn, setWarnTxn] = useState<Transaction | null>(null);
+  const [warnPreview, setWarnPreview] = useState<{ subject: string; html: string; to: string; failedCount: number } | null>(null);
+  const [warnPreviewLoading, setWarnPreviewLoading] = useState(false);
+  const [warnSending, setWarnSending] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
@@ -126,6 +134,46 @@ const AdminTransactions: React.FC = () => {
     setRejectTarget(null);
     setRejectionReason('');
     setReasonError(null);
+  };
+
+  const openWarning = async (txn: Transaction) => {
+    if (!txn.user?._id) {
+      toast.error('User info missing on this transaction');
+      return;
+    }
+    setWarnTxn(txn);
+    setWarnPreview(null);
+    setWarnPreviewLoading(true);
+    try {
+      const res = await api.get(`/users/${txn.user._id}/warning-email/preview`);
+      setWarnPreview(res.data.data);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error loading email preview');
+      setWarnTxn(null);
+    } finally {
+      setWarnPreviewLoading(false);
+    }
+  };
+
+  const closeWarning = () => {
+    if (warnSending) return;
+    setWarnTxn(null);
+    setWarnPreview(null);
+  };
+
+  const sendWarning = async () => {
+    if (!warnTxn?.user?._id) return;
+    setWarnSending(true);
+    try {
+      await api.post(`/users/${warnTxn.user._id}/warning-email`);
+      toast.success(`Warning email sent to ${warnTxn.user.email}`);
+      setWarnTxn(null);
+      setWarnPreview(null);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error sending warning email');
+    } finally {
+      setWarnSending(false);
+    }
   };
 
   const formatDate = (d: string) =>
@@ -211,7 +259,7 @@ const AdminTransactions: React.FC = () => {
                   <Badge tone="neutral">{txn.paymentMethod ?? '—'}</Badge>
                   <span className="text-[10.5px] text-ink-muted">{formatDate(txn.createdAt)}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button size="sm" variant="secondary" onClick={() => setDetailTxn(txn)}>Details</Button>
                   {txn.status === 'pending' && (
                     <>
@@ -219,7 +267,18 @@ const AdminTransactions: React.FC = () => {
                       <Button size="sm" onClick={() => requestApprove(txn)} loading={processingId === txn._id} className="!bg-success hover:!bg-success">Approve</Button>
                     </>
                   )}
+                  {txn.status === 'failed' && txn.type === 'credit' && txn.user && (
+                    <Button size="sm" variant="ghost" onClick={() => openWarning(txn)} icon={<MailWarning className="w-3.5 h-3.5" />} className="!text-warning">
+                      Warn
+                    </Button>
+                  )}
                 </div>
+                {txn.status === 'failed' && (txn.user?.failedTransactionCount ?? 0) > 0 && (
+                  <p className="text-[10.5px] text-ink-muted mt-2">
+                    Failed streak: <span className="font-semibold text-error">{txn.user?.failedTransactionCount}</span>
+                    {(txn.user?.failedTransactionCount ?? 0) >= 3 && ' — consider sending a warning'}
+                  </p>
+                )}
               </div>
             ))}
           </div>
@@ -255,15 +314,25 @@ const AdminTransactions: React.FC = () => {
                     <td className="px-5 py-3.5 whitespace-nowrap"><span className="text-[12px] text-ink-muted">{formatDate(txn.createdAt)}</span></td>
                     <td className="px-5 py-3.5 whitespace-nowrap"><Badge tone={statusTone[txn.status]}>{statusIcon[txn.status]} {txn.status.charAt(0).toUpperCase() + txn.status.slice(1)}</Badge></td>
                     <td className="px-5 py-3.5 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center justify-end gap-1.5 flex-wrap">
                         <Button size="sm" variant="ghost" onClick={() => setDetailTxn(txn)}>Details</Button>
                         {txn.status === 'pending' && (
                           <>
-                            <Button size="sm" variant="destructive" onClick={() => handleStatusChange(txn._id, 'failed')} loading={processingId === txn._id}>Reject</Button>
-                            <Button size="sm" onClick={() => handleStatusChange(txn._id, 'completed')} loading={processingId === txn._id} className="!bg-success hover:!bg-success">Approve</Button>
+                            <Button size="sm" variant="destructive" onClick={() => requestReject(txn)} loading={processingId === txn._id}>Reject</Button>
+                            <Button size="sm" onClick={() => requestApprove(txn)} loading={processingId === txn._id} className="!bg-success hover:!bg-success">Approve</Button>
                           </>
                         )}
+                        {txn.status === 'failed' && txn.type === 'credit' && txn.user && (
+                          <Button size="sm" variant="ghost" onClick={() => openWarning(txn)} icon={<MailWarning className="w-3.5 h-3.5" />} className="!text-warning">
+                            Warn
+                          </Button>
+                        )}
                       </div>
+                      {txn.status === 'failed' && (txn.user?.failedTransactionCount ?? 0) >= 3 && (
+                        <p className="text-[10.5px] text-error text-right mt-1 flex items-center justify-end gap-1">
+                          <AlertTriangle className="w-3 h-3" /> {txn.user?.failedTransactionCount} consecutive failures
+                        </p>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -294,6 +363,10 @@ const AdminTransactions: React.FC = () => {
                 Approve
               </Button>
             </>
+          ) : detailTxn?.status === 'failed' && detailTxn.type === 'credit' && detailTxn.user ? (
+            <Button fullWidth variant="destructive" onClick={() => openWarning(detailTxn)} icon={<MailWarning className="w-4 h-4" />}>
+              Send warning email to user
+            </Button>
           ) : undefined
         }
       >
@@ -356,6 +429,20 @@ const AdminTransactions: React.FC = () => {
                   <AlertTriangle className="w-3 h-3" /> Rejection reason
                 </p>
                 <p className="text-[13px] text-ink-soft whitespace-pre-wrap">{detailTxn.rejectionReason}</p>
+              </div>
+            )}
+
+            {detailTxn.status === 'failed' && (detailTxn.user?.failedTransactionCount ?? 0) > 0 && (
+              <div className="border border-border rounded-[var(--radius-md)] p-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] text-ink-muted">Consecutive failed funding requests</p>
+                  <p className="text-[15px] font-bold text-error">{detailTxn.user?.failedTransactionCount}</p>
+                </div>
+                {(detailTxn.user?.failedTransactionCount ?? 0) >= 3 && (
+                  <span className="text-[11px] font-semibold text-error flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" /> Threshold reached
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -423,6 +510,67 @@ const AdminTransactions: React.FC = () => {
             </p>
           )}
         </div>
+      </Dialog>
+
+      <Dialog
+        open={!!warnTxn}
+        onClose={closeWarning}
+        size="lg"
+        title="Review warning email"
+        description={
+          warnTxn?.user
+            ? `This email will be sent to ${warnTxn.user.email}. Review before confirming.`
+            : undefined
+        }
+        footer={
+          <>
+            <Button variant="secondary" fullWidth onClick={closeWarning} disabled={warnSending}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              fullWidth
+              onClick={sendWarning}
+              loading={warnSending}
+              disabled={!warnPreview}
+              icon={<MailWarning className="w-4 h-4" />}
+            >
+              Send warning email
+            </Button>
+          </>
+        }
+      >
+        {warnPreviewLoading || !warnPreview ? (
+          <div className="py-12 flex items-center justify-center text-[13px] text-ink-muted">
+            Loading preview…
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 space-y-1.5 text-[12.5px]">
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">To</span>
+                <span className="font-medium text-ink truncate">{warnPreview.to}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">Subject</span>
+                <span className="font-medium text-ink text-right">{warnPreview.subject}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-ink-muted">Failed transactions on record</span>
+                <span className="font-semibold text-error">{warnPreview.failedCount}</span>
+              </div>
+            </div>
+
+            <div className="border border-border rounded-[var(--radius-md)] overflow-hidden bg-white">
+              <iframe
+                title="Warning email preview"
+                srcDoc={warnPreview.html}
+                sandbox=""
+                className="w-full h-[420px] block"
+              />
+            </div>
+          </div>
+        )}
       </Dialog>
     </div>
   );
