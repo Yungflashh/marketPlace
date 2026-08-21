@@ -422,7 +422,7 @@ const AdminUsers: React.FC = () => {
                 <span className="text-[13px] text-ink-soft truncate">{selectedUser.email}</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <Button
                   variant={selectedUser.isActive ? 'destructive' : 'primary'}
                   onClick={() => handleToggleStatus(selectedUser)}
@@ -486,7 +486,7 @@ const AdminUsers: React.FC = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
                     variant="secondary"
                     onClick={() => openWarningDialog(selectedUser)}
@@ -637,16 +637,16 @@ const AdminUsers: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 space-y-1.5 text-[12.5px]">
-              <div className="flex justify-between gap-3">
+            <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 space-y-2 text-[12.5px]">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-3">
                 <span className="text-ink-muted">To</span>
-                <span className="font-medium text-ink truncate">{warnPreview.to}</span>
+                <span className="font-medium text-ink break-all sm:truncate sm:text-right">{warnPreview.to}</span>
               </div>
-              <div className="flex justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-3">
                 <span className="text-ink-muted">Subject</span>
-                <span className="font-medium text-ink text-right">{warnPreview.subject}</span>
+                <span className="font-medium text-ink sm:text-right">{warnPreview.subject}</span>
               </div>
-              <div className="flex justify-between gap-3">
+              <div className="flex justify-between items-center gap-3">
                 <span className="text-ink-muted">Failed transactions on record</span>
                 <span className="font-semibold text-error">{warnPreview.failedCount}</span>
               </div>
@@ -657,7 +657,7 @@ const AdminUsers: React.FC = () => {
                 title="Warning email preview"
                 srcDoc={warnPreview.html}
                 sandbox=""
-                className="w-full h-[420px] block"
+                className="w-full h-[280px] sm:h-[420px] block"
               />
             </div>
           </div>
