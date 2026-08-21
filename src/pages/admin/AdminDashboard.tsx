@@ -18,6 +18,10 @@ import {
   CreditCard,
   Mail,
 } from 'lucide-react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import StatTile from '../../components/ui/StatTile';
+import Card from '../../components/ui/Card';
+import PageLoader from '../../components/ui/PageLoader';
 
 interface DashboardStats {
   totalProducts: number;
@@ -26,11 +30,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalProducts: 0,
-    totalOrders: 0,
-    totalRevenue: 0,
-  });
+  const [stats, setStats] = useState<DashboardStats>({ totalProducts: 0, totalOrders: 0, totalRevenue: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,143 +60,105 @@ const AdminDashboard: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-950">
-        <p className="text-sm text-gray-400 dark:text-gray-500">Loading dashboard...</p>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const quickActions = [
-    { to: '/admin/products', icon: Package, label: 'Logs', desc: 'Add, edit, or remove logs', color: 'text-gray-700 bg-gray-100' },
-    { to: '/admin/orders', icon: ShoppingCart, label: 'Orders', desc: 'Track and manage orders', color: 'text-green-700 bg-green-50' },
-    { to: '/admin/users', icon: Users, label: 'Users', desc: 'Manage user accounts', color: 'text-blue-700 bg-blue-50' },
-    { to: '/admin/wallet', icon: Wallet, label: 'Wallets', desc: 'Credit or debit user wallets', color: 'text-purple-700 bg-purple-50' },
-    { to: '/admin/transactions', icon: CreditCard, label: 'Transactions', desc: 'Approve or reject payments', color: 'text-orange-700 bg-orange-50' },
-    { to: '/admin/notifications', icon: Bell, label: 'Notifications', desc: 'Manage purchase notifications', color: 'text-teal-700 bg-teal-50' },
-    { to: '/admin/emails', icon: Mail, label: 'Emails', desc: 'AI-assisted email automation', color: 'text-rose-700 bg-rose-50' },
-    { to: '/admin/payment-methods', icon: CreditCard, label: 'Payment Methods', desc: 'Manage crypto payout addresses', color: 'text-amber-700 bg-amber-50' },
-    { to: '/', icon: Eye, label: 'View Store', desc: 'See the customer view', color: 'text-gray-600 bg-gray-50' },
+    { to: '/admin/products', icon: Package, label: 'Logs', desc: 'Add, edit, or remove logs' },
+    { to: '/admin/orders', icon: ShoppingCart, label: 'Orders', desc: 'Track and manage orders' },
+    { to: '/admin/users', icon: Users, label: 'Users', desc: 'Manage user accounts' },
+    { to: '/admin/wallet', icon: Wallet, label: 'Wallets', desc: 'Credit or debit user wallets' },
+    { to: '/admin/transactions', icon: CreditCard, label: 'Transactions', desc: 'Approve or reject payments' },
+    { to: '/admin/notifications', icon: Bell, label: 'Notifications', desc: 'Manage purchase notifications' },
+    { to: '/admin/emails', icon: Mail, label: 'Emails', desc: 'AI-assisted email automation' },
+    { to: '/admin/payment-methods', icon: CreditCard, label: 'Payment methods', desc: 'Manage crypto payout addresses' },
+    { to: '/', icon: Eye, label: 'View store', desc: 'See the customer view' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-1">
-            <Shield className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Admin Dashboard</h1>
-          </div>
-          <p className="text-sm text-gray-400 dark:text-gray-500 ml-9">Manage your marketplace</p>
+    <div>
+      <AdminPageHeader icon={<Shield className="w-5 h-5" />} title="Admin dashboard" subtitle="Manage your marketplace" />
+
+      <div className="rounded-[var(--radius-lg)] p-6 mb-6 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1B1930, #0B0B10)' }}>
+        <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, var(--vault-primary), transparent 70%)' }} />
+        <div className="relative flex items-center gap-3 mb-2">
+          <Activity className="w-5 h-5 text-white/50" />
+          <h2 className="font-display text-[15px] font-bold">Welcome back, Admin</h2>
         </div>
+        <p className="relative text-white/45 text-[12.5px]">Here's an overview of your marketplace today.</p>
+      </div>
 
-        {/* Welcome Banner */}
-        <div className="bg-gray-900 rounded-2xl p-6 mb-8 text-white">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-            <h2 className="text-base font-semibold">Welcome back, Admin</h2>
-          </div>
-          <p className="text-gray-400 dark:text-gray-500 text-sm">Here's an overview of your marketplace today.</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <StatTile label="Total logs" value={stats.totalProducts} icon={<Package className="w-4 h-4" />} tone="primary" />
+        <StatTile label="Total orders" value={stats.totalOrders} icon={<ShoppingCart className="w-4 h-4" />} tone="success" />
+        <StatTile label="Total revenue" value={`$${stats.totalRevenue.toFixed(0)}`} icon={<DollarSign className="w-4 h-4" />} tone="accent" />
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2.5 w-fit mb-3">
-              <Package className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            </div>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Total Logs</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.totalProducts}</p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
-            <div className="bg-green-50 rounded-lg p-2.5 w-fit mb-3">
-              <ShoppingCart className="w-5 h-5 text-green-600" />
-            </div>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Total Orders</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.totalOrders}</p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
-            <div className="bg-purple-50 rounded-lg p-2.5 w-fit mb-3">
-              <DollarSign className="w-5 h-5 text-purple-600" />
-            </div>
-            <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Total Revenue</p>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">${stats.totalRevenue.toFixed(0)}</p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6 mb-8">
-          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {quickActions.map((action) => (
-              <Link key={action.to} to={action.to} className="group">
-                <div className="border border-gray-100 dark:border-gray-800 hover:border-gray-200 rounded-xl p-4 transition-all hover:bg-gray-50 dark:hover:bg-gray-900">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className={`rounded-lg p-2 ${action.color}`}>
-                      <action.icon className="w-4 h-4" />
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-0.5 transition-all" />
+      <Card className="mb-6">
+        <h2 className="font-display text-[15px] font-bold text-ink mb-4">Quick actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {quickActions.map((action) => (
+            <Link key={action.to} to={action.to} className="group">
+              <div className="border border-border hover:border-border-strong rounded-[var(--radius-md)] p-4 transition-all hover:bg-surface-hover h-full">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="rounded-[var(--radius-sm)] p-2 bg-primary-soft text-primary">
+                    <action.icon className="w-4 h-4" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm mb-0.5">{action.label}</h3>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">{action.desc}</p>
+                  <ArrowRight className="w-4 h-4 text-ink-muted group-hover:text-ink group-hover:translate-x-0.5 transition-all" />
                 </div>
-              </Link>
+                <h3 className="font-semibold text-ink text-[13px] mb-0.5">{action.label}</h3>
+                <p className="text-[11.5px] text-ink-muted">{action.desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-4 h-4 text-ink-muted" />
+            <h3 className="font-semibold text-ink text-[13.5px]">System status</h3>
+          </div>
+          <div className="space-y-2">
+            {['Products API', 'Orders system', 'Payment gateway'].map((service) => (
+              <div key={service} className="flex items-center justify-between p-3 bg-surface-hover rounded-[var(--radius-md)]">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-success" />
+                  <span className="text-[13px] font-medium text-ink-soft">{service}</span>
+                </div>
+                <span className="text-[11.5px] font-medium text-success">Operational</span>
+              </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Bottom Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">System Status</h3>
+        <Card>
+          <div className="flex items-center gap-2 mb-4">
+            <DollarSign className="w-4 h-4 text-ink-muted" />
+            <h3 className="font-semibold text-ink text-[13.5px]">Quick stats</h3>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between p-3 bg-surface-hover rounded-[var(--radius-md)]">
+              <span className="text-[13px] font-medium text-ink-soft">Avg. order value</span>
+              <span className="text-[13px] font-bold text-ink">
+                ${stats.totalOrders > 0 ? (stats.totalRevenue / stats.totalOrders).toFixed(2) : '0.00'}
+              </span>
             </div>
-            <div className="space-y-2">
-              {['Products API', 'Orders System', 'Payment Gateway'].map((service) => (
-                <div key={service} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{service}</span>
-                  </div>
-                  <span className="text-xs font-medium text-green-600">Operational</span>
-                </div>
-              ))}
+            <div className="flex items-center justify-between p-3 bg-surface-hover rounded-[var(--radius-md)]">
+              <span className="text-[13px] font-medium text-ink-soft">Logs per order</span>
+              <span className="text-[13px] font-bold text-ink">
+                {stats.totalOrders > 0 ? (stats.totalProducts / stats.totalOrders).toFixed(1) : '0.0'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-surface-hover rounded-[var(--radius-md)]">
+              <span className="text-[13px] font-medium text-ink-soft">Conversion rate</span>
+              <span className="text-[13px] font-bold text-ink">
+                {stats.totalProducts > 0 ? ((stats.totalOrders / stats.totalProducts) * 100).toFixed(1) : '0.0'}%
+              </span>
             </div>
           </div>
-
-          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Quick Stats</h3>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Avg. Order Value</span>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  ${stats.totalOrders > 0 ? (stats.totalRevenue / stats.totalOrders).toFixed(2) : '0.00'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Logs per Order</span>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  {stats.totalOrders > 0 ? (stats.totalProducts / stats.totalOrders).toFixed(1) : '0.0'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Conversion Rate</span>
-                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                  {stats.totalProducts > 0
-                    ? ((stats.totalOrders / stats.totalProducts) * 100).toFixed(1)
-                    : '0.0'}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

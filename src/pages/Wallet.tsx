@@ -20,10 +20,16 @@ import {
   Copy,
   Timer,
   Banknote,
-  X,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
+import Card from '../components/ui/Card';
+import StatTile from '../components/ui/StatTile';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Select from '../components/ui/Select';
+import Pagination from '../components/ui/Pagination';
+import Dialog from '../components/ui/Dialog';
+import { Skeleton } from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
 
 const TXN_PAGE_SIZE = 10;
 
@@ -38,12 +44,12 @@ interface PaymentMethod {
 
 const destinationLabel = (type?: string): string => {
   switch (type) {
-    case 'paypal':  return 'PayPal email';
+    case 'paypal': return 'PayPal email';
     case 'cashapp': return 'Cashtag';
-    case 'zelle':   return 'Zelle email/phone';
-    case 'bank':    return 'Bank details';
-    case 'other':   return 'Destination';
-    default:        return 'Wallet address';
+    case 'zelle': return 'Zelle email/phone';
+    case 'bank': return 'Bank details';
+    case 'other': return 'Destination';
+    default: return 'Wallet address';
   }
 };
 
@@ -55,13 +61,12 @@ const Wallet: React.FC = () => {
   const [transactionsLoading, setTransactionsLoading] = useState(true);
   const [selectedCrypto, setSelectedCrypto] = useState('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [timer, setTimer] = useState(600);
   const [timerActive, setTimerActive] = useState(false);
   const [txnPage, setTxnPage] = useState(1);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 
-  const selectedMethod = paymentMethods.find(m => m.label === selectedCrypto);
+  const selectedMethod = paymentMethods.find((m) => m.label === selectedCrypto);
 
   useEffect(() => { fetchTransactions(); fetchPaymentMethods(); }, []);
 
@@ -77,7 +82,7 @@ const Wallet: React.FC = () => {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (timerActive && timer > 0) {
-      interval = setInterval(() => setTimer(prev => prev - 1), 1000);
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
     } else if (timer === 0) {
       setTimerActive(false);
       toast.error('Payment time expired. Please try again.');
@@ -105,18 +110,14 @@ const Wallet: React.FC = () => {
     setShowPaymentModal(true);
     setTimer(600);
     setTimerActive(true);
-    requestAnimationFrame(() => setModalVisible(true));
   };
 
   const closePaymentModal = (): void => {
-    setModalVisible(false);
-    setTimeout(() => {
-      setShowPaymentModal(false);
-      setTimerActive(false);
-      setTimer(600);
-      setAmount('');
-      setSelectedCrypto('');
-    }, 200);
+    setShowPaymentModal(false);
+    setTimerActive(false);
+    setTimer(600);
+    setAmount('');
+    setSelectedCrypto('');
   };
 
   const handleConfirmPayment = async (): Promise<void> => {
@@ -156,169 +157,152 @@ const Wallet: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'failed': return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'pending': return <Clock className="w-4 h-4 text-yellow-500" />;
-      default: return <AlertCircle className="w-4 h-4 text-gray-400 dark:text-gray-500" />;
+      case 'completed': return <CheckCircle2 className="w-3.5 h-3.5 text-success" />;
+      case 'failed': return <XCircle className="w-3.5 h-3.5 text-error" />;
+      case 'pending': return <Clock className="w-3.5 h-3.5 text-warning" />;
+      default: return <AlertCircle className="w-3.5 h-3.5 text-ink-muted" />;
     }
   };
 
-  const totalCredit = transactions.filter(t => t.type === 'credit' && t.status === 'completed').reduce((s, t) => s + t.amount, 0);
-  const totalDebit = transactions.filter(t => t.type === 'debit' && t.status === 'completed').reduce((s, t) => s + t.amount, 0);
+  const totalCredit = transactions.filter((t) => t.type === 'credit' && t.status === 'completed').reduce((s, t) => s + t.amount, 0);
+  const totalDebit = transactions.filter((t) => t.type === 'debit' && t.status === 'completed').reduce((s, t) => s + t.amount, 0);
 
-  const txnTotalPages = Math.ceil(transactions.length / TXN_PAGE_SIZE);
+  const txnTotalPages = Math.ceil(transactions.length / TXN_PAGE_SIZE) || 1;
   const paginatedTxns = transactions.slice((txnPage - 1) * TXN_PAGE_SIZE, txnPage * TXN_PAGE_SIZE);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
+    <div className="bg-canvas py-6 sm:py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">My Wallet</h1>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">Manage your funds and transactions</p>
+          <h1 className="font-display text-[22px] sm:text-[26px] font-bold text-ink">My wallet</h1>
+          <p className="text-[13px] text-ink-muted mt-0.5">Manage your funds and transactions</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Balance Card */}
-            <div className="bg-gray-900 rounded-xl p-6 text-white">
-              <p className="text-sm text-gray-400 dark:text-gray-500 mb-1">Available Balance</p>
-              <p className="text-3xl font-bold">${user?.walletBalance.toFixed(2)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Wallet balance — use it to checkout</p>
+            <div className="rounded-[var(--radius-lg)] p-6 text-white relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1B1930, #0B0B10)' }}>
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, var(--vault-primary), transparent 70%)' }} />
+              <div className="relative">
+                <p className="text-[12px] text-white/50 mb-1 flex items-center gap-1.5">
+                  <WalletIcon className="w-3.5 h-3.5" /> Available balance
+                </p>
+                <p className="font-display text-[32px] font-extrabold">${user?.walletBalance.toFixed(2)}</p>
+                <p className="text-[11.5px] text-white/40 mt-3">Use your balance to check out instantly — no card needed.</p>
+              </div>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
-                <TrendingUp className="w-4 h-4 text-green-500 mb-2" />
-                <p className="text-base font-bold text-gray-900 dark:text-gray-100">${totalCredit.toFixed(2)}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Total credits</p>
-              </div>
-              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4">
-                <TrendingDown className="w-4 h-4 text-red-400 mb-2" />
-                <p className="text-base font-bold text-gray-900 dark:text-gray-100">${totalDebit.toFixed(2)}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Total debits</p>
-              </div>
+              <StatTile label="Total credits" value={`$${totalCredit.toFixed(2)}`} icon={<TrendingUp className="w-4 h-4" />} tone="success" />
+              <StatTile label="Total debits" value={`$${totalDebit.toFixed(2)}`} icon={<TrendingDown className="w-4 h-4" />} tone="error" />
             </div>
 
-            {/* Fund Wallet */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
+            <Card>
               <div className="flex items-center gap-2 mb-4">
-                <Banknote className="w-4 h-4 text-green-600" />
-                <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Fund Wallet</h2>
+                <Banknote className="w-4 h-4 text-success" />
+                <h2 className="font-display font-bold text-ink text-[14px]">Fund wallet</h2>
               </div>
 
-              <form onSubmit={openPaymentModal} className="space-y-3">
+              <form onSubmit={openPaymentModal} className="space-y-3.5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Amount (USD)</label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="1"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.00"
-                      required
-                      className="w-full pl-9 pr-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none"
-                    />
-                  </div>
+                  <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Amount (USD)</label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0.00"
+                    required
+                    leftIcon={<DollarSign className="w-4 h-4" />}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Payment method</label>
-                  <select
+                  <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Payment method</label>
+                  <Select
                     value={selectedCrypto}
                     onChange={(e) => setSelectedCrypto(e.target.value)}
                     required
                     disabled={paymentMethods.length === 0}
-                    className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none bg-white dark:bg-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                   >
                     <option value="">
                       {paymentMethods.length === 0 ? 'No payment methods available' : 'Choose payment method...'}
                     </option>
-                    {paymentMethods.map(m => (
+                    {paymentMethods.map((m) => (
                       <option key={m._id} value={m.label}>{m.label}</option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-gray-900 text-white py-2.5 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                >
-                  <CreditCard className="w-4 h-4" />
+                <Button type="submit" fullWidth icon={<CreditCard className="w-4 h-4" />}>
                   Proceed to payment
-                </button>
+                </Button>
               </form>
-            </div>
+            </Card>
           </div>
 
-          {/* Transaction History */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-6">
+            <Card>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-100">Transaction History</h2>
+                  <Clock className="w-4 h-4 text-ink-muted" />
+                  <h2 className="font-display font-bold text-ink text-[15px]">Transaction history</h2>
                 </div>
                 {transactions.length > 0 && (
-                  <span className="text-xs text-gray-400 dark:text-gray-500">{transactions.length} total</span>
+                  <span className="text-[11.5px] text-ink-muted">{transactions.length} total</span>
                 )}
               </div>
 
               {transactionsLoading ? (
-                <div className="text-center py-12">
-                  <p className="text-sm text-gray-400 dark:text-gray-500">Loading transactions...</p>
+                <div className="space-y-2">
+                  {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-20 w-full rounded-[var(--radius-md)]" />)}
                 </div>
               ) : transactions.length === 0 ? (
-                <div className="text-center py-12">
-                  <WalletIcon className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">No transactions yet</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Your history will appear here</p>
-                </div>
+                <EmptyState
+                  icon={<WalletIcon className="w-6 h-6" />}
+                  title="No transactions yet"
+                  description="Your funding and spending history will appear here."
+                />
               ) : (
                 <>
                   <div className="space-y-2">
                     {paginatedTxns.map((transaction) => (
                       <div
                         key={transaction._id}
-                        className="p-4 border border-gray-50 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
-                        style={{ borderLeftWidth: '3px', borderLeftColor: transaction.type === 'credit' ? '#10b981' : '#ef4444' }}
+                        className="p-4 border border-border rounded-[var(--radius-md)] hover:bg-surface-hover transition-colors"
+                        style={{ borderLeftWidth: '3px', borderLeftColor: transaction.type === 'credit' ? 'var(--vault-success)' : 'var(--vault-error)' }}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-start gap-3">
-                            <div className={`rounded-lg p-1.5 ${transaction.type === 'credit' ? 'bg-green-50' : 'bg-red-50'}`}>
+                        <div className="flex items-start justify-between mb-2 gap-3">
+                          <div className="flex items-start gap-3 min-w-0">
+                            <div className={`rounded-[var(--radius-sm)] p-1.5 shrink-0 ${transaction.type === 'credit' ? 'bg-success-soft' : 'bg-error-soft'}`}>
                               {transaction.type === 'credit'
-                                ? <ArrowDownCircle className="w-4 h-4 text-green-600" />
-                                : <ArrowUpCircle className="w-4 h-4 text-red-500" />
-                              }
+                                ? <ArrowDownCircle className="w-4 h-4 text-success" />
+                                : <ArrowUpCircle className="w-4 h-4 text-error" />}
                             </div>
-                            <div>
-                              <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{transaction.description}</p>
-                              <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                            <div className="min-w-0">
+                              <p className="font-medium text-ink text-[13px] truncate">{transaction.description}</p>
+                              <div className="flex items-center gap-1.5 text-[11px] text-ink-muted mt-0.5">
                                 <Calendar className="w-3 h-3" />
                                 <span>{formatDate(transaction.createdAt)}</span>
                               </div>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className={`font-bold text-sm ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-500'}`}>
+                          <div className="text-right shrink-0">
+                            <p className={`font-display font-bold text-[14px] ${transaction.type === 'credit' ? 'text-success' : 'text-error'}`}>
                               {transaction.type === 'credit' ? '+' : '-'}${transaction.amount.toFixed(2)}
                             </p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500">Bal: ${transaction.balanceAfter.toFixed(2)}</p>
+                            <p className="text-[11px] text-ink-muted">Bal: ${transaction.balanceAfter.toFixed(2)}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                          <div className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                        <div className="flex items-center justify-between pt-2 border-t border-border">
+                          <div className="flex items-center gap-1 text-[11px] text-ink-muted">
                             <Hash className="w-3 h-3" />
                             <span className="font-mono">{transaction.reference}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
                             {getStatusIcon(transaction.status)}
-                            <span className={`text-xs font-semibold uppercase ${ transaction.status === 'completed' ? 'text-green-600' : transaction.status === 'failed' ? 'text-red-500' : 'text-yellow-500' }`}>
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-ink-muted">
                               {transaction.status}
                             </span>
                           </div>
@@ -328,147 +312,99 @@ const Wallet: React.FC = () => {
                   </div>
 
                   {txnTotalPages > 1 && (
-                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                    <div className="mt-4 pt-4 border-t border-border flex items-center justify-between flex-wrap gap-3">
+                      <p className="text-[11.5px] text-ink-muted">
                         Page {txnPage} of {txnTotalPages} — {transactions.length} transactions
                       </p>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setTxnPage(p => Math.max(1, p - 1))}
-                          disabled={txnPage === 1}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        {Array.from({ length: txnTotalPages }, (_, i) => i + 1)
-                          .filter(p => p === 1 || p === txnTotalPages || Math.abs(p - txnPage) <= 1)
-                          .reduce<(number | '...')[]>((acc, p, idx, arr) => {
-                            if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
-                            acc.push(p); return acc;
-                          }, [])
-                          .map((p, i) => p === '...'
-                            ? <span key={`e-${i}`} className="px-1 text-gray-300 text-sm">…</span>
-                            : <button key={p} onClick={() => setTxnPage(p as number)}
-                                className={`w-8 h-8 rounded-full text-xs font-medium transition-colors ${txnPage === p ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
-                                {p}
-                              </button>
-                          )}
-                        <button
-                          onClick={() => setTxnPage(p => Math.min(txnTotalPages, p + 1))}
-                          disabled={txnPage === txnTotalPages}
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <Pagination page={txnPage} totalPages={txnTotalPages} onChange={setTxnPage} />
                     </div>
                   )}
                 </>
               )}
-            </div>
+            </Card>
           </div>
         </div>
       </div>
 
-      {/* Payment Modal */}
-      {showPaymentModal && (
-        <div
-          onClick={(e) => { if (e.target === e.currentTarget && !loading) closePaymentModal(); }}
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-200 ${modalVisible ? 'opacity-100' : 'opacity-0'}`}
-          style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)' }}
-        >
-          <div className={`bg-white dark:bg-gray-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-all duration-200 ${modalVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-            <div className="bg-gray-900 text-white p-6 rounded-t-2xl flex items-start justify-between">
-              <div>
-                <h2 className="text-lg font-semibold">Complete Payment</h2>
-                <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Send exactly ${amount} USD to the destination below</p>
-              </div>
-              <button onClick={closePaymentModal} className="text-gray-500 dark:text-gray-400 hover:text-white transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+      {/* Payment modal */}
+      <Dialog
+        open={showPaymentModal}
+        onClose={() => { if (!loading) closePaymentModal(); }}
+        title="Complete payment"
+        description={`Send exactly $${amount} USD to the destination below`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div className="bg-warning-soft border border-warning/20 rounded-[var(--radius-md)] p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Timer className="w-4 h-4 text-warning" />
+              <p className="text-[11.5px] font-medium text-ink-muted">Time remaining</p>
             </div>
+            <p className="font-display text-[24px] font-bold text-warning">{formatTime(timer)}</p>
+          </div>
 
-            <div className="p-6 space-y-4">
-              {/* Timer */}
-              <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <Timer className="w-4 h-4 text-orange-500" />
-                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Time remaining</p>
-                </div>
-                <p className="text-2xl font-bold text-orange-500">{formatTime(timer)}</p>
-              </div>
-
-              {/* Payment Details */}
-              <div className="bg-gray-50 dark:bg-gray-950 rounded-xl p-4 space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">Method</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedCrypto}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-gray-400">Amount</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">${amount} USD</span>
-                </div>
-              </div>
-
-              {/* Destination */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  {destinationLabel(selectedMethod?.type)}:
-                </label>
-                <div className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl p-3">
-                  <p className="text-xs font-mono text-gray-900 dark:text-gray-100 break-all mb-2 whitespace-pre-wrap">
-                    {selectedMethod?.address}
-                  </p>
-                  {selectedMethod?.instructions && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{selectedMethod.instructions}</p>
-                  )}
-                  <button
-                    onClick={() => selectedMethod && copyToClipboard(selectedMethod.address)}
-                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-2 rounded-full text-sm font-medium flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <Copy className="w-4 h-4" />
-                    Copy
-                  </button>
-                </div>
-              </div>
-
-              {/* Instructions */}
-              <div className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-xl p-4">
-                <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm mb-2 flex items-center gap-1.5">
-                  <AlertCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  Instructions
-                </h3>
-                <ol className="space-y-1 text-xs text-gray-600 dark:text-gray-400 list-decimal list-inside">
-                  <li>Send exactly ${amount} USD via {selectedCrypto}</li>
-                  <li>Complete within {formatTime(timer)}</li>
-                  <li>Click "I've sent the payment" below</li>
-                  <li>Wallet credited within 10–30 minutes</li>
-                </ol>
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <button
-                  onClick={closePaymentModal}
-                  className="flex-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 py-2.5 rounded-full font-medium text-sm transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmPayment}
-                  disabled={loading}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-full font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
-                  ) : (
-                    <><CheckCircle2 className="w-4 h-4" /> I've sent the payment</>
-                  )}
-                </button>
-              </div>
+          <div className="bg-surface-hover rounded-[var(--radius-md)] p-4 space-y-2 text-[13.5px]">
+            <div className="flex justify-between">
+              <span className="text-ink-muted">Method</span>
+              <span className="font-medium text-ink">{selectedCrypto}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-ink-muted">Amount</span>
+              <span className="font-medium text-ink">${amount} USD</span>
             </div>
           </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">
+              {destinationLabel(selectedMethod?.type)}:
+            </label>
+            <div className="bg-surface-hover border border-border rounded-[var(--radius-md)] p-3">
+              <p className="text-[11.5px] font-mono text-ink break-all mb-2 whitespace-pre-wrap">
+                {selectedMethod?.address}
+              </p>
+              {selectedMethod?.instructions && (
+                <p className="text-[11.5px] text-ink-muted mb-2">{selectedMethod.instructions}</p>
+              )}
+              <Button
+                onClick={() => selectedMethod && copyToClipboard(selectedMethod.address)}
+                fullWidth
+                size="sm"
+                icon={<Copy className="w-3.5 h-3.5" />}
+              >
+                Copy
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-surface-hover border border-border rounded-[var(--radius-md)] p-4">
+            <h3 className="font-medium text-ink text-[13px] mb-2 flex items-center gap-1.5">
+              <AlertCircle className="w-4 h-4 text-ink-muted" />
+              Instructions
+            </h3>
+            <ol className="space-y-1 text-[11.5px] text-ink-muted list-decimal list-inside">
+              <li>Send exactly ${amount} USD via {selectedCrypto}</li>
+              <li>Complete within {formatTime(timer)}</li>
+              <li>Click "I've sent the payment" below</li>
+              <li>Wallet credited within 10–30 minutes</li>
+            </ol>
+          </div>
+
+          <div className="flex gap-3 pt-1">
+            <Button variant="secondary" onClick={closePaymentModal} fullWidth>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmPayment}
+              loading={loading}
+              fullWidth
+              className="!bg-success hover:!bg-success"
+              icon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              I've sent the payment
+            </Button>
+          </div>
         </div>
-      )}
+      </Dialog>
     </div>
   );
 };

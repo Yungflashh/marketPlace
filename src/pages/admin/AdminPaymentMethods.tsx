@@ -2,19 +2,21 @@ import React, { useEffect, useState } from 'react';
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
 import {
-  CreditCard,
-  Plus,
-  Trash2,
-  Edit2,
-  Copy,
-  CheckCircle2,
-  XCircle,
-  Sparkles,
-  Hash,
-  Wallet as WalletIcon,
-  ArrowUp,
-  ArrowDown,
+  CreditCard, Plus, Trash2, Edit2, Copy, CheckCircle2, XCircle,
+  Sparkles, Hash, Wallet as WalletIcon, ArrowUp, ArrowDown,
 } from 'lucide-react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import StatTile from '../../components/ui/StatTile';
+import Card from '../../components/ui/Card';
+import Badge from '../../components/ui/Badge';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Select from '../../components/ui/Select';
+import Textarea from '../../components/ui/Textarea';
+import Dialog from '../../components/ui/Dialog';
+import EmptyState from '../../components/ui/EmptyState';
+import PageLoader from '../../components/ui/PageLoader';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 type PaymentType = 'crypto' | 'paypal' | 'cashapp' | 'zelle' | 'bank' | 'other';
 
@@ -31,25 +33,17 @@ interface PaymentMethod {
 }
 
 const TYPE_OPTIONS: { value: PaymentType; label: string; addressLabel: string; addressPlaceholder: string; showNetwork: boolean }[] = [
-  { value: 'crypto',  label: 'Crypto wallet', addressLabel: 'Wallet address',    addressPlaceholder: 'e.g. TS4YcYuGH2kJ...',                 showNetwork: true  },
-  { value: 'paypal',  label: 'PayPal',        addressLabel: 'PayPal email',      addressPlaceholder: 'you@example.com',                       showNetwork: false },
-  { value: 'cashapp', label: 'Cash App',      addressLabel: 'Cashtag',           addressPlaceholder: '$yourcashtag',                          showNetwork: false },
-  { value: 'zelle',   label: 'Zelle',         addressLabel: 'Zelle email/phone', addressPlaceholder: 'you@example.com or +1 555 555 5555',    showNetwork: false },
-  { value: 'bank',    label: 'Bank transfer', addressLabel: 'Account details',   addressPlaceholder: 'Bank name, account number, routing #',  showNetwork: false },
-  { value: 'other',   label: 'Other',         addressLabel: 'Destination',       addressPlaceholder: 'Payment destination',                   showNetwork: false },
+  { value: 'crypto', label: 'Crypto wallet', addressLabel: 'Wallet address', addressPlaceholder: 'e.g. TS4YcYuGH2kJ...', showNetwork: true },
+  { value: 'paypal', label: 'PayPal', addressLabel: 'PayPal email', addressPlaceholder: 'you@example.com', showNetwork: false },
+  { value: 'cashapp', label: 'Cash App', addressLabel: 'Cashtag', addressPlaceholder: '$yourcashtag', showNetwork: false },
+  { value: 'zelle', label: 'Zelle', addressLabel: 'Zelle email/phone', addressPlaceholder: 'you@example.com or +1 555 555 5555', showNetwork: false },
+  { value: 'bank', label: 'Bank transfer', addressLabel: 'Account details', addressPlaceholder: 'Bank name, account number, routing #', showNetwork: false },
+  { value: 'other', label: 'Other', addressLabel: 'Destination', addressPlaceholder: 'Payment destination', showNetwork: false },
 ];
 
-const typeMeta = (t: PaymentType) => TYPE_OPTIONS.find(o => o.value === t) ?? TYPE_OPTIONS[0];
+const typeMeta = (t: PaymentType) => TYPE_OPTIONS.find((o) => o.value === t) ?? TYPE_OPTIONS[0];
 
-const emptyForm = {
-  label: '',
-  type: 'crypto' as PaymentType,
-  address: '',
-  network: '',
-  instructions: '',
-  isActive: true,
-  sortOrder: 0,
-};
+const emptyForm = { label: '', type: 'crypto' as PaymentType, address: '', network: '', instructions: '', isActive: true, sortOrder: 0 };
 
 const AdminPaymentMethods: React.FC = () => {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
@@ -58,7 +52,8 @@ const AdminPaymentMethods: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<PaymentMethod | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [seeding, setSeeding] = useState(false);
 
   useEffect(() => {
@@ -117,17 +112,18 @@ const AdminPaymentMethods: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string): Promise<void> => {
-    if (!window.confirm('Delete this payment method? Users will no longer be able to select it.')) return;
-    setDeletingId(id);
+  const handleDelete = async (): Promise<void> => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await api.delete(`/payment-methods/${id}`);
+      await api.delete(`/payment-methods/${deleteTarget._id}`);
       toast.success('Payment method deleted');
+      setDeleteTarget(null);
       fetchMethods();
     } catch (err: any) {
       toast.error(err.response?.data?.message ?? 'Error deleting payment method');
     } finally {
-      setDeletingId(null);
+      setDeleting(false);
     }
   };
 
@@ -159,7 +155,7 @@ const AdminPaymentMethods: React.FC = () => {
   };
 
   const move = async (m: PaymentMethod, direction: 'up' | 'down'): Promise<void> => {
-    const idx = methods.findIndex(x => x._id === m._id);
+    const idx = methods.findIndex((x) => x._id === m._id);
     const swapWith = direction === 'up' ? methods[idx - 1] : methods[idx + 1];
     if (!swapWith) return;
     try {
@@ -174,309 +170,192 @@ const AdminPaymentMethods: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex justify-center items-center">
-        <p className="text-sm text-gray-400 dark:text-gray-500">Loading payment methods...</p>
-      </div>
-    );
+    return <PageLoader />;
   }
 
-  const activeCount = methods.filter(m => m.isActive).length;
+  const activeCount = methods.filter((m) => m.isActive).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <CreditCard className="w-7 h-7 text-gray-700 dark:text-gray-300" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Payment Methods</h1>
-            </div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm ml-10">Manage the crypto wallets users pay into when funding</p>
-          </div>
+    <div>
+      <AdminPageHeader
+        icon={<CreditCard className="w-5 h-5" />}
+        title="Payment methods"
+        subtitle="Manage the crypto wallets users pay into when funding"
+        action={
           <div className="flex items-center gap-2">
             {methods.length === 0 && (
-              <button
-                onClick={seedDefaults}
-                disabled={seeding}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-sm font-medium flex items-center gap-1.5 disabled:opacity-50"
-              >
-                <Sparkles className="w-4 h-4" />
+              <Button variant="secondary" onClick={seedDefaults} loading={seeding} icon={<Sparkles className="w-4 h-4" />}>
                 {seeding ? 'Seeding...' : 'Load defaults'}
-              </button>
+              </Button>
             )}
-            <button
-              onClick={openCreate}
-              className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium flex items-center gap-1.5"
-            >
-              <Plus className="w-4 h-4" />
-              Add method
-            </button>
+            <Button onClick={openCreate} icon={<Plus className="w-4 h-4" />}>Add method</Button>
           </div>
-        </div>
+        }
+      />
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
-              <CreditCard className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{methods.length}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total methods</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-            <div className="bg-green-50 rounded-lg p-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{activeCount}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
-            </div>
-          </div>
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 flex items-center gap-3">
-            <div className="bg-red-50 rounded-lg p-2">
-              <XCircle className="w-5 h-5 text-red-500" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{methods.length - activeCount}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Disabled</p>
-            </div>
-          </div>
-        </div>
-
-        {/* List */}
-        {methods.length === 0 ? (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-            <WalletIcon className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="font-medium text-gray-900 dark:text-gray-100 mb-1">No payment methods yet</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Users can't fund their wallets until you add at least one method.</p>
-            <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={seedDefaults}
-                disabled={seeding}
-                className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-sm font-medium inline-flex items-center gap-1.5 disabled:opacity-50"
-              >
-                <Sparkles className="w-4 h-4" />
-                {seeding ? 'Seeding...' : 'Load defaults'}
-              </button>
-              <button
-                onClick={openCreate}
-                className="bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium inline-flex items-center gap-1.5"
-              >
-                <Plus className="w-4 h-4" />
-                Add method
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {methods.map((m, idx) => (
-                <div key={m._id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{m.label}</span>
-                        <span className="text-[10px] font-medium bg-gray-900 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
-                          {typeMeta(m.type ?? 'crypto').label}
-                        </span>
-                        {m.network && (
-                          <span className="text-[10px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                            {m.network}
-                          </span>
-                        )}
-                        <button
-                          onClick={() => toggleActive(m)}
-                          className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full transition-colors ${ m.isActive ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-red-50 text-red-700 hover:bg-red-100' }`}
-                        >
-                          {m.isActive ? 'Active' : 'Disabled'}
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                        <Hash className="w-3 h-3 flex-shrink-0" />
-                        <p className="font-mono truncate">{m.address}</p>
-                        <button
-                          onClick={() => copy(m.address)}
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex-shrink-0"
-                          title="Copy address"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      {m.instructions && (
-                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{m.instructions}</p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <div className="flex flex-col">
-                        <button
-                          onClick={() => move(m, 'up')}
-                          disabled={idx === 0}
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Move up"
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => move(m, 'down')}
-                          disabled={idx === methods.length - 1}
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
-                          title="Move down"
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <button
-                        onClick={() => openEdit(m)}
-                        className="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        title="Edit"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(m._id)}
-                        disabled={deletingId === m._id}
-                        className="p-2 rounded-lg text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-                        title="Delete"
-                      >
-                        {deletingId === m._id ? (
-                          <div className="w-4 h-4 border-2 border-red-300 border-t-red-500 rounded-full animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <StatTile label="Total methods" value={methods.length} icon={<CreditCard className="w-4 h-4" />} />
+        <StatTile label="Active" value={activeCount} icon={<CheckCircle2 className="w-4 h-4" />} tone="success" />
+        <StatTile label="Disabled" value={methods.length - activeCount} icon={<XCircle className="w-4 h-4" />} tone="error" />
       </div>
 
-      {/* Create / Edit Modal */}
-      {showModal && (
-        <div
-          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
-          className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex items-center justify-center p-4"
-        >
-          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full shadow-2xl border border-gray-200 dark:border-gray-700 max-h-[90vh] overflow-y-auto">
-            <div className="bg-gray-900 text-white p-6 rounded-t-xl">
-              <h2 className="text-lg font-semibold">{editingId ? 'Edit payment method' : 'Add payment method'}</h2>
-              <p className="text-gray-400 dark:text-gray-500 text-sm mt-0.5">Users will see this in the fund-wallet dropdown</p>
+      {methods.length === 0 ? (
+        <EmptyState
+          icon={<WalletIcon className="w-6 h-6" />}
+          title="No payment methods yet"
+          description="Users can't fund their wallets until you add at least one method."
+          action={
+            <div className="flex items-center justify-center gap-2">
+              <Button variant="secondary" onClick={seedDefaults} loading={seeding} icon={<Sparkles className="w-4 h-4" />}>
+                {seeding ? 'Seeding...' : 'Load defaults'}
+              </Button>
+              <Button onClick={openCreate} icon={<Plus className="w-4 h-4" />}>Add method</Button>
             </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Type</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as PaymentType })}
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm bg-white dark:bg-gray-900"
-                >
-                  {TYPE_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Label</label>
-                <input
-                  type="text"
-                  value={formData.label}
-                  onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                  placeholder={formData.type === 'crypto' ? 'e.g. USDT (TRC20)' : formData.type === 'paypal' ? 'e.g. PayPal — Main' : 'Name users see in the dropdown'}
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{typeMeta(formData.type).addressLabel}</label>
-                <textarea
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder={typeMeta(formData.type).addressPlaceholder}
-                  required
-                  rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm font-mono"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                {typeMeta(formData.type).showNetwork && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Network</label>
-                    <input
-                      type="text"
-                      value={formData.network}
-                      onChange={(e) => setFormData({ ...formData, network: e.target.value })}
-                      placeholder="TRC20"
-                      className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
-                    />
+          }
+          className="bg-surface border border-border rounded-[var(--radius-xl)]"
+        />
+      ) : (
+        <Card padded={false}>
+          <div className="divide-y divide-[var(--vault-border)]">
+            {methods.map((m, idx) => (
+              <div key={m._id} className="p-4 hover:bg-surface-hover transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="font-semibold text-ink text-[13.5px]">{m.label}</span>
+                      <Badge tone="primary">{typeMeta(m.type ?? 'crypto').label}</Badge>
+                      {m.network && <Badge tone="neutral">{m.network}</Badge>}
+                      <button onClick={() => toggleActive(m)}>
+                        <Badge tone={m.isActive ? 'success' : 'error'} className="cursor-pointer">{m.isActive ? 'Active' : 'Disabled'}</Badge>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 text-[12px] text-ink-muted mb-1">
+                      <Hash className="w-3 h-3 shrink-0" />
+                      <p className="font-mono truncate">{m.address}</p>
+                      <button onClick={() => copy(m.address)} className="text-ink-muted hover:text-ink-soft transition-colors shrink-0" title="Copy address">
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {m.instructions && <p className="text-[11.5px] text-ink-muted mt-1">{m.instructions}</p>}
                   </div>
-                )}
-                <div className={typeMeta(formData.type).showNetwork ? '' : 'col-span-2'}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Sort order</label>
-                  <input
-                    type="number"
-                    value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
-                  />
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex flex-col">
+                      <button onClick={() => move(m, 'up')} disabled={idx === 0} className="text-ink-muted hover:text-ink-soft disabled:opacity-30 disabled:cursor-not-allowed" title="Move up">
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => move(m, 'down')} disabled={idx === methods.length - 1} className="text-ink-muted hover:text-ink-soft disabled:opacity-30 disabled:cursor-not-allowed" title="Move down">
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <button onClick={() => openEdit(m)} className="p-2 rounded-[var(--radius-sm)] text-ink-muted hover:bg-surface-hover transition-colors" title="Edit">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => setDeleteTarget(m)} className="p-2 rounded-[var(--radius-sm)] text-error hover:bg-error-soft transition-colors" title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Instructions (optional)</label>
-                <textarea
-                  value={formData.instructions}
-                  onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-                  placeholder="Any note shown to users when they select this method"
-                  rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-lg focus:border-gray-900 dark:focus:border-gray-100 focus:ring-1 focus:ring-gray-900 outline-none text-sm"
-                />
-              </div>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-gray-900 dark:focus:ring-gray-100"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Active — show this method to users</span>
-              </label>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
-                >
-                  {submitting ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>{editingId ? 'Save changes' : 'Create method'}</>
-                  )}
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
+        </Card>
       )}
+
+      <Dialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title={editingId ? 'Edit payment method' : 'Add payment method'}
+        description="Users will see this in the fund-wallet dropdown"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+            <Button form="payment-method-form" type="submit" loading={submitting}>{editingId ? 'Save changes' : 'Create method'}</Button>
+          </>
+        }
+      >
+        <form id="payment-method-form" onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Type</label>
+            <Select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as PaymentType })}>
+              {TYPE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </Select>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Label</label>
+            <Input
+              type="text"
+              value={formData.label}
+              onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              placeholder={formData.type === 'crypto' ? 'e.g. USDT (TRC20)' : formData.type === 'paypal' ? 'e.g. PayPal — Main' : 'Name users see in the dropdown'}
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">{typeMeta(formData.type).addressLabel}</label>
+            <Textarea
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder={typeMeta(formData.type).addressPlaceholder}
+              required
+              rows={2}
+              className="font-mono"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {typeMeta(formData.type).showNetwork && (
+              <div>
+                <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Network</label>
+                <Input type="text" value={formData.network} onChange={(e) => setFormData({ ...formData, network: e.target.value })} placeholder="TRC20" />
+              </div>
+            )}
+            <div className={typeMeta(formData.type).showNetwork ? '' : 'col-span-2'}>
+              <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Sort order</label>
+              <Input
+                type="number"
+                value={formData.sortOrder}
+                onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Instructions (optional)</label>
+            <Textarea
+              value={formData.instructions}
+              onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
+              placeholder="Any note shown to users when they select this method"
+              rows={2}
+            />
+          </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.isActive}
+              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              className="w-4 h-4 rounded border-border accent-[var(--vault-primary)] cursor-pointer"
+            />
+            <span className="text-[13px] text-ink-soft">Active — show this method to users</span>
+          </label>
+        </form>
+      </Dialog>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete payment method"
+        message="Delete this payment method? Users will no longer be able to select it."
+        confirmLabel="Delete"
+        danger
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

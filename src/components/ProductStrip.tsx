@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 import type { Product } from '../types';
-import { ChevronLeft, ChevronRight, Layers } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import Badge from './ui/Badge';
+import { useReveal } from '../hooks/useReveal';
 
 interface Props {
   title: string;
@@ -13,13 +15,27 @@ interface Props {
   icon?: React.ReactNode;
 }
 
-const ProductStrip: React.FC<Props> = ({ title, badge, badgeClass = 'bg-gray-900 text-white', products, icon }) => {
+const ProductStrip: React.FC<Props> = ({ title, badge, products, icon }) => {
   const { addToCart } = useCart();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const revealRef = useReveal<HTMLDivElement>();
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const updateEdges = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 4);
+    setAtEnd(el.scrollLeft >= el.scrollWidth - el.clientWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateEdges();
+  }, [products, updateEdges]);
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -340 : 340, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
     }
   };
 
@@ -36,76 +52,76 @@ const ProductStrip: React.FC<Props> = ({ title, badge, badgeClass = 'bg-gray-900
   if (products.length === 0) return null;
 
   return (
-    <div className="mb-12">
-      {/* Section header */}
+    <div ref={revealRef} className="reveal mb-12">
       <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
-          {icon}
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
-          <span className="text-sm text-gray-400 dark:text-gray-500">({products.length})</span>
+          {icon && <span className="text-primary">{icon}</span>}
+          <h2 className="font-display text-[16px] font-bold text-ink">{title}</h2>
+          <span className="text-[13px] text-ink-muted">({products.length})</span>
         </div>
-        <div className="flex items-center gap-1">
-          <button onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => scroll('left')}
+            disabled={atStart}
+            aria-label="Scroll left"
+            className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-ink-soft hover:bg-surface-hover hover:border-border-strong transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          <button onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={() => scroll('right')}
+            disabled={atEnd}
+            aria-label="Scroll right"
+            className="w-8 h-8 rounded-full border border-border flex items-center justify-center text-ink-soft hover:bg-surface-hover hover:border-border-strong transition-colors disabled:opacity-30 disabled:pointer-events-none"
+          >
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Horizontal scroll */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        onScroll={updateEdges}
+        className="flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar"
       >
-        {products.map(product => (
+        {products.map((product, i) => (
           <Link
             key={product._id}
             to={`/product/${product._id}`}
-            className="shrink-0 w-[200px] group"
+            className="stagger-item shrink-0 w-[190px] group"
+            style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
           >
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:border-gray-200 hover:shadow-md transition-all duration-200 h-full flex flex-col">
-              {/* Image */}
-              <div className="relative h-36 overflow-hidden bg-gray-50 dark:bg-gray-950">
+            <div className="bg-surface rounded-[var(--radius-lg)] border border-border overflow-hidden transition-all duration-300 h-full flex flex-col hover:-translate-y-1 hover:border-primary/30 hover:shadow-[var(--shadow-vault-glow)]">
+              <div className="relative h-32 overflow-hidden bg-surface-hover">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                 />
                 {badge && (
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeClass}`}>
-                    {badge}
+                  <span className="absolute top-2 left-2">
+                    <Badge tone="accent">{badge}</Badge>
                   </span>
                 )}
                 {product.quantity === 0 && (
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <span className="text-white text-xs font-semibold">Out of Stock</span>
+                  <div className="absolute inset-0 bg-[#09090C]/50 flex items-center justify-center">
+                    <span className="text-white text-[11px] font-semibold">Out of stock</span>
                   </div>
                 )}
               </div>
 
-              {/* Body */}
               <div className="p-3 flex flex-col flex-grow">
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5 capitalize">{product.category}</p>
-                <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2 leading-snug flex-grow">{product.name}</h3>
-
-                <div className={`inline-flex items-center gap-1 mb-2 px-1.5 py-0.5 rounded text-[10px] font-medium w-fit ${ product.quantity === 0 ? 'bg-red-50 text-red-600' : product.quantity <= 10 ? 'bg-orange-50 text-orange-600' : 'bg-green-50 text-green-700' }`}>
-                  <Layers className="w-2.5 h-2.5" />
-                  {product.quantity === 0 ? 'Out of stock' : `${product.quantity} available`}
-                </div>
+                <p className="text-[9.5px] text-ink-muted uppercase tracking-wider mb-1 font-medium">{product.category}</p>
+                <h3 className="text-[12px] font-semibold text-ink mb-2.5 line-clamp-2 leading-snug flex-grow">{product.name}</h3>
 
                 <div className="flex items-center justify-between mt-auto">
-                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">${product.price.toFixed(2)}</span>
+                  <span className="font-display text-[13.5px] font-bold text-ink">${product.price.toFixed(2)}</span>
                   <button
                     onClick={(e) => handleAdd(e, product)}
                     disabled={product.quantity === 0}
-                    className="text-[10px] font-semibold bg-gray-900 text-white px-2.5 py-1 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-7 h-7 flex items-center justify-center bg-primary text-on-primary rounded-full hover:bg-primary-hover active:scale-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Add
+                    <Plus className="w-3.5 h-3.5" strokeWidth={3} />
                   </button>
                 </div>
               </div>

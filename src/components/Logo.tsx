@@ -1,21 +1,32 @@
-import React from 'react';
+import React, { useId } from 'react';
 
-interface LogoProps {
+interface Props {
   className?: string;
   size?: number;
 }
 
-const Logo: React.FC<LogoProps> = ({ className = '', size = 24 }) => (
-  <svg
-    viewBox="0 0 256 256"
-    width={size}
-    height={size}
-    fill="currentColor"
-    className={className}
-    aria-label="ShopLogs"
-  >
-    <path d="M 144 256 L 27.598 256 L 144 139.598 Z M 256 207.5 L 200 256 L 200 56 L 0 56 L 48 0 L 256 0 Z M 0 204.402 L 0 112 L 92.402 112 Z" />
-  </svg>
-);
+const Logo: React.FC<Props> = ({ className = '', size = 24 }) => {
+  const gradId = useId();
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      className={className}
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#877AFF" />
+          <stop offset="1" stopColor="#5A4FE0" />
+        </linearGradient>
+      </defs>
+      <rect width="64" height="64" rx="18" fill={`url(#${gradId})`} />
+      <circle cx="32" cy="27" r="9" fill="#0B0B10" fillOpacity="0.92" />
+      <path d="M32 34 L32 46" stroke="#0B0B10" strokeOpacity="0.92" strokeWidth="7" strokeLinecap="round" />
+    </svg>
+  );
+};
 
 export default Logo;
