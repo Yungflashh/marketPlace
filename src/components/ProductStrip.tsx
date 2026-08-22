@@ -92,11 +92,11 @@ const ProductStrip: React.FC<Props> = ({ title, badge, products, icon }) => {
             style={{ animationDelay: `${Math.min(i, 6) * 60}ms` }}
           >
             <div className="bg-surface rounded-[var(--radius-lg)] border border-border overflow-hidden transition-all duration-300 h-full flex flex-col hover:-translate-y-1 hover:border-primary/30 hover:shadow-[var(--shadow-vault-glow)]">
-              <div className="relative h-32 overflow-hidden bg-surface-hover">
+              <div className="relative h-32 overflow-hidden bg-surface-hover flex items-center justify-center">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                  className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
                 {badge && (
                   <span className="absolute top-2 left-2">

@@ -21,6 +21,7 @@ import {
   ArrowRight,
   TrendingUp,
   X,
+  List as ListIcon,
 } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
@@ -31,6 +32,8 @@ import SectionPattern from '../components/landing/SectionPattern';
 import { useReveal } from '../hooks/useReveal';
 
 const PAGE_LIMIT = 12;
+const VIEW_MODE_STORAGE_KEY = 'shoplogs.allLogsViewMode';
+type ViewMode = 'grid' | 'list';
 
 const Home: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -50,6 +53,17 @@ const Home: React.FC = () => {
   >([]);
   const [showNotification, setShowNotification] = useState(true);
   const [notificationDismissed, setNotificationDismissed] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === 'undefined') return 'grid';
+    const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    return stored === 'list' ? 'list' : 'grid';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+    }
+  }, [viewMode]);
 
   // One-shot count-up for the hero stat once real data arrives; later filter/search
   // changes just snap to the new number instantly rather than re-animating.
@@ -506,9 +520,9 @@ const Home: React.FC = () => {
             )}
           </div>
 
-          <div id="all-logs" className="flex items-center justify-between mb-6 scroll-mt-20">
-            <div className="flex items-baseline gap-2.5">
-              <h2 className="font-display text-[19px] font-bold text-ink">
+          <div id="all-logs" className="flex items-center justify-between mb-6 scroll-mt-20 gap-3">
+            <div className="flex items-baseline gap-2.5 min-w-0">
+              <h2 className="font-display text-[19px] font-bold text-ink truncate">
                 {selectedCategory
                   ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
                   : searchTerm
@@ -516,27 +530,71 @@ const Home: React.FC = () => {
                   : 'All logs'}
               </h2>
               {!loading && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-surface border border-border text-[11.5px] font-mono text-ink-muted tabular-nums">
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full bg-surface border border-border text-[11.5px] font-mono text-ink-muted tabular-nums shrink-0">
                   {totalCount} result{totalCount !== 1 ? 's' : ''}
                 </span>
               )}
             </div>
-            <Grid3x3 className="w-4 h-4 text-ink-muted" />
+            <div
+              role="group"
+              aria-label="Change layout"
+              className="flex items-center gap-0.5 bg-surface border border-border rounded-full p-0.5 shrink-0"
+            >
+              <button
+                onClick={() => setViewMode('grid')}
+                aria-label="Grid view"
+                aria-pressed={viewMode === 'grid'}
+                className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+                  viewMode === 'grid' ? 'bg-primary text-on-primary' : 'text-ink-muted hover:text-ink'
+                }`}
+              >
+                <Grid3x3 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                aria-label="List view"
+                aria-pressed={viewMode === 'list'}
+                className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${
+                  viewMode === 'list' ? 'bg-primary text-on-primary' : 'text-ink-muted hover:text-ink'
+                }`}
+              >
+                <ListIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
-                <div key={i} className="border border-border rounded-[var(--radius-lg)] overflow-hidden">
-                  <Skeleton className="aspect-[4/3] w-full rounded-none" />
-                  <div className="p-4 space-y-2">
-                    <Skeleton className="h-3 w-1/3" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-8 w-full mt-2" />
+            viewMode === 'list' ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
+                  <div key={i} className="border border-border rounded-[var(--radius-lg)] p-3 flex items-center gap-3 sm:gap-4">
+                    <Skeleton className="w-20 h-20 sm:w-28 sm:h-28 rounded-[var(--radius-md)] shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-3 w-1/4" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                    <div className="shrink-0 space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-7 w-16 rounded-full" />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
+                  <div key={i} className="border border-border rounded-[var(--radius-lg)] overflow-hidden">
+                    <Skeleton className="aspect-[4/3] w-full rounded-none" />
+                    <div className="p-4 space-y-2">
+                      <Skeleton className="h-3 w-1/3" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-8 w-full mt-2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           ) : products.length === 0 ? (
             <EmptyState
               icon={<Package className="w-6 h-6" />}
@@ -551,13 +609,23 @@ const Home: React.FC = () => {
             />
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {products.map((product, i) => (
-                  <div key={product._id} className="stagger-item" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
+              {viewMode === 'list' ? (
+                <div className="flex flex-col gap-3">
+                  {products.map((product, i) => (
+                    <div key={product._id} className="stagger-item" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
+                      <ProductCard product={product} variant="list" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {products.map((product, i) => (
+                    <div key={product._id} className="stagger-item" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <Pagination page={page} totalPages={totalPages} onChange={setPage} className="mt-10" />
             </>

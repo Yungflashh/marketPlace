@@ -8,6 +8,7 @@ import Badge from './ui/Badge';
 
 interface ProductCardProps {
   product: Product;
+  variant?: 'grid' | 'list';
 }
 
 const MAX_TILT = 8; // degrees, each axis
@@ -26,10 +27,11 @@ const supportsTilt = (): boolean =>
  * applied when the device has a fine pointer and doesn't prefer reduced motion; see
  * the matching CSS guard in index.css for the touch/reduced-motion fallback.
  */
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) => {
   const { addToCart } = useCart();
   const [justAdded, setJustAdded] = useState(false);
-  const [interactive] = useState(supportsTilt);
+  // Tilt-effect only makes sense in the grid variant.
+  const [interactive] = useState(() => variant === 'grid' && supportsTilt());
   const cardRef = useRef<HTMLAnchorElement>(null);
   const rafRef = useRef<number | null>(null);
 
@@ -82,6 +84,81 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const initial = product.name?.charAt(0)?.toUpperCase() || '?';
   const inStock = product.quantity > 0;
 
+  if (variant === 'list') {
+    return (
+      <Link
+        to={`/product/${product._id}`}
+        className="group block rounded-[var(--radius-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      >
+        <div className="relative bg-elevated border border-border rounded-[var(--radius-lg)] p-3 flex items-stretch gap-3 sm:gap-4 transition-colors duration-200 hover:border-primary/30 hover:shadow-[var(--shadow-vault-sm)]">
+          <div className="relative shrink-0 w-20 h-20 sm:w-28 sm:h-28 rounded-[var(--radius-md)] overflow-hidden bg-surface-hover flex items-center justify-center">
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                loading="lazy"
+                className="w-full h-full object-contain p-2"
+              />
+            ) : (
+              <span className="font-display text-3xl font-bold text-primary/40">{initial}</span>
+            )}
+            {product.featured && (
+              <span className="absolute top-1 left-1">
+                <Badge tone="accent">★</Badge>
+              </span>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                <span className="text-[10px] sm:text-[10.5px] text-ink-muted uppercase tracking-wider font-medium">
+                  {product.category}
+                </span>
+                <Badge tone={inStock ? 'success' : 'error'} dot>
+                  {inStock ? 'In stock' : 'Sold out'}
+                </Badge>
+              </div>
+              <h3 className="text-[13.5px] sm:text-[14.5px] font-semibold text-ink line-clamp-2 sm:line-clamp-1 leading-snug group-hover:text-primary transition-colors">
+                {product.name}
+              </h3>
+              <p className="hidden sm:block text-[12px] text-ink-muted mt-1 line-clamp-2 leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end justify-between shrink-0 py-0.5">
+            <span className="font-display text-[15px] sm:text-[17px] font-bold text-ink whitespace-nowrap">
+              ${product.price.toFixed(2)}
+            </span>
+            <button
+              onClick={handleAddToCart}
+              disabled={!inStock}
+              aria-label={`Add ${product.name} to cart`}
+              className={`flex items-center gap-1 text-[11.5px] font-semibold px-3 py-1.5 rounded-full transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+                justAdded ? 'bg-success text-white' : 'bg-primary text-on-primary hover:bg-primary-hover active:scale-95'
+              }`}
+            >
+              {justAdded ? (
+                <>
+                  <Check className="w-3 h-3" strokeWidth={3} />
+                  <span className="hidden sm:inline">Added</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-3 h-3" strokeWidth={2.5} />
+                  <span className="hidden sm:inline">Buy</span>
+                  <ArrowRight className="w-3 h-3" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       ref={cardRef}
@@ -96,13 +173,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="tilt-card__glow" aria-hidden="true" />
 
       <div className="tilt-card__body relative bg-elevated border border-border rounded-[var(--radius-lg)] overflow-hidden h-full flex flex-col hover:border-primary/30 hover:shadow-[var(--shadow-vault-md)]">
-        <div className="relative aspect-[4/3] overflow-hidden bg-surface-hover">
+        <div className="relative aspect-[4/3] overflow-hidden bg-surface-hover flex items-center justify-center">
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
               alt={product.name}
               loading="lazy"
-              className="tilt-card__image w-full h-full object-cover"
+              className="tilt-card__image w-full h-full object-contain p-4"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-primary-soft">
