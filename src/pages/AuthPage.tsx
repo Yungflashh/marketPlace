@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Gift } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { Mail, Lock, User, Eye, EyeOff, CheckCircle2, ShieldCheck, Zap, Wallet as WalletIcon } from 'lucide-react';
@@ -16,8 +17,14 @@ const FEATURES = [
 
 const AuthPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login';
+  const initialMode = searchParams.get('mode') === 'register' || searchParams.get('ref')
+    ? 'register'
+    : 'login';
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const referralCode = useMemo(
+    () => (searchParams.get('ref') || '').trim().toUpperCase().slice(0, 12) || undefined,
+    [searchParams]
+  );
 
   const [loginData, setLoginData] = useState({ email: '', password: '', rememberMe: false });
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
@@ -73,7 +80,7 @@ const AuthPage: React.FC = () => {
     setRegisterLoading(true);
     try {
       const { name, email, password } = registerData;
-      await register({ name, email, password });
+      await register({ name, email, password, referralCode });
       Cookies.set('email', email);
       toast.success('Account created! Please verify your email.');
       navigate('/verify-otp');
@@ -217,6 +224,20 @@ const AuthPage: React.FC = () => {
                 <h2 className="font-display text-[24px] font-bold text-ink mb-1.5">Create account</h2>
                 <p className="text-[13.5px] text-ink-muted">Join the vault in under a minute</p>
               </div>
+
+              {referralCode && (
+                <div className="mb-4 p-3 rounded-[var(--radius-md)] bg-success-soft border border-success/30 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-success/20 text-success flex items-center justify-center shrink-0">
+                    <Gift className="w-4.5 h-4.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-ink">You've been invited!</p>
+                    <p className="text-[11.5px] text-ink-muted">
+                      Sign up with code <span className="font-mono font-bold text-ink">{referralCode}</span> and you'll get an extra $5 credited on top of the welcome bonus.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <form onSubmit={handleRegisterSubmit} className="space-y-4">
                 <div>

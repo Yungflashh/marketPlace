@@ -5,11 +5,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { ThemeProvider } from './context/ThemeContext';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
+import WelcomeBonusBanner from './components/WelcomeBonusBanner';
+import VisitorPing from './components/VisitorPing';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
@@ -18,7 +22,10 @@ import LandingPage from './pages/LandingPage';
 import AuthPage from './pages/AuthPage';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
+import Wishlist from './pages/Wishlist';
 import Wallet from './pages/Wallet';
+import Invoice from './pages/Invoice';
+import NotificationsPage from './pages/Notifications';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -60,6 +67,8 @@ const AppContent: React.FC = () => {
                     <Cart />
                   </PrivateRoute>
                 } />
+
+                <Route path="/wishlist" element={<Wishlist />} />
                 
                 <Route path="/wallet" element={
                   <PrivateRoute>
@@ -76,6 +85,18 @@ const AppContent: React.FC = () => {
                 <Route path="/order/:id" element={
                   <PrivateRoute>
                     <OrderDetails />
+                  </PrivateRoute>
+                } />
+
+                <Route path="/order/:id/invoice" element={
+                  <PrivateRoute>
+                    <Invoice />
+                  </PrivateRoute>
+                } />
+
+                <Route path="/notifications" element={
+                  <PrivateRoute>
+                    <NotificationsPage />
                   </PrivateRoute>
                 } />
 
@@ -145,6 +166,8 @@ const AppContent: React.FC = () => {
             </main>
       {!isAuthRoute && <Footer />}
       {!isAuthRoute && <ChatWidget />}
+      {!isAuthRoute && <WelcomeBonusBanner />}
+      <VisitorPing />
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -165,11 +188,15 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <CartProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </CartProvider>
+        <NotificationProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <Router>
+                <AppContent />
+              </Router>
+            </CartProvider>
+          </WishlistProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

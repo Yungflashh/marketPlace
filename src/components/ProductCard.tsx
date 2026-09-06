@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { toast } from 'react-toastify';
 import type { Product } from '../types';
-import { ShieldCheck, Zap, ArrowRight, Check } from 'lucide-react';
+import { ShieldCheck, ShoppingCart, ArrowRight, Check, Heart } from 'lucide-react';
 import Badge from './ui/Badge';
 
 interface ProductCardProps {
@@ -29,7 +30,15 @@ const supportsTilt = (): boolean =>
  */
 const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) => {
   const { addToCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [justAdded, setJustAdded] = useState(false);
+  const inWishlist = isInWishlist(product._id);
+
+  const handleToggleWishlist = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
   // Tilt-effect only makes sense in the grid variant.
   const [interactive] = useState(() => variant === 'grid' && supportsTilt());
   const cardRef = useRef<HTMLAnchorElement>(null);
@@ -128,10 +137,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
             </div>
           </div>
 
-          <div className="flex flex-col items-end justify-between shrink-0 py-0.5">
-            <span className="font-display text-[15px] sm:text-[17px] font-bold text-ink whitespace-nowrap">
-              ${product.price.toFixed(2)}
-            </span>
+          <div className="flex flex-col items-end justify-between shrink-0 py-0.5 gap-2">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleToggleWishlist}
+                aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+                aria-pressed={inWishlist}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors active:scale-90 ${
+                  inWishlist
+                    ? 'bg-error-soft text-error'
+                    : 'text-ink-muted hover:bg-surface-hover hover:text-error'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5" fill={inWishlist ? 'currentColor' : 'none'} strokeWidth={2.2} />
+              </button>
+              <span className="font-display text-[15px] sm:text-[17px] font-bold text-ink whitespace-nowrap">
+                ${product.price.toFixed(2)}
+              </span>
+            </div>
             <button
               onClick={handleAddToCart}
               disabled={!inStock}
@@ -147,7 +171,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
                 </>
               ) : (
                 <>
-                  <Zap className="w-3 h-3" strokeWidth={2.5} />
+                  <ShoppingCart className="w-3 h-3" strokeWidth={2.5} />
                   <span className="hidden sm:inline">Buy</span>
                   <ArrowRight className="w-3 h-3" />
                 </>
@@ -200,11 +224,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
               <ShieldCheck className="w-3 h-3" /> Verified
             </Badge>
           </span>
-          <span className="absolute top-2.5 right-2.5 z-10">
+          <span className="absolute bottom-2.5 right-2.5 z-10">
             <Badge tone={inStock ? 'success' : 'error'} dot>
               {inStock ? 'In stock' : 'Sold out'}
             </Badge>
           </span>
+          <button
+            type="button"
+            onClick={handleToggleWishlist}
+            aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-pressed={inWishlist}
+            className={`absolute top-2.5 right-2.5 z-10 w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-sm border transition-all active:scale-90 ${
+              inWishlist
+                ? 'bg-error/90 text-white border-error/60 shadow-[0_4px_12px_rgba(239,68,68,0.35)]'
+                : 'bg-black/40 text-white border-white/20 hover:bg-black/60'
+            }`}
+          >
+            <Heart className="w-4 h-4" fill={inWishlist ? 'currentColor' : 'none'} strokeWidth={2.2} />
+          </button>
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
@@ -218,14 +255,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
             {product.description}
           </p>
 
-          <div className="flex items-center justify-between mt-auto pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-auto pt-1">
             <span className="font-display text-[17px] font-bold text-ink">
               ${product.price.toFixed(2)}
             </span>
             <button
               onClick={handleAddToCart}
               disabled={!inStock}
-              className={`tilt-card__cta relative flex items-center gap-1 text-[11.5px] font-semibold px-3.5 py-2 rounded-full transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+              className={`tilt-card__cta relative flex items-center justify-center gap-1 text-[12px] font-semibold px-3.5 py-2 rounded-full transition-colors duration-200 disabled:opacity-40 disabled:cursor-not-allowed w-full sm:w-auto ${
                 justAdded ? 'bg-success text-white' : 'bg-primary text-on-primary hover:bg-primary-hover active:scale-95'
               }`}
             >
@@ -236,7 +273,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variant = 'grid' }) 
                 </>
               ) : (
                 <>
-                  <Zap className="w-3 h-3" strokeWidth={2.5} />
+                  <ShoppingCart className="w-3 h-3" strokeWidth={2.5} />
                   Buy
                   <ArrowRight className="w-3 h-3" />
                 </>

@@ -11,6 +11,34 @@ export interface User {
   banReason?: string;
   failedTransactionCount?: number;
   lastWarningEmailAt?: string | null;
+  welcomeBonusAwardedAt?: string | null;
+  welcomeBonusAcknowledged?: boolean;
+  referralCode?: string;
+  referredBy?: string | null;
+  referralRewardCount?: number;
+  pendingEmail?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type UserNotificationType =
+  | 'order_status'
+  | 'funding_approved'
+  | 'funding_rejected'
+  | 'welcome_bonus'
+  | 'referral_reward'
+  | 'wishlist_restock'
+  | 'admin_message'
+  | 'system';
+
+export interface UserNotification {
+  _id: string;
+  user: string;
+  type: UserNotificationType;
+  title: string;
+  body?: string;
+  link?: string;
+  read: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,7 +76,7 @@ export interface Order {
   user: string | User;
   items: OrderItem[];
   totalAmount: number;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'pending' | 'in-review' | 'processing' | 'completed' | 'cancelled';
   paymentMethod: 'wallet';
   createdAt: string;
   updatedAt: string;
@@ -114,6 +142,20 @@ export interface CartContextType {
   getCartCount: () => number;
 }
 
+export interface WishlistItem {
+  product: Product;
+  addedAt: string;
+}
+
+export interface WishlistContextType {
+  wishlistItems: WishlistItem[];
+  isInWishlist: (productId: string) => boolean;
+  toggleWishlist: (product: Product) => void;
+  removeFromWishlist: (productId: string) => void;
+  clearWishlist: () => void;
+  getWishlistCount: () => number;
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -124,4 +166,5 @@ export interface RegisterData {
   email: string;
   password: string;
   role?: 'user' | 'admin';
+  referralCode?: string;
 }

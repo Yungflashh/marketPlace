@@ -112,7 +112,7 @@ const Home: React.FC = () => {
         setCurrentNotification((prev) => (prev + 1) % notifications.length);
         setShowNotification(true);
       }, 400);
-    }, 4000);
+    }, 8000);
     return () => clearInterval(interval);
   }, [notifications.length]);
 
@@ -582,7 +582,7 @@ const Home: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
                   <div key={i} className="border border-border rounded-[var(--radius-lg)] overflow-hidden">
                     <Skeleton className="aspect-[4/3] w-full rounded-none" />
@@ -618,7 +618,7 @@ const Home: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                   {products.map((product, i) => (
                     <div key={product._id} className="stagger-item" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
                       <ProductCard product={product} />

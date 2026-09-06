@@ -1,5 +1,8 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { toast } from 'react-toastify';
+import api from '../utils/api';
+import { useAuth } from './AuthContext';
 import type { CartItem, Product, CartContextType } from '../types';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -16,42 +19,118 @@ interface CartProviderProps {
   children: ReactNode;
 }
 
+// Server sends { items: [{ product, quantity }] }. Flatten to the { ...product, quantity }
+// shape the rest of the app already consumes.
+interface ServerCartItem {
+  product: Product;
+  quantity: number;
+}
+const flattenServerItems = (items: ServerCartItem[] = []): CartItem[] =>
+  items
+    .filter((i) => i.product && i.product._id)
+    .map((i) => ({ ...i.product, quantity: i.quantity }));
+
+const readLocalCart = (): CartItem[] => {
+  try {
+    const raw = localStorage.getItem('cart');
+    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+  } catch {
+    return [];
+  }
+};
+
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => readLocalCart());
+  const wasAuthenticatedRef = useRef<boolean>(isAuthenticated);
+  const hydratedForAuthRef = useRef<boolean>(false);
 
+  // Persist localStorage snapshot only while the user is a guest.
+  // Once logged in the server is the source of truth and we don't want a
+  // stale copy on disk that could resurrect items after logout.
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error('Error loading cart:', error);
-      }
+    if (!isAuthenticated) {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
     }
-  }, []);
+  }, [cartItems, isAuthenticated]);
 
+  // Auth transitions: on login, merge guest cart into server then hydrate.
+  // On logout, drop in-memory items and clear the local snapshot.
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    if (authLoading) return;
+
+    const justLoggedIn = isAuthenticated && !wasAuthenticatedRef.current;
+    const justLoggedOut = !isAuthenticated && wasAuthenticatedRef.current;
+    const firstLoadWhileAuthed = isAuthenticated && !hydratedForAuthRef.current;
+
+    const hydrate = async () => {
+      try {
+        const guestItems = readLocalCart();
+        if (justLoggedIn && guestItems.length > 0) {
+          const payload = {
+            items: guestItems.map((i) => ({ productId: i._id, quantity: i.quantity })),
+          };
+          const res = await api.post('/cart/merge', payload);
+          setCartItems(flattenServerItems(res.data.data.cart.items));
+        } else {
+          const res = await api.get('/cart');
+          setCartItems(flattenServerItems(res.data.data.cart.items));
+        }
+        localStorage.removeItem('cart');
+        hydratedForAuthRef.current = true;
+      } catch (err) {
+        console.error('Cart hydration failed:', err);
+      }
+    };
+
+    if (justLoggedIn || firstLoadWhileAuthed) {
+      hydrate();
+    }
+
+    if (justLoggedOut) {
+      setCartItems([]);
+      localStorage.removeItem('cart');
+      hydratedForAuthRef.current = false;
+    }
+
+    wasAuthenticatedRef.current = isAuthenticated;
+  }, [isAuthenticated, authLoading]);
+
+  const revert = (snapshot: CartItem[], message: string) => {
+    setCartItems(snapshot);
+    toast.error(message);
+  };
 
   const addToCart = (product: Product, quantity: number = 1): void => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item._id === product._id);
-      
-      if (existingItem) {
-        return prevItems.map(item =>
-          item._id === product._id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
+    const snapshot = cartItems;
+    setCartItems((prev) => {
+      const existing = prev.find((i) => i._id === product._id);
+      if (existing) {
+        return prev.map((i) =>
+          i._id === product._id ? { ...i, quantity: i.quantity + quantity } : i
         );
       }
-      
-      return [...prevItems, { ...product, quantity }];
+      return [...prev, { ...product, quantity }];
     });
+
+    if (isAuthenticated) {
+      api
+        .post('/cart/items', { productId: product._id, quantity })
+        .then((res) => setCartItems(flattenServerItems(res.data.data.cart.items)))
+        .catch(() => revert(snapshot, 'Could not add item to cart'));
+    }
   };
 
   const removeFromCart = (productId: string): void => {
-    setCartItems(prevItems => prevItems.filter(item => item._id !== productId));
+    const snapshot = cartItems;
+    setCartItems((prev) => prev.filter((i) => i._id !== productId));
+
+    if (isAuthenticated) {
+      api
+        .delete(`/cart/items/${productId}`)
+        .then((res) => setCartItems(flattenServerItems(res.data.data.cart.items)))
+        .catch(() => revert(snapshot, 'Could not remove item'));
+    }
   };
 
   const updateQuantity = (productId: string, quantity: number): void => {
@@ -59,26 +138,32 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       removeFromCart(productId);
       return;
     }
-    
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item._id === productId ? { ...item, quantity } : item
-      )
-    );
+    const snapshot = cartItems;
+    setCartItems((prev) => prev.map((i) => (i._id === productId ? { ...i, quantity } : i)));
+
+    if (isAuthenticated) {
+      api
+        .patch(`/cart/items/${productId}`, { quantity })
+        .then((res) => setCartItems(flattenServerItems(res.data.data.cart.items)))
+        .catch(() => revert(snapshot, 'Could not update quantity'));
+    }
   };
 
   const clearCart = (): void => {
+    const snapshot = cartItems;
     setCartItems([]);
     localStorage.removeItem('cart');
+
+    if (isAuthenticated) {
+      api.delete('/cart').catch(() => revert(snapshot, 'Could not clear cart on server'));
+    }
   };
 
-  const getCartTotal = (): number => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
+  const getCartTotal = (): number =>
+    cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const getCartCount = (): number => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
+  const getCartCount = (): number =>
+    cartItems.reduce((count, item) => count + item.quantity, 0);
 
   const value: CartContextType = {
     cartItems,
@@ -87,12 +172,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     updateQuantity,
     clearCart,
     getCartTotal,
-    getCartCount
+    getCartCount,
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

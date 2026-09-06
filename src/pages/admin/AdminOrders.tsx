@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import type { Order, User } from '../../types';
 import { toast } from 'react-toastify';
-import { ShoppingCart, Calendar, DollarSign, Hash, Eye, CheckCircle2, Clock, XCircle, Package } from 'lucide-react';
+import { ShoppingCart, Calendar, DollarSign, Hash, Eye, CheckCircle2, Clock, XCircle, Package, Search, Truck } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import StatTile from '../../components/ui/StatTile';
 import Card from '../../components/ui/Card';
@@ -15,12 +15,29 @@ import PageLoader from '../../components/ui/PageLoader';
 
 const PAGE_SIZE = 15;
 
+type OrderStatus = Order['status'];
+const ALL_STATUSES: OrderStatus[] = ['pending', 'in-review', 'processing', 'completed', 'cancelled'];
+const TERMINAL_STATUSES: OrderStatus[] = ['completed', 'cancelled'];
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  pending: 'Pending',
+  'in-review': 'In review',
+  processing: 'Processing',
+  completed: 'Completed',
+  cancelled: 'Cancelled',
+};
+
 const AdminOrders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [page, setPage] = useState(1);
+  const [statusDraft, setStatusDraft] = useState<OrderStatus | ''>('');
+  const [savingStatus, setSavingStatus] = useState(false);
+
+  useEffect(() => {
+    setStatusDraft(selectedOrder ? selectedOrder.status : '');
+  }, [selectedOrder]);
 
   useEffect(() => { fetchOrders(); }, []);
   useEffect(() => { setPage(1); }, [filterStatus]);
@@ -40,17 +57,44 @@ const AdminOrders: React.FC = () => {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  const statusTone: Record<string, 'success' | 'warning' | 'error' | 'neutral'> = {
-    completed: 'success', pending: 'warning', cancelled: 'error',
+  const statusTone: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'primary'> = {
+    completed: 'success',
+    pending: 'warning',
+    'in-review': 'primary',
+    processing: 'primary',
+    cancelled: 'error',
   };
   const statusIcon: Record<string, React.ReactNode> = {
-    completed: <CheckCircle2 className="w-3 h-3" />, pending: <Clock className="w-3 h-3" />, cancelled: <XCircle className="w-3 h-3" />,
+    completed: <CheckCircle2 className="w-3 h-3" />,
+    pending: <Clock className="w-3 h-3" />,
+    'in-review': <Search className="w-3 h-3" />,
+    processing: <Truck className="w-3 h-3" />,
+    cancelled: <XCircle className="w-3 h-3" />,
   };
   const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
     <Badge tone={statusTone[status] || 'neutral'}>
-      {statusIcon[status] || <Package className="w-3 h-3" />} {status.charAt(0).toUpperCase() + status.slice(1)}
+      {statusIcon[status] || <Package className="w-3 h-3" />} {STATUS_LABEL[status as OrderStatus] || status}
     </Badge>
   );
+
+  const saveStatus = async () => {
+    if (!selectedOrder || !statusDraft || statusDraft === selectedOrder.status) return;
+    try {
+      setSavingStatus(true);
+      const response = await api.patch(`/orders/${selectedOrder._id}/status`, { status: statusDraft });
+      const updated: Order = response.data.data.order;
+      setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
+      setSelectedOrder(updated);
+      toast.success(`Order marked as ${STATUS_LABEL[updated.status]}`);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Failed to update status';
+      toast.error(msg);
+    } finally {
+      setSavingStatus(false);
+    }
+  };
 
   const filtered = filterStatus === 'all' ? orders : orders.filter((o) => o.status === filterStatus);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
@@ -58,8 +102,8 @@ const AdminOrders: React.FC = () => {
 
   const stats = {
     total: orders.length,
-    completed: orders.filter((o) => o.status === 'completed').length,
     pending: orders.filter((o) => o.status === 'pending').length,
+    active: orders.filter((o) => o.status === 'in-review' || o.status === 'processing').length,
     revenue: orders.filter((o) => o.status === 'completed').reduce((s, o) => s + o.totalAmount, 0),
   };
 
@@ -73,20 +117,20 @@ const AdminOrders: React.FC = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <StatTile label="Total orders" value={stats.total} />
-        <StatTile label="Completed" value={stats.completed} tone="success" />
         <StatTile label="Pending" value={stats.pending} tone="warning" />
+        <StatTile label="Active" value={stats.active} tone="primary" />
         <StatTile label="Revenue" value={`$${stats.revenue.toFixed(0)}`} tone="primary" />
       </div>
 
       <Card className="mb-4">
         <div className="flex items-center gap-2 flex-wrap">
-          {['all', 'completed', 'pending', 'cancelled'].map((s) => (
+          {(['all', ...ALL_STATUSES] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
               className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-medium transition-colors ${filterStatus === s ? 'bg-primary text-on-primary' : 'text-ink-soft hover:bg-surface-hover'}`}
             >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
+              {s === 'all' ? 'All' : STATUS_LABEL[s]}
             </button>
           ))}
           <span className="ml-auto text-[12px] text-ink-muted shrink-0">{filtered.length} orders</span>
@@ -212,6 +256,35 @@ const AdminOrders: React.FC = () => {
                 <StatusBadge status={selectedOrder.status} />
               </div>
             </div>
+
+            {TERMINAL_STATUSES.includes(selectedOrder.status) ? (
+              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-[12px] text-ink-muted">
+                This order is <span className="font-semibold text-ink">{STATUS_LABEL[selectedOrder.status]}</span> and can no longer be updated.
+              </div>
+            ) : (
+              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3">
+                <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-2">Update status</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <select
+                    value={statusDraft}
+                    onChange={(e) => setStatusDraft(e.target.value as OrderStatus)}
+                    className="flex-1 min-w-[160px] px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface text-[13px] text-ink focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    disabled={savingStatus}
+                  >
+                    {ALL_STATUSES.map((s) => (
+                      <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+                    ))}
+                  </select>
+                  <Button
+                    size="sm"
+                    onClick={saveStatus}
+                    disabled={savingStatus || !statusDraft || statusDraft === selectedOrder.status}
+                  >
+                    {savingStatus ? 'Saving…' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             <div>
               <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-3">Items</p>

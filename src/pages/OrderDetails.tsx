@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../utils/api';
 import type { Order } from '../types';
 import { toast } from 'react-toastify';
@@ -98,10 +98,24 @@ const OrderDetails: React.FC = () => {
                   <span>Order #{order.orderNumber}</span>
                 </div>
               </div>
-              <Badge tone={statusTone[order.status] || 'neutral'}>
-                {statusIcon[order.status]} {order.status.toUpperCase()}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge tone={statusTone[order.status] || 'neutral'}>
+                  {statusIcon[order.status]} {order.status.toUpperCase()}
+                </Badge>
+                <Link
+                  to={`/order/${order._id}/invoice`}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-hover border border-border text-[11.5px] font-medium text-ink-soft hover:border-border-strong hover:text-ink transition-colors"
+                >
+                  Receipt
+                </Link>
+              </div>
             </div>
+            <Link
+              to={`/order/${order._id}/invoice`}
+              className="sm:hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-hover border border-border text-[11.5px] font-medium text-ink-soft hover:border-border-strong hover:text-ink transition-colors"
+            >
+              Download receipt
+            </Link>
           </div>
 
           <div className="px-5 sm:px-6 py-5 border-b border-border">

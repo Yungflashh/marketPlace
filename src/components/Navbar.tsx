@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
 import {
   ShoppingCart,
@@ -15,16 +16,20 @@ import {
   Store,
   Search,
   ChevronDown,
+  Heart,
+  Bell,
 } from 'lucide-react';
 import Logo from './Logo';
 import Dialog from './ui/Dialog';
 import Button from './ui/Button';
+import NotificationBell from './NotificationBell';
 
 const NAV_HEIGHT = 64;
 
 const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const { getCartCount } = useCart();
+  const { getWishlistCount } = useWishlist();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,6 +58,7 @@ const Navbar: React.FC = () => {
   };
 
   const cartCount = getCartCount();
+  const wishlistCount = getWishlistCount();
   const isActive = (path: string) => location.pathname === path;
 
   const ThemeToggleButton: React.FC<{ className?: string }> = ({ className = '' }) => (
@@ -68,6 +74,7 @@ const Navbar: React.FC = () => {
 
   const desktopLinks = [
     { to: '/store', label: 'Store', icon: Store, show: true },
+    { to: '/wishlist', label: 'Wishlist', icon: Heart, show: true, badge: wishlistCount > 0 ? wishlistCount : undefined },
     { to: '/cart', label: 'Cart', icon: ShoppingCart, show: isAuthenticated, badge: cartCount > 0 ? cartCount : undefined },
     { to: '/wallet', label: 'Wallet', icon: Wallet, show: isAuthenticated, chip: user ? `$${user.walletBalance.toFixed(2)}` : undefined },
     { to: '/orders', label: 'Orders', icon: Package, show: isAuthenticated },
@@ -76,6 +83,7 @@ const Navbar: React.FC = () => {
 
   const mobileTabs = [
     { to: '/store', label: 'Store', icon: Store },
+    { to: '/wishlist', label: 'Saved', icon: Heart, badge: wishlistCount > 0 ? wishlistCount : undefined },
     ...(isAuthenticated
       ? [
           { to: '/cart', label: 'Cart', icon: ShoppingCart, badge: cartCount > 0 ? cartCount : undefined },
@@ -138,6 +146,7 @@ const Navbar: React.FC = () => {
               <Search className="w-4 h-4" />
             </Link>
             <ThemeToggleButton />
+            {isAuthenticated && <NotificationBell />}
 
             {isAuthenticated ? (
               <div className="relative">
@@ -162,6 +171,13 @@ const Navbar: React.FC = () => {
                         className="flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--radius-sm)] text-[13px] text-ink-soft hover:bg-surface-hover hover:text-ink transition-colors"
                       >
                         <User className="w-4 h-4" /> My profile
+                      </Link>
+                      <Link
+                        to="/notifications"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--radius-sm)] text-[13px] text-ink-soft hover:bg-surface-hover hover:text-ink transition-colors"
+                      >
+                        <Bell className="w-4 h-4" /> Notifications
                       </Link>
                       <button
                         onClick={handleLogout}
@@ -202,6 +218,7 @@ const Navbar: React.FC = () => {
             >
               <Search className="w-4 h-4" />
             </Link>
+            {isAuthenticated && <NotificationBell />}
             <ThemeToggleButton />
           </div>
         </div>
@@ -263,6 +280,9 @@ const Navbar: React.FC = () => {
 
             <Link to="/profile" onClick={() => setAccountSheetOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-[var(--radius-md)] text-[14px] text-ink hover:bg-surface-hover transition-colors">
               <User className="w-4 h-4 text-ink-muted" /> My profile
+            </Link>
+            <Link to="/notifications" onClick={() => setAccountSheetOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-[var(--radius-md)] text-[14px] text-ink hover:bg-surface-hover transition-colors">
+              <Bell className="w-4 h-4 text-ink-muted" /> Notifications
             </Link>
             {isAdmin && (
               <Link to="/admin" onClick={() => setAccountSheetOpen(false)} className="flex items-center gap-3 px-3 py-3 rounded-[var(--radius-md)] text-[14px] text-accent hover:bg-accent-soft transition-colors">

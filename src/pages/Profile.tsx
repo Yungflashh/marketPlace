@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { User, Mail, Lock, Eye, EyeOff, Wallet, Calendar, Shield, Crown, Edit2, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Wallet, Calendar, Shield, Crown, Edit2, Check, X, Users as UsersIcon, Copy, Share2 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -20,6 +20,25 @@ const Profile: React.FC = () => {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [savingPw, setSavingPw] = useState(false);
+
+  const [referral, setReferral] = useState<{ referralCode: string; referralsCount: number; rewardsEarned: number; rewardAmount: number } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const [emailStep, setEmailStep] = useState<'idle' | 'otp'>('idle');
+  const [newEmail, setNewEmail] = useState('');
+  const [emailOtp, setEmailOtp] = useState('');
+  const [emailBusy, setEmailBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get('/auth/referral');
+        if (!cancelled) setReferral(res.data.data);
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   if (!user) return null;
 
@@ -89,6 +108,80 @@ const Profile: React.FC = () => {
       {show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
     </button>
   );
+
+  const referralLink = referral
+    ? `${window.location.origin}/register?ref=${referral.referralCode}`
+    : '';
+
+  const copyReferralLink = async () => {
+    if (!referralLink) return;
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setCopied(true);
+      toast.success('Referral link copied');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Copy failed — long-press to copy manually');
+    }
+  };
+
+  const shareReferral = async () => {
+    if (!referralLink) return;
+    const shareData = {
+      title: 'Join me on ShopLogs',
+      text: `Sign up with my code ${referral?.referralCode} and we both get $${referral?.rewardAmount} 🎁`,
+      url: referralLink,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch { /* dismissed */ }
+    } else {
+      copyReferralLink();
+    }
+  };
+
+  const requestEmailChange = async () => {
+    const email = newEmail.trim().toLowerCase();
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error('Enter a valid email address');
+      return;
+    }
+    setEmailBusy(true);
+    try {
+      await api.post('/auth/change-email/request', { newEmail: email });
+      toast.success('Check the new email for a 6-digit code');
+      setEmailStep('otp');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Could not request email change');
+    } finally {
+      setEmailBusy(false);
+    }
+  };
+
+  const confirmEmailChange = async () => {
+    if (!emailOtp.trim()) {
+      toast.error('Enter the verification code');
+      return;
+    }
+    setEmailBusy(true);
+    try {
+      const res = await api.post('/auth/change-email/confirm', { otp: emailOtp.trim() });
+      updateUser({ email: res.data.data.user.email });
+      toast.success('Email updated');
+      setEmailStep('idle');
+      setNewEmail('');
+      setEmailOtp('');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Invalid code');
+    } finally {
+      setEmailBusy(false);
+    }
+  };
+
+  const cancelEmailChange = () => {
+    setEmailStep('idle');
+    setNewEmail('');
+    setEmailOtp('');
+  };
 
   return (
     <div className="bg-canvas py-6 sm:py-10">
@@ -175,6 +268,111 @@ const Profile: React.FC = () => {
               <p className="text-[13px] font-medium text-ink">{formatDate(user.createdAt)}</p>
             </div>
           </div>
+        </Card>
+
+        {referral && (
+          <Card className="mb-4">
+            <div className="flex items-center gap-2 mb-4">
+              <UsersIcon className="w-4 h-4 text-primary" />
+              <h3 className="font-display text-[15px] font-bold text-ink">Invite friends, earn ${referral.rewardAmount}</h3>
+            </div>
+            <p className="text-[12.5px] text-ink-muted mb-4 leading-relaxed">
+              Share your code. When a friend signs up and verifies their email, you both get <span className="font-semibold text-ink">${referral.rewardAmount}</span> credited to your wallet.
+            </p>
+
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-center">
+                <p className="text-[10.5px] text-ink-muted uppercase tracking-wide mb-1">Friends joined</p>
+                <p className="font-display text-[18px] font-bold text-ink">{referral.referralsCount}</p>
+              </div>
+              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-center">
+                <p className="text-[10.5px] text-ink-muted uppercase tracking-wide mb-1">Rewards paid</p>
+                <p className="font-display text-[18px] font-bold text-ink">{referral.rewardsEarned}</p>
+              </div>
+              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-center">
+                <p className="text-[10.5px] text-ink-muted uppercase tracking-wide mb-1">Earned</p>
+                <p className="font-display text-[18px] font-bold text-primary">${(referral.rewardsEarned * referral.rewardAmount).toFixed(0)}</p>
+              </div>
+            </div>
+
+            <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 flex items-center justify-between gap-2 mb-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10.5px] text-ink-muted uppercase tracking-wide mb-0.5">Your code</p>
+                <p className="font-mono text-[16px] font-bold tracking-wider text-ink">{referral.referralCode}</p>
+              </div>
+              <div className="flex gap-1.5 shrink-0">
+                <button
+                  onClick={copyReferralLink}
+                  aria-label="Copy referral link"
+                  className="w-9 h-9 rounded-[var(--radius-sm)] bg-primary text-on-primary hover:bg-primary-hover flex items-center justify-center transition-colors"
+                >
+                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={shareReferral}
+                  aria-label="Share referral link"
+                  className="w-9 h-9 rounded-[var(--radius-sm)] bg-surface border border-border text-ink-soft hover:border-border-strong flex items-center justify-center transition-colors"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-ink-muted truncate">
+              Link: <span className="text-ink-soft">{referralLink}</span>
+            </div>
+          </Card>
+        )}
+
+        <Card className="mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Mail className="w-4 h-4 text-primary" />
+            <h3 className="font-display text-[15px] font-bold text-ink">Change email</h3>
+          </div>
+
+          {emailStep === 'idle' && (
+            <>
+              <p className="text-[12.5px] text-ink-muted mb-3">
+                Current: <span className="font-medium text-ink">{user.email}</span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="new@email.com"
+                  leftIcon={<Mail className="w-4 h-4" />}
+                  className="flex-1"
+                />
+                <Button onClick={requestEmailChange} loading={emailBusy} disabled={emailBusy || !newEmail.trim()}>
+                  Send code
+                </Button>
+              </div>
+            </>
+          )}
+
+          {emailStep === 'otp' && (
+            <>
+              <p className="text-[12.5px] text-ink-muted mb-3">
+                Enter the 6-digit code sent to <span className="font-medium text-ink">{newEmail}</span>.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                <Input
+                  value={emailOtp}
+                  onChange={(e) => setEmailOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  inputMode="numeric"
+                  className="flex-1 tracking-widest font-mono text-center"
+                />
+                <Button onClick={confirmEmailChange} loading={emailBusy} disabled={emailBusy || emailOtp.length < 4}>
+                  Confirm
+                </Button>
+              </div>
+              <button onClick={cancelEmailChange} className="text-[11.5px] text-ink-muted hover:text-ink transition-colors">
+                Cancel and go back
+              </button>
+            </>
+          )}
         </Card>
 
         <Card>
