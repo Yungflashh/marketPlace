@@ -291,8 +291,7 @@ const AdminOrders: React.FC = () => {
           <div className="flex items-start gap-3 p-3 rounded-[var(--radius-md)] bg-error-soft border border-error/20">
             <AlertTriangle className="w-4 h-4 text-error shrink-0 mt-0.5" />
             <div className="text-[12.5px] text-ink-soft leading-relaxed">
-              The customer will receive an email with the reason you provide, and the full order amount will be
-              <span className="font-semibold text-ink"> refunded to their wallet</span>.
+              The customer will receive an email with the reason you provide. If a refund is warranted, credit the wallet manually from the Wallets page.
             </div>
           </div>
           <div>
@@ -350,11 +349,6 @@ const AdminOrders: React.FC = () => {
                   <div className="rounded-[var(--radius-md)] p-3 bg-error-soft border border-error/20">
                     <p className="text-[10.5px] font-semibold text-error uppercase tracking-widest mb-1">Cancellation reason</p>
                     <p className="text-[12.5px] text-ink leading-relaxed">{selectedOrder.rejectionReason}</p>
-                    {selectedOrder.refunded && (
-                      <p className="text-[11.5px] text-success mt-2 font-medium">
-                        ✓ ${selectedOrder.totalAmount.toFixed(2)} refunded to customer's wallet
-                      </p>
-                    )}
                   </div>
                 )}
               </div>

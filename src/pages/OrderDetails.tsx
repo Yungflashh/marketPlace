@@ -14,7 +14,6 @@ import {
   Hash,
   Truck,
   History,
-  Wallet,
   AlertOctagon,
 } from 'lucide-react';
 import Card from '../components/ui/Card';
@@ -212,18 +211,6 @@ const OrderDetails: React.FC = () => {
                 <div className="min-w-0">
                   <p className="font-medium text-[13px]">Order cancelled</p>
                   <p className="text-[12px] opacity-90 leading-relaxed mt-0.5">{order.rejectionReason}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {order.refunded && (
-            <div className="px-5 sm:px-6 py-4 bg-success-soft border-t border-success/20">
-              <div className="flex items-center gap-2 text-success">
-                <Wallet className="w-5 h-5" />
-                <div>
-                  <p className="font-medium text-[13px]">${order.totalAmount.toFixed(2)} refunded</p>
-                  <p className="text-[11.5px] opacity-80">Credited back to your wallet balance.</p>
                 </div>
               </div>
             </div>
