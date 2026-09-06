@@ -13,6 +13,9 @@ import {
   ShoppingBag,
   Hash,
   Truck,
+  History,
+  Wallet,
+  AlertOctagon,
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
@@ -57,6 +60,21 @@ const OrderDetails: React.FC = () => {
     new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
+
+  const STATUS_LABEL: Record<string, string> = {
+    pending: 'Pending',
+    'in-review': 'In review',
+    processing: 'Processing',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  };
+  const STATUS_DOT: Record<string, string> = {
+    pending: 'bg-warning',
+    'in-review': 'bg-primary',
+    processing: 'bg-primary',
+    completed: 'bg-success',
+    cancelled: 'bg-error',
+  };
 
   if (loading) {
     return <PageLoader />;
@@ -186,7 +204,63 @@ const OrderDetails: React.FC = () => {
               </div>
             </div>
           )}
+
+          {order.status === 'cancelled' && order.rejectionReason && (
+            <div className="px-5 sm:px-6 py-4 bg-error-soft border-t border-error/20">
+              <div className="flex items-start gap-2 text-error">
+                <AlertOctagon className="w-5 h-5 shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="font-medium text-[13px]">Order cancelled</p>
+                  <p className="text-[12px] opacity-90 leading-relaxed mt-0.5">{order.rejectionReason}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {order.refunded && (
+            <div className="px-5 sm:px-6 py-4 bg-success-soft border-t border-success/20">
+              <div className="flex items-center gap-2 text-success">
+                <Wallet className="w-5 h-5" />
+                <div>
+                  <p className="font-medium text-[13px]">${order.totalAmount.toFixed(2)} refunded</p>
+                  <p className="text-[11.5px] opacity-80">Credited back to your wallet balance.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </Card>
+
+        {order.statusHistory && order.statusHistory.length > 0 && (
+          <Card className="mt-4" padded={false}>
+            <div className="px-5 sm:px-6 py-4 border-b border-border flex items-center gap-2">
+              <History className="w-4 h-4 text-primary" />
+              <h2 className="font-display text-[15px] font-bold text-ink">Status history</h2>
+            </div>
+            <ol className="px-5 sm:px-6 py-4 space-y-4">
+              {[...order.statusHistory].reverse().map((entry, idx, arr) => (
+                <li key={idx} className="relative flex gap-3">
+                  <div className="flex flex-col items-center shrink-0">
+                    <span className={`w-2.5 h-2.5 rounded-full ${STATUS_DOT[entry.status] || 'bg-ink-muted'} ring-4 ring-surface`} />
+                    {idx < arr.length - 1 && <span className="flex-1 w-px bg-border mt-1" />}
+                  </div>
+                  <div className="flex-1 pb-2 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                      <p className="text-[13px] font-semibold text-ink">
+                        {STATUS_LABEL[entry.status] || entry.status}
+                      </p>
+                      <p className="text-[11px] text-ink-muted">{formatDate(entry.changedAt)}</p>
+                    </div>
+                    {entry.reason && (
+                      <p className="mt-1 text-[12px] text-ink-soft leading-relaxed bg-surface-hover rounded-[var(--radius-sm)] p-2">
+                        {entry.reason}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </Card>
+        )}
       </div>
     </div>
   );

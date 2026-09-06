@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
-import { User, Mail, Lock, Eye, EyeOff, Wallet, Calendar, Shield, Crown, Edit2, Check, X, Users as UsersIcon, Copy, Share2 } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Wallet, Calendar, Shield, Crown, Edit2, Check, X, Users as UsersIcon, Copy, Share2, Phone, MapPin } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -14,6 +14,18 @@ const Profile: React.FC = () => {
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(user?.name ?? '');
   const [savingName, setSavingName] = useState(false);
+
+  // Contact info (phone + address) — new fields that unlock the "profile completed" event on the backend.
+  const [phoneValue, setPhoneValue] = useState(user?.phone ?? '');
+  const [addressValue, setAddressValue] = useState(user?.address ?? '');
+  const [savingContact, setSavingContact] = useState(false);
+  useEffect(() => {
+    setPhoneValue(user?.phone ?? '');
+    setAddressValue(user?.address ?? '');
+  }, [user?.phone, user?.address]);
+  const contactDirty =
+    phoneValue.trim() !== (user?.phone ?? '') || addressValue.trim() !== (user?.address ?? '');
+  const contactComplete = Boolean((user?.phone ?? '').trim() && (user?.address ?? '').trim());
 
   const [pwData, setPwData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [showCurrent, setShowCurrent] = useState(false);
@@ -68,6 +80,25 @@ const Profile: React.FC = () => {
   const handleCancelName = () => {
     setNameValue(user.name);
     setEditingName(false);
+  };
+
+  const handleSaveContact = async () => {
+    setSavingContact(true);
+    try {
+      const res = await api.patch('/auth/update-profile', {
+        phone: phoneValue.trim(),
+        address: addressValue.trim(),
+      });
+      updateUser({
+        phone: res.data.data.user.phone,
+        address: res.data.data.user.address,
+      });
+      toast.success('Contact info saved');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error saving contact info');
+    } finally {
+      setSavingContact(false);
+    }
   };
 
   const pwStrength =
@@ -267,6 +298,55 @@ const Profile: React.FC = () => {
               </div>
               <p className="text-[13px] font-medium text-ink">{formatDate(user.createdAt)}</p>
             </div>
+          </div>
+        </Card>
+
+        <Card className="mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-primary" />
+              <h3 className="font-display text-[15px] font-bold text-ink">Contact information</h3>
+            </div>
+            {contactComplete ? (
+              <Badge tone="success"><Check className="w-3 h-3" /> Complete</Badge>
+            ) : (
+              <Badge tone="warning">Incomplete</Badge>
+            )}
+          </div>
+          <p className="text-[12.5px] text-ink-muted mb-4">
+            Add your phone and delivery address so we can reach you about orders.
+          </p>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Phone</label>
+              <Input
+                type="tel"
+                value={phoneValue}
+                onChange={(e) => setPhoneValue(e.target.value)}
+                placeholder="+1 555 000 1234"
+                leftIcon={<Phone className="w-4 h-4" />}
+              />
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-ink-soft mb-1.5">Delivery address</label>
+              <textarea
+                value={addressValue}
+                onChange={(e) => setAddressValue(e.target.value.slice(0, 300))}
+                rows={3}
+                placeholder="Street, city, state/region, ZIP, country"
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+              />
+              <p className="text-[11px] text-ink-muted mt-1">{addressValue.length}/300</p>
+            </div>
+            <Button
+              onClick={handleSaveContact}
+              loading={savingContact}
+              disabled={savingContact || !contactDirty}
+              fullWidth
+            >
+              {savingContact ? 'Saving…' : 'Save contact info'}
+            </Button>
           </div>
         </Card>
 

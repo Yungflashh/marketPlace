@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import type { Order, User } from '../../types';
 import { toast } from 'react-toastify';
-import { ShoppingCart, Calendar, DollarSign, Hash, Eye, CheckCircle2, Clock, XCircle, Package, Search, Truck } from 'lucide-react';
+import { ShoppingCart, Calendar, DollarSign, Hash, Eye, CheckCircle2, Clock, XCircle, Package, Search, Truck, AlertTriangle } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import StatTile from '../../components/ui/StatTile';
 import Card from '../../components/ui/Card';
@@ -34,6 +34,9 @@ const AdminOrders: React.FC = () => {
   const [page, setPage] = useState(1);
   const [statusDraft, setStatusDraft] = useState<OrderStatus | ''>('');
   const [savingStatus, setSavingStatus] = useState(false);
+  // Cancel-order-with-reason flow
+  const [cancelReasonOpen, setCancelReasonOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
 
   useEffect(() => {
     setStatusDraft(selectedOrder ? selectedOrder.status : '');
@@ -77,15 +80,23 @@ const AdminOrders: React.FC = () => {
     </Badge>
   );
 
-  const saveStatus = async () => {
-    if (!selectedOrder || !statusDraft || statusDraft === selectedOrder.status) return;
+  const performStatusUpdate = async (nextStatus: OrderStatus, reason?: string) => {
+    if (!selectedOrder) return;
     try {
       setSavingStatus(true);
-      const response = await api.patch(`/orders/${selectedOrder._id}/status`, { status: statusDraft });
+      const payload: { status: OrderStatus; rejectionReason?: string } = { status: nextStatus };
+      if (nextStatus === 'cancelled' && reason) payload.rejectionReason = reason;
+      const response = await api.patch(`/orders/${selectedOrder._id}/status`, payload);
       const updated: Order = response.data.data.order;
       setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
       setSelectedOrder(updated);
-      toast.success(`Order marked as ${STATUS_LABEL[updated.status]}`);
+      toast.success(
+        nextStatus === 'cancelled'
+          ? 'Order cancelled and customer notified'
+          : `Order marked as ${STATUS_LABEL[updated.status]}`
+      );
+      setCancelReasonOpen(false);
+      setCancelReason('');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
@@ -94,6 +105,26 @@ const AdminOrders: React.FC = () => {
     } finally {
       setSavingStatus(false);
     }
+  };
+
+  const saveStatus = () => {
+    if (!selectedOrder || !statusDraft || statusDraft === selectedOrder.status) return;
+    // Cancelling always requires a reason — pop the modal instead of firing directly.
+    if (statusDraft === 'cancelled') {
+      setCancelReason('');
+      setCancelReasonOpen(true);
+      return;
+    }
+    performStatusUpdate(statusDraft);
+  };
+
+  const submitCancelWithReason = () => {
+    const trimmed = cancelReason.trim();
+    if (trimmed.length < 4) {
+      toast.error('Please enter a reason (at least 4 characters)');
+      return;
+    }
+    performStatusUpdate('cancelled', trimmed);
   };
 
   const filtered = filterStatus === 'all' ? orders : orders.filter((o) => o.status === filterStatus);
@@ -230,7 +261,60 @@ const AdminOrders: React.FC = () => {
       )}
 
       <Dialog
-        open={!!selectedOrder}
+        open={cancelReasonOpen}
+        onClose={() => { if (!savingStatus) { setCancelReasonOpen(false); setCancelReason(''); } }}
+        title="Cancel this order?"
+        description={selectedOrder ? `#${selectedOrder.orderNumber} · $${selectedOrder.totalAmount.toFixed(2)}` : undefined}
+        size="sm"
+        footer={(
+          <div className="flex gap-2 w-full">
+            <Button
+              variant="secondary"
+              fullWidth
+              onClick={() => { setCancelReasonOpen(false); setCancelReason(''); }}
+              disabled={savingStatus}
+            >
+              Keep order
+            </Button>
+            <Button
+              fullWidth
+              onClick={submitCancelWithReason}
+              disabled={savingStatus || cancelReason.trim().length < 4}
+              loading={savingStatus}
+            >
+              Confirm cancel
+            </Button>
+          </div>
+        )}
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 p-3 rounded-[var(--radius-md)] bg-error-soft border border-error/20">
+            <AlertTriangle className="w-4 h-4 text-error shrink-0 mt-0.5" />
+            <div className="text-[12.5px] text-ink-soft leading-relaxed">
+              The customer will receive an email with the reason you provide, and the full order amount will be
+              <span className="font-semibold text-ink"> refunded to their wallet</span>.
+            </div>
+          </div>
+          <div>
+            <label className="block text-[12px] font-semibold text-ink-soft uppercase tracking-widest mb-1.5">
+              Reason for cancellation
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value.slice(0, 500))}
+              rows={4}
+              placeholder="e.g. Item unexpectedly out of stock — apologies, refund on the way."
+              disabled={savingStatus}
+              autoFocus
+              className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-border bg-surface text-[13px] text-ink placeholder:text-ink-muted focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+            />
+            <p className="text-[11px] text-ink-muted mt-1">{cancelReason.length}/500 · minimum 4 characters</p>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={!!selectedOrder && !cancelReasonOpen}
         onClose={() => setSelectedOrder(null)}
         title="Order details"
         description={selectedOrder ? `#${selectedOrder.orderNumber}` : undefined}
@@ -258,8 +342,21 @@ const AdminOrders: React.FC = () => {
             </div>
 
             {TERMINAL_STATUSES.includes(selectedOrder.status) ? (
-              <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-[12px] text-ink-muted">
-                This order is <span className="font-semibold text-ink">{STATUS_LABEL[selectedOrder.status]}</span> and can no longer be updated.
+              <div className="space-y-2">
+                <div className="bg-surface-hover rounded-[var(--radius-md)] p-3 text-[12px] text-ink-muted">
+                  This order is <span className="font-semibold text-ink">{STATUS_LABEL[selectedOrder.status]}</span> and can no longer be updated.
+                </div>
+                {selectedOrder.status === 'cancelled' && selectedOrder.rejectionReason && (
+                  <div className="rounded-[var(--radius-md)] p-3 bg-error-soft border border-error/20">
+                    <p className="text-[10.5px] font-semibold text-error uppercase tracking-widest mb-1">Cancellation reason</p>
+                    <p className="text-[12.5px] text-ink leading-relaxed">{selectedOrder.rejectionReason}</p>
+                    {selectedOrder.refunded && (
+                      <p className="text-[11.5px] text-success mt-2 font-medium">
+                        ✓ ${selectedOrder.totalAmount.toFixed(2)} refunded to customer's wallet
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-surface-hover rounded-[var(--radius-md)] p-3">

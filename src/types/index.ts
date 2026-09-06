@@ -17,8 +17,19 @@ export interface User {
   referredBy?: string | null;
   referralRewardCount?: number;
   pendingEmail?: string | null;
+  phone?: string;
+  address?: string;
+  lastLoginAt?: string | null;
+  lastLoginCountry?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderStatusChange {
+  status: Order['status'];
+  changedAt: string;
+  changedBy?: string | User;
+  reason?: string;
 }
 
 export type UserNotificationType =
@@ -78,6 +89,9 @@ export interface Order {
   totalAmount: number;
   status: 'pending' | 'in-review' | 'processing' | 'completed' | 'cancelled';
   paymentMethod: 'wallet';
+  rejectionReason?: string;
+  refunded?: boolean;
+  statusHistory?: OrderStatusChange[];
   createdAt: string;
   updatedAt: string;
 }
