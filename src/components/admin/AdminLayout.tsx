@@ -18,6 +18,7 @@ import {
   LogOut,
   Sun,
   Moon,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -35,7 +36,13 @@ interface NavGroup {
 }
 
 const NAV_GROUPS: NavGroup[] = [
-  { label: 'Overview', items: [{ to: '/admin', label: 'Dashboard', icon: LayoutDashboard }] },
+  {
+    label: 'Overview',
+    items: [
+      { to: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+      { to: '/admin/analytics', label: 'Weekly analytics', icon: BarChart3 },
+    ],
+  },
   { label: 'Catalog', items: [{ to: '/admin/products', label: 'Logs', icon: Package }] },
   {
     label: 'Sales',

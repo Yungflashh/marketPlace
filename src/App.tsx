@@ -29,6 +29,7 @@ import NotificationsPage from './pages/Notifications';
 import Orders from './pages/Orders';
 import OrderDetails from './pages/OrderDetails';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminWallet from './pages/admin/AdminWallet';
@@ -112,7 +113,13 @@ const AppContent: React.FC = () => {
                     <AdminDashboard />
                   </AdminRoute>
                 } />
-                
+
+                <Route path="/admin/analytics" element={
+                  <AdminRoute>
+                    <AdminAnalytics />
+                  </AdminRoute>
+                } />
+
                 <Route path="/admin/products" element={
                   <AdminRoute>
                     <AdminProducts />
