@@ -37,19 +37,19 @@ interface WeeklyStats {
   orders: {
     placed: number;
     placedPrev: number;
-    placedChangePct: number;
+    placedChangePct: number | null;
     completed: number;
     cancelled: number;
   };
   revenue: {
     total: number;
     totalPrev: number;
-    changePct: number;
+    changePct: number | null;
   };
   growth: {
     signups: number;
     signupsPrev: number;
-    signupsChangePct: number;
+    signupsChangePct: number | null;
     activeUsers: number;
     totalUsers: number;
   };
@@ -65,14 +65,19 @@ interface WeeklyStats {
   dailyTrend: DailyBucket[];
 }
 
-const fmtPct = (p: number) => {
-  if (!isFinite(p)) return '+∞%';
+// pctChange can come across the wire as null (JSON.stringify(Infinity) → "null")
+// when the previous window was empty and the current one has activity.
+// Treat that case as growth from zero.
+const fmtPct = (p: number | null | undefined) => {
+  if (p == null || !isFinite(p)) return '+∞%';
   const sign = p >= 0 ? '+' : '';
   return `${sign}${p.toFixed(1)}%`;
 };
 
-const DeltaBadge: React.FC<{ pct: number }> = ({ pct }) => {
-  const positive = pct >= 0;
+const isPositiveDelta = (p: number | null | undefined) => p == null || !isFinite(p) || p >= 0;
+
+const DeltaBadge: React.FC<{ pct: number | null | undefined }> = ({ pct }) => {
+  const positive = isPositiveDelta(pct);
   const Icon = positive ? TrendingUp : TrendingDown;
   return (
     <span
@@ -176,21 +181,21 @@ const AdminAnalytics: React.FC = () => {
           value={stats.orders.placed}
           icon={<ShoppingCart className="w-4 h-4" />}
           hint={fmtPct(stats.orders.placedChangePct) + ' WoW'}
-          tone={stats.orders.placedChangePct >= 0 ? 'success' : 'error'}
+          tone={isPositiveDelta(stats.orders.placedChangePct) ? 'success' : 'error'}
         />
         <StatTile
           label="Revenue"
-          value={`$${stats.revenue.total.toFixed(0)}`}
+          value={`$${(stats.revenue.total || 0).toFixed(0)}`}
           icon={<DollarSign className="w-4 h-4" />}
           hint={fmtPct(stats.revenue.changePct) + ' WoW'}
-          tone={stats.revenue.changePct >= 0 ? 'success' : 'error'}
+          tone={isPositiveDelta(stats.revenue.changePct) ? 'success' : 'error'}
         />
         <StatTile
           label="New signups"
           value={stats.growth.signups}
           icon={<UserPlus className="w-4 h-4" />}
           hint={fmtPct(stats.growth.signupsChangePct) + ' WoW'}
-          tone={stats.growth.signupsChangePct >= 0 ? 'success' : 'error'}
+          tone={isPositiveDelta(stats.growth.signupsChangePct) ? 'success' : 'error'}
         />
         <StatTile
           label="Active users"
@@ -224,10 +229,10 @@ const AdminAnalytics: React.FC = () => {
                       <div
                         className="w-full rounded-t-[var(--radius-sm)] bg-primary/80 hover:bg-primary transition-colors relative group"
                         style={{ height: `${heightPct}%` }}
-                        title={`${d.date}: $${d.revenue.toFixed(2)} · ${d.orders} orders`}
+                        title={`${d.date}: $${(d.revenue || 0).toFixed(2)} · ${d.orders} orders`}
                       >
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-ink text-canvas text-[10px] font-medium opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-opacity">
-                          ${d.revenue.toFixed(0)}
+                          ${(d.revenue || 0).toFixed(0)}
                         </div>
                       </div>
                     </div>
@@ -287,7 +292,7 @@ const AdminAnalytics: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] text-ink-muted">Approved deposits</p>
                 <p className="text-[15px] font-bold text-ink">
-                  ${stats.wallet.depositsTotal.toFixed(2)}
+                  ${(stats.wallet.depositsTotal || 0).toFixed(2)}
                   <span className="text-[11.5px] font-normal text-ink-muted ml-2">
                     · {stats.wallet.depositsCount} transaction{stats.wallet.depositsCount === 1 ? '' : 's'}
                   </span>
@@ -340,7 +345,7 @@ const AdminAnalytics: React.FC = () => {
                       <p className="text-[13px] font-medium text-ink truncate">{p.name}</p>
                       <p className="text-[12px] text-ink-muted shrink-0">
                         <span className="font-semibold text-ink">{p.units}</span> unit{p.units === 1 ? '' : 's'} ·{' '}
-                        <span className="font-semibold text-ink">${p.revenue.toFixed(2)}</span>
+                        <span className="font-semibold text-ink">${(p.revenue || 0).toFixed(2)}</span>
                       </p>
                     </div>
                     <div className="h-1.5 rounded-full bg-surface-hover overflow-hidden">
