@@ -13,6 +13,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ChatWidget from './components/ChatWidget';
 import WelcomeBonusBanner from './components/WelcomeBonusBanner';
+import CartReminderModal from './components/CartReminderModal';
 import VisitorPing from './components/VisitorPing';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
@@ -174,6 +175,7 @@ const AppContent: React.FC = () => {
       {!isAuthRoute && <Footer />}
       {!isAuthRoute && <ChatWidget />}
       {!isAuthRoute && <WelcomeBonusBanner />}
+      {!isAuthRoute && <CartReminderModal />}
       <VisitorPing />
       <ToastContainer
         position="top-right"
