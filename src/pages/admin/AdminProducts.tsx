@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../utils/api';
 import type { Product } from '../../types';
 import { toast } from 'react-toastify';
-import { Star, Package, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Star, Package, Plus, Pencil, Trash2, Search, X } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
@@ -151,8 +151,22 @@ const AdminProducts: React.FC = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(products.length / PAGE_SIZE) || 1;
-  const paginated = products.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const [search, setSearch] = useState('');
+  const normalizedSearch = search.trim().toLowerCase();
+  const filtered = normalizedSearch
+    ? products.filter((p) =>
+        [p.name, p.category, p.description]
+          .filter(Boolean)
+          .some((f) => f.toLowerCase().includes(normalizedSearch))
+      )
+    : products;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [normalizedSearch]);
 
   if (loading) {
     return <PageLoader />;
@@ -163,9 +177,35 @@ const AdminProducts: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display text-[21px] font-bold text-ink">Manage logs</h1>
-          <p className="text-[13px] text-ink-muted mt-0.5">{products.length} total logs · {featuredCount} featured</p>
+          <p className="text-[13px] text-ink-muted mt-0.5">
+            {normalizedSearch
+              ? `${filtered.length} of ${products.length} logs match "${search.trim()}"`
+              : `${products.length} total logs · ${featuredCount} featured`}
+          </p>
         </div>
         <Button onClick={() => handleOpenModal()} icon={<Plus className="w-4 h-4" />}>Add new log</Button>
+      </div>
+
+      <div className="mb-4 max-w-md">
+        <Input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search logs by name, category, or description"
+          leftIcon={<Search className="w-4 h-4" />}
+          rightSlot={
+            search ? (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                aria-label="Clear search"
+                className="text-ink-muted hover:text-ink transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            ) : undefined
+          }
+        />
       </div>
 
       {products.length === 0 ? (
@@ -173,6 +213,18 @@ const AdminProducts: React.FC = () => {
           icon={<Package className="w-6 h-6" />}
           title="No logs yet"
           description="Add your first log to start selling."
+          className="bg-surface border border-border rounded-[var(--radius-xl)]"
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={<Search className="w-6 h-6" />}
+          title="No matches"
+          description={`Nothing matches "${search.trim()}". Try a different search.`}
+          action={
+            <Button variant="secondary" onClick={() => setSearch('')}>
+              Clear search
+            </Button>
+          }
           className="bg-surface border border-border rounded-[var(--radius-xl)]"
         />
       ) : (
@@ -253,8 +305,8 @@ const AdminProducts: React.FC = () => {
 
           {totalPages > 1 && (
             <div className="px-5 py-4 border-t border-border flex items-center justify-between flex-wrap gap-3">
-              <p className="text-[11.5px] text-ink-muted">Page {currentPage} of {totalPages}</p>
-              <Pagination page={currentPage} totalPages={totalPages} onChange={setCurrentPage} />
+              <p className="text-[11.5px] text-ink-muted">Page {safePage} of {totalPages}</p>
+              <Pagination page={safePage} totalPages={totalPages} onChange={setCurrentPage} />
             </div>
           )}
         </Card>
